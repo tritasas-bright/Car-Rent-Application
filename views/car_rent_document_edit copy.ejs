@@ -1,0 +1,846 @@
+<%- include("1_header.ejs") %>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>เอกสารขออนุมัติเช่ารถยนต์ (แก้ไข)</h4>
+                <input hidden value="<%= document_data[0].cdm_id %>" type="text" name="" id="document_id" class="form-control">
+
+            </div>
+            <div class='card-body'>
+                <div class="row" style="overflow: auto; margin-bottom: 1vh;">
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> มีความประสงค์ขอใช้รถไปยังสถานที่</label>
+                        <input onchange="document_data_update( 'cdm_destination_location' , this.value )" value="<%= document_data[0].cdm_destination_location %>" type="text" name="" id="cdm_destination_location" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ</label>
+                        <input onchange="document_data_update( 'cdm_for_person' , this.value )" value="<%= document_data[0].cdm_for_person || user_data.cr_user_app_name_en + " " + user_data.cr_user_app_surname_en %>" type="text" name="" id="cdm_for_person" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> อีเมล ผู้รับผิดชอบ</label>
+                        <input onchange="document_data_update( 'cdm_for_person_email' , this.value )" value="<%= document_data[0].cdm_for_person_email || user_data.cr_user_app_email %>" type="text" name="" id="cdm_for_person_email" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> แผนก</label>
+                        <select onchange="document_data_update( 'cdm_for_person_division_id' , this.value )" id="cdm_for_person_division_id" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option selected style="display: none;" value="<%= document_data[0].cdm_for_person_division_id %>"><%= document_data[0].cdm_for_person_division %></option>
+                            <% division_data.forEach( function(e) { %>
+                                <option value="<%= e.div_id %>"><%= e.div_name %></option>
+                            <% } ) %>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8" style="margin-bottom: 1.5vh;">
+                        <label for="">ผู้อนุมัติ</label>
+                        <span id="approver_show" class="form-control">-</span>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> เพื่อ</label>
+                        <textarea onchange="document_data_update( 'cdm_for_what' , this.value )" class="form-control" id="cdm_for_what" rows="5"><%= document_data[0].cdm_for_what %></textarea>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> ประเภทการขับ</label>
+                        <select onchange="document_data_update( 'cdm_driver_type' , this.value )" id="cdm_driver_type" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option selected style="display: none;" value="<%= document_data[0].cdm_driver_type %>"><%= document_data[0].cdm_driver_type %></option>
+                            <option value="ขับเอง">ขับเอง</option>
+                            <option value="พนักงานขับรถ">พนักงานขับรถ</option>
+                        </select>
+                    </div>
+
+                    <!-- <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> ชื่อผู้ขับ</label>
+                        <select onchange="document_data_update( 'cdm_driver_id' , this.value )" id="cdm_driver_id" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option selected style="display: none;" value="<%= document_data[0].cdm_driver_id %>"><%= document_data[0].cdm_driver_name %></option>
+                            
+                        </select>
+                    </div> -->
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> ต้องการ Eazy Pass หรือไม่</label>
+                        <select onchange="document_data_update( 'cdm_eazy_pass' , this.value )" id="cdm_eazy_pass" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option selected style="display: none;" value="<%= document_data[0].cdm_eazy_pass %>"><%= document_data[0].cdm_eazy_pass %></option>
+                            <option value="ต้องการ">ต้องการ</option>
+                            <option value="ไม่ต้องการ">ไม่ต้องการ</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> ต้องการ บัตรเติมน้ำมัน หรือไม่</label>
+                        <select onchange="document_data_update( 'cdm_fuel_card' , this.value )" id="cdm_fuel_card" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option selected style="display: none;" value="<%= document_data[0].cdm_fuel_card %>"><%= document_data[0].cdm_fuel_card %></option>
+                            <option value="ต้องการ">ต้องการ</option>
+                            <option value="ไม่ต้องการ">ไม่ต้องการ</option>
+                        </select>
+                    </div>
+
+                    <!-- <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> สถานที่ เริ่มต้น</label>
+                        <select onchange="" id="" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option value="Location A">Location A</option>
+                            <option value="Location B">Location B</option>
+                            <option value="Location C">Location C</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> สถานที่ ปลายทาง</label>
+                        <select onchange="" id="" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option value="Location A">Location A</option>
+                            <option value="Location B">Location B</option>
+                            <option value="Location C">Location C</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                        <label for="">ระยะทาง</label>
+                        <div class="input-group">
+                            <span id="" class="form-control">0</span>
+                            <span class="input-group-text">กม.</span>
+                        </div>
+                    </div> -->
+
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> เริ่มต้น</label>
+                        <input onchange="create_sub_row( 'redocumentsub' )" value="<%= dayjs(document_data[0].cdm_start_date).format('YYYY-MM-DD') %>" type="date" name="" id="start_date" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> สิ้นสุด</label>
+                        <input onchange="create_sub_row( 'redocumentsub' )" value="<%= dayjs(document_data[0].cdm_end_date).format('YYYY-MM-DD') %>" type="date" name="" id="end_date" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <label for="">หมายเหตุ</label>
+                        <textarea onchange="update_remark( this.value )" class="form-control" id="" rows="5"><%= document_data[0].cdm_remark %></textarea>
+                    </div>
+
+                    <div id="div_table_1" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.8vh;">
+                        <table id="table_1" class="table table-hover table-bordered" style="width: 100%;">
+                            <thead style="background-color: #002c5910;">
+                                <tr>
+                                    <th>วัน (EN)</th>
+                                    <th>วัน (TH)</th>
+                                    <th>วัน/เดือน/ปี</th>
+                                    <th>สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody_document_sub">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 0vh;">
+                        <!-- <button onclick="submit_document()" style="width: 100%;" type="button" class="btn btn-success">บันทึก</button> -->
+                        <button onclick="check_value_and_check_status_driver()" style="width: 100%;" type="button" class="btn btn-success">บันทึกเอกสารเช่ารถยนต์</button>
+                        <button hidden id="open_modal_car_and_driver_list" data-bs-toggle="modal" data-bs-target="#modal_car_and_driver_list" style="width: 100%;" type="button" class="btn btn-success"></button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_car_and_driver_list" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row" id="div_driver_list">
+                    <div id="div_driver_select" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <label for=""><span class="red">*</span> ชื่อผู้ขับ</label>
+                        <select onchange="document_data_update( 'cdm_driver_id' , this.value )" id="cdm_driver_id" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            
+                        </select>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <hr>
+                    </div>
+                </div>
+                <div class="row" style="overflow: auto; margin-bottom: 1vh;" id="div_car_list">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="submit_document()" type="button" class="btn btn-success">บันทึกเอกสารยืมรถยนต์</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+
+<script>
+
+window.onload = function(){
+
+    create_sub_row( "refresh" )
+
+    document_data_update( 'cdm_for_person' , document.getElementById("cdm_for_person").value )
+    document_data_update( 'cdm_for_person_email' , document.getElementById("cdm_for_person_email").value )
+
+}
+
+function check_value_and_check_status_driver(){
+    if( document.getElementById("cdm_destination_location").value == "" ){
+        return alert(" ระบุ มีความประสงค์ขอใช้รถไปยังสถานที่ ")
+    }else if( document.getElementById("cdm_for_person").value == "" ){
+        return alert(" ระบุ ขอให้กับ ")
+    }else if( document.getElementById("cdm_for_person_division_id").value == "" ){
+        return alert(" ระบุ แผนก ")
+    }else if( document.getElementById("cdm_for_what").value == "" ){
+        return alert(" ระบุ เพื่อ ")
+    }else if( document.getElementById("cdm_driver_type").value == "" ){
+        return alert(" ระบุ ประเภทการขับ ")
+    }else{
+        if( document.getElementById("cdm_driver_type").value == "ขับเอง" ){
+            document.getElementById("open_modal_car_and_driver_list").click();
+
+            document.getElementById( "div_driver_select" ).style.display = `none`
+        }else{
+
+            document.getElementById( "div_driver_select" ).style.display = `block`
+
+            let data = {
+                document_id : document.getElementById("document_id").value
+            }
+    
+            $.ajax({
+                type: 'POST',
+                url: '/check_status_driver',
+                data: data,
+                success: function ( call_back_value ) {
+    
+                    car_driver_data = call_back_value
+                    let text = ""
+    
+                    console.log("call_back_value call_back_value call_back_value")
+                    console.log(call_back_value)
+    
+                    document.getElementById("open_modal_car_and_driver_list").click();
+    
+                    for( let i = 0 ; i < car_driver_data.length ; i++ ){
+                        if( car_driver_data[i].status == "free" ){
+                            text += `<option value="${ car_driver_data[i].dm_id }">${ car_driver_data[i].dm_name_th } (${ car_driver_data[i].dm_nickname_th })</option>`
+                        }else{
+                            text += `<option disabled value="${ car_driver_data[i].dm_id }">${ car_driver_data[i].dm_name_th } (${ car_driver_data[i].dm_nickname_th })</option>`
+                        }
+    
+                        if( i == car_driver_data.length - 1 ){
+                            document.getElementById( "cdm_driver_id" ).innerHTML = text
+                            $(".selectpicker").selectpicker('refresh');
+                        }
+                    }
+                },
+                error: function (error) {
+                    console.log("error with Ajax");
+                    console.log(error);
+                }
+            });
+        }
+    }
+}
+
+function document_data_update( column , value ){
+    console.log("saving")
+
+    if( column == "cdm_for_person_division_id" ){
+        show_approver(value)
+    }
+
+    let data = {
+        document_id : document.getElementById("document_id").value , 
+        column : column , 
+        value : value
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/document_data_update',
+        data: data,
+        success: function ( call_back_value ) {
+            console.log("saved")
+            if( column == "cdm_driver_type" && value == "ขับเอง" ){
+                let data = {
+                    document_id : document.getElementById("document_id").value , 
+                    column : "cdm_driver_name" , 
+                    value : "-"
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/document_data_update',
+                    data: data,
+                    success: function ( call_back_value ) {
+                        console.log("saved")
+                        let data = {
+                            document_id : document.getElementById("document_id").value , 
+                            column : "cdm_driver_id" , 
+                            value : "-"
+                        }
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/document_data_update',
+                            data: data,
+                            success: function ( call_back_value ) {
+                                console.log("saved")
+                            },
+                            error: function (error) {
+                                console.log("error with Ajax");
+                                console.log(error);
+                            }
+                        });
+                    },
+                    error: function (error) {
+                        console.log("error with Ajax");
+                        console.log(error);
+                    }
+                });
+            }
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function show_approver(value){
+    data_no_syntex = '<%= JSON.stringify(approver_division_data) %>'
+    data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+    data_with_syntax = decodedString( data_no_free_spec )
+    data_to_obj = JSON.parse(data_with_syntax);
+
+    let approver_division_array_filter = data_to_obj.filter( function(e){
+        return  e.dap_join_div_id == value
+    } ) 
+
+    console.log("approver_division_array_filter")
+    console.log(approver_division_array_filter)
+
+    let approver_division_string = approver_division_array_filter.map(item => item.dap_approver_name).join(', ')
+
+    if( approver_division_string == "" ){
+        document.getElementById("approver_show").innerText = "*** ไม่มีผู้อนุมัติของแผนกนี้ โปรดติดต่อไอที"
+    }else{
+        document.getElementById("approver_show").innerText = approver_division_string
+    }
+}
+
+function update_remark( value ){
+    let data = {
+        document_id : document.getElementById("document_id").value , 
+        remark : value
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/update_remark',
+        data: data,
+        success: function ( data ) {
+            console.log("save remark")
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function submit_document(){
+
+    if( document.getElementById("cdm_destination_location").value == "" ){
+        return alert(" ระบุ มีความประสงค์ขอใช้รถไปยังสถานที่ ")
+    }
+
+    if( document.getElementById("cdm_for_person").value == "" ){
+        return alert(" ระบุ ขอให้กับ ")
+    }
+
+    if( document.getElementById("cdm_for_person_division_id").value == "" ){
+        return alert(" ระบุ แผนก ")
+    }
+
+    if( document.getElementById("cdm_for_what").value == "" ){
+        return alert(" ระบุ เพื่อ ")
+    }
+
+    if( document.getElementById("cdm_driver_type").value == "" ){
+        return alert(" ระบุ ประเภทการขับ ")
+    }
+
+    if( document.getElementById("cdm_driver_type").value == "พนักงานขับรถ" && document.getElementById("cdm_driver_id").value == ""){
+        return alert(" ระบุ พนักงานขับรถ ")
+    }
+
+    var checkedRadio = document.querySelector('input[name="car_list"]:checked');
+
+    if (checkedRadio) {
+        // alert("Selected value: " + checkedRadio.value);
+        Swal.fire({
+            title: "ยืนยันการบันทึก",
+            text: "ยืนยันการบันทึกเอกสารขอยืมรถหรือไม่ ? โปรดยืนยันการทำรายการ",
+            icon : "question",
+            showCancelButton: true,
+            confirmButtonColor: "#027E6F",
+            cancelButtonColor: "#00000040",
+            confirmButtonText: "ยืนยัน, บันทึก" ,
+            cancelButtonText: "ปิด"
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                console.log( "checkedRadio" )
+                console.log( checkedRadio.id )
+                let data = {
+                    car_id : ((checkedRadio.id).split("_"))[1] ,
+                    document_id : document.getElementById("document_id").value
+                }
+
+                console.log( "data" )
+                console.log( data )
+        
+                $.ajax({
+                    type: 'POST',
+                    url: '/submit_document_car_rent',
+                    data: data,
+                    success: function (nextPage) {
+
+                        console.log(nextPage)
+
+                        if( nextPage[0] == "submit success" ){
+                            Swal.fire({
+                                title: "SUCCESS SUBMIT!",
+                                text: "Your document was successfully saved.",
+                                icon: "success"
+                            });
+                            
+                            setTimeout( function(){window.location = nextPage[1]} , 1000 );
+                        }else{
+                            Swal.fire({
+                                title: "บันทึกไม่สำเร็จ",
+                                text: "ระหว่างทำรายการ มีการเปลี่ยนข้อมูลรถ โปรดรีเฟรซแล้วทำรายการใหม่",
+                                icon: "success"
+                            });
+                        }
+
+                        // Swal.fire({
+                        //     title: "Deleted!",
+                        //     text: "Your file has been deleted.",
+                        //     icon: "success"
+                        // });
+                        
+                        // setTimeout( function(){window.location.reload()} , 1500 );
+                    },
+                    error: function (error) {
+                        console.log("error with Ajax");
+                        console.log(error);
+                    }
+                });
+            }
+        });
+    } else {
+        Swal.fire({
+            title: "ไม่สามารถบันทึกได้",
+            text: "ไม่สามารถบันทึกได้ กรุณาเลือกรถยนต์ที่ท่านต้องการยืม",
+            icon: "error"
+        });
+    }
+}
+
+$(function(){
+    var dtToday = new Date();
+
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+        day = '0' + day.toString();
+
+    var minDate= year + '-' + month + '-' + day;
+
+    $('#start_date').attr('min', minDate);
+    $('#end_date').attr('min', minDate);
+});
+
+function create_sub_row( type ){
+
+    let start_date = new Date( document.getElementById("start_date").value )
+    let end_date = new Date( document.getElementById("end_date").value )
+
+    if( start_date.getTime() > end_date.getTime() ){
+        Swal.fire({
+            title: "สร้างไม่สำเร็จ",
+            text: "ไม่สามารถสร้างได้ วันเริ่ม กับ วันสิ้นสุดไม่สอดคล้องกัน",
+            icon: "error"
+        });
+    }else{
+        // openModalReloading()
+        
+        let data = { 
+            start_date : document.getElementById("start_date").value , 
+            end_date : document.getElementById("end_date").value , 
+            document_id : document.getElementById("document_id").value , 
+            type : type
+        }
+    
+        $.ajax({
+            type: 'POST',
+            url: '/create_sub_row',
+            data: data,
+            success: function ( data ) {
+                console.log("data")
+                console.log(data)
+                // window.location = nextPage;
+
+                set_table(data[0])
+                set_table_car(data[1])
+                // closeModalReloading()
+
+                // set_option_car_driver()
+            },
+            error: function (error) {
+                console.log("error with Ajax");
+                console.log(error);
+            }
+        });
+    }
+
+}
+
+function set_table_car(data){
+
+    let text = "" 
+
+    if( data.length == 0 ){
+       
+    }else{
+        for( let i = 0 ; i < data.length ; i++ ){
+            let option_1 = ''
+            let option_2 = ''
+            let option_3 = ''
+            if( data[i].car_status_time == "not free" || data[i].car_disable_status == "disable" ){
+                option_1 = `
+                <input disabled class="form-check-input" type="radio" name="car_list" id="car_${data[i].car_id}">`
+
+                if( data[i].car_status_time == "not free" ){
+                    option_3 += "ไม่ว่าง "
+                    option_2 = `
+                        <a onclick="show_busy_date('${data[i].car_busy_time}')" class="btn btn-danger" style="color: white;"><i class="fa-solid fa-eye" style="margin-right: 0.2rem;"></i> เช็ควันที่ไม่ว่าง</a>
+                        </div>
+                    </div>
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                }else{
+                    option_3 += "ไม่พร้อมใช้งาน "
+                    option_2 = `
+                        </div>
+                    </div>
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                }
+            }else{
+                option_1 = `
+                <input class="form-check-input" type="radio" name="car_list" id="car_${data[i].car_id}">`
+                option_2 = `
+                    </div>
+                </div>
+                <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                    <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>`
+            }
+            let index = i + 1
+            text += `
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6" style="display: flex; margin-bottom: 1.5rem; justify-content: center;">
+                <div class="card daily-sales" style="width: 100%;" for="car_${data[i].car_id}">
+                    <label class="form-check-label" for="car_${data[i].car_id}">
+                        <div class="card-block">
+                            <div class="row d-flex align-items-center">
+                                <div class="col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                    <img for="car_${data[i].car_id}" class="img-radius img-fluid wid-80" src="${data[i].car_image_path}" style="padding:10px;margin-right:20px; width: 100%; height: auto; "/>
+                                </div>
+                                <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8" style="padding: 1rem 1.5rem;">
+                                    ${option_1}
+                                    <label class="form-check-label" for="car_${data[i].car_id}">
+                                        ${data[i].car_name} (${data[i].car_type})
+                                    </label>
+                                    <br>
+                                    <hr>
+                                    <div style="height: 30px; overflow: auto;" class="">
+                                        <span style="font-size: 15px;">${data[i].car_registration_code}</span>
+                                        <span class="red" style="font-size: 15px;">${option_3}</span>
+                                    </div>
+                                    <br>
+                                    ${option_2}
+                        </div>
+                    </label>
+                </div>
+            </div>
+            `
+            if( i == data.length - 1 ){
+                document.getElementById("div_car_list").innerHTML = text
+            }
+        }
+    }
+}
+
+function show_busy_date( string_date ){
+    let array_date = string_date.split(",")
+    if( array_date.length == 0 ){
+        Swal.fire({
+            title: "ดูไม่สำเร็จ",
+            text: "ดูไม่สำเร็จ มีบางอย่างผิดพลาด",
+            icon: "error"
+        });
+    }else{
+        console.log("array_date")
+        console.log(array_date)
+        let text = ""
+        for( let i = 0 ; i < array_date.length ; i++ ){
+            let index = i + 1
+
+            let busy_date = array_date[i].split("///")
+
+            text += `
+            <tr>
+                <td>${index}</td>
+                <td>${set_date_templece(busy_date[0] , "/" , "en_short")}</td>
+                <td>${busy_date[1]}</td>
+            </tr>
+            `
+        }
+
+        Swal.fire({
+            title: "รายการวันที่ไม่ว่าง",
+            icon: "info",
+            html: `
+            <table id="table_1" class="table table-hover table-bordered" style="width: 100%;">
+                <thead style="background-color: #002c5910;">
+                    <tr>
+                        <th>#</th>
+                        <th>วัน/เดือน/ปี</th>
+                        <th>ช่วง</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${text}
+                </tbody>
+            </table>
+            `,
+            showCloseButton: false,
+            showCancelButton: false,
+            focusConfirm: false,
+            confirmButtonText: `ปิด`,
+            // confirmButtonAriaLabel: "Thumbs up, great!",
+            // cancelButtonText: `ปิด`,
+            // cancelButtonAriaLabel: "Thumbs down"
+        });
+    }
+}
+
+function set_table(data){
+
+    let text = "" 
+
+    if( data.length == 0 ){
+        text = `
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            `
+        document.getElementById("div_table_1").innerHTML = `
+            <table id="table_1" class="table table-hover table-bordered" style="width: 100%;">
+                <thead style="background-color: #002c5910;">
+                    <tr>
+                        <th>#</th>
+                        <th>ลบ</th>
+                        <th>วัน (EN)</th>
+                        <th>วัน (TH)</th>
+                        <th>วัน/เดือน/ปี</th>
+                        <th>ช่วง</th>
+                        <th>สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody_document_sub">
+                    ${text}
+                </tbody>
+            </table>
+        `
+
+        $('#table_1').DataTable({
+            "destroy": true,
+            "retrieve":true,
+            "stateSave": true,
+            fixedColumns:   {
+                left: 0 ,
+                right: 0
+            },
+            "paging": false,
+            "scrollCollapse": true,
+            "responsive": true, 
+            "lengthChange": false, 
+            "searching": true,
+            "autoWidth": true,
+            "ordering": true,
+            "info": false,
+            "scrollX": true,
+            "scrollY": "35vh" 
+        })
+
+    }else{
+        for( let i = 0 ; i < data.length ; i++ ){
+
+            let btn_delete = ``
+
+            if( data.length == 1 ){
+                btn_delete = `<button disabled type="button" class="btn btn-danger btn-icon"><i class="fa-solid fa-trash-can"></i></button>`
+            }else{
+                btn_delete = `<button onclick="delete_document_sub( '${data.length}' , '${data[i].cds_id}')" type="button" class="btn btn-danger btn-icon"><i class="fa-solid fa-trash-can"></i></button>`
+
+            }
+
+            let index = i + 1
+            text += `
+            <tr>
+                <td>${index}</td>
+                <td>${btn_delete}</td>
+                <td>${data[i].cds_day}</td>
+                <td>${data[i].cds_day_th}</td>
+                <td>${set_date_templece(data[i].cds_date , "/" , "en_short")}</td>
+                <td>${data[i].cds_phase}</td>
+                <td>${data[i].cds_status}</td>
+            </tr>
+            `
+            if( i == data.length - 1 ){
+                document.getElementById("div_table_1").innerHTML = `
+                    <table id="table_1" class="table table-hover table-bordered" style="width: 100%;">
+                        <thead style="background-color: #002c5910;">
+                            <tr>
+                                <th width: "2%;">#</th>
+                                <th width: "8%;">ลบ</th>
+                                <th>วัน (EN)</th>
+                                <th>วัน (TH)</th>
+                                <th>วัน/เดือน/ปี</th>
+                                <th>ช่วง</th>
+                                <th>สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody_document_sub">
+                            ${text}
+                        </tbody>
+                    </table>
+                `
+
+                $('#table_1').DataTable({
+                    "destroy": true,
+                    "retrieve":true,
+                    "stateSave": true,
+                    fixedColumns:   {
+                        left: 0 ,
+                        right: 0
+                    },
+                    "paging": false,
+                    "scrollCollapse": true,
+                    "responsive": true, 
+                    "lengthChange": false, 
+                    "searching": true,
+                    "autoWidth": true,
+                    "ordering": true,
+                    "info": false,
+                    "scrollX": true,
+                    "scrollY": "35vh" 
+                })
+            }
+        }
+    }
+}
+
+function delete_document_sub( data_length , document_sub_id ){
+    console.log( data_length )
+    console.log( document_sub_id )
+
+    if( data_length == "1" ){
+
+    }else{
+        Swal.fire({
+            title: "ยืนยันการลบ",
+            text: "ยืนยันการลบหรือไม่ ?",
+            icon : "question",
+            showCancelButton: true,
+            confirmButtonColor: "#f20000",
+            cancelButtonColor: "#00000040",
+            confirmButtonText: "ยืนยัน, ลบ" ,
+            cancelButtonText: "ปิด"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let data = {
+                    sql_command : `DELETE FROM tb_car_rent_document_sub WHERE tb_car_rent_document_sub.cds_id = '${document_sub_id}'`
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/only_for_run_sql',
+                    data: data,
+                    success: function (nextPage) {
+                        Swal.fire({
+                            title: "ลบรายการสำเร็จ",
+                            text: "",
+                            icon: "success"
+                        });
+                        
+                        setTimeout( function(){window.location.reload()} , 800 );
+                    },
+                    error: function (error) {
+                        console.log("error with Ajax");
+                        console.log(error);
+                    }
+                });
+            }
+        });
+    }
+}
+
+$('#table_1').DataTable({
+    // "destroy": true,
+    // "retrieve":true,
+    // "stateSave": true,
+    fixedColumns:   {
+        left: 0 ,
+        right: 0
+    },
+    "paging": false,
+    "scrollCollapse": true,
+    "responsive": true, 
+    "lengthChange": false, 
+    "searching": true,
+    "autoWidth": true,
+    "ordering": true,
+    "info": false,
+    "scrollX": true,
+    "scrollY": "35vh" 
+})
+
+</script>

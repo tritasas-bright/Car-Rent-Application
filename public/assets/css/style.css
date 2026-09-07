@@ -1047,3 +1047,96 @@ h4{
   color: #0080ff !important;
   text-decoration: underline !important;
 }
+
+/* /////////////////////////////////////////////////////////////////////////////// */
+
+.dash-wrapper {
+  /* width: 900px; */
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.dash-header {
+  background: #2563eb;
+  color: white;
+  padding: 15px;
+}
+.dash-heading {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+.dash-grid {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+}
+.dash-panel {
+  flex: 1;
+  padding: 20px;
+  border-radius: 15px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+}
+.dash-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.dash-circle-number {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+.dash-panel-heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+}
+.dash-panel-content {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+.dash-panel-bottom {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dash-metrics {
+  display: flex;
+  gap: 15px;
+}
+.dash-metric {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #666;
+  font-size: 14px;
+}
+.dash-badge {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.long-text {
+  max-width: 500px;   /* กำหนดความกว้าง */
+  white-space: nowrap; /* ไม่ให้ขึ้นบรรทัดใหม่ */
+  overflow: hidden;    /* ซ่อนข้อความที่เกิน */
+  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความยาวเกินไป */
+  cursor: pointer;
+}

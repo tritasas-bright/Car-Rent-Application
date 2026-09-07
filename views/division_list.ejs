@@ -76,25 +76,60 @@
                     <div class="row">
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
                             <label for=""> <span class="red">*</span> ชื่อ-นามสกุล</label>
-                            <input required id="new_approver_name" onchange="" value="" type="text" name="" class="form-control">
+                            <div class="input-group mb-3">
+                                <input disabled required id="new_approver_name" onchange="" value="" type="text" name="" class="form-control">
+                                <button data-bs-toggle="modal" data-bs-target="#modal_search_employee" onclick="search_employee()" class="btn btn-outline-secondary" type="button" id="button-addon2">
+                                    <i class="fa-solid fa-magnifying-glass" style="margin-right: 0.3vw;"></i>
+                                    ค้นหา
+                                </button>
+                            </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
                             <label for=""> <span class="red">*</span> อีเมล</label>
-                            <input required id="new_approver_email" onchange="" value="" type="email" name="" class="form-control">
+                            <input disabled required id="new_approver_email" onchange="" value="" type="email" name="" class="form-control">
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
                             <label for=""> <span class="red">*</span> แผนก</label>
-                            <select required onchange="" id="new_approver_division" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <!-- <select required onchange="" id="new_approver_division" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
                                 <% division_list_data.forEach( function(e) { %>
                                     <option value="<%= e.div_id %>__<%= e.div_name %>"><%= e.div_name %></option>
                                 <% } ) %>
+                            </select> -->
+                            <input disabled id="new_approver_division" onchange="" value="" type="" name="" class="form-control">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_search_employee" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">ข้อมูลพนักงาน</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="SelectedEmployee(event)" >
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> พนักงาน</label>
+                            <select required onchange="" id="employee_select" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                                
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">เลือก</button>
                 </div>
             </form>
         </div>
@@ -104,6 +139,7 @@
 <script>
 
     let approver_division_data = []
+    let employee_select_data
 
     window.onload = () => {
         console.log("Start!")
@@ -120,13 +156,59 @@
 
     }
 
-    function submit_add_new_approver( event ){
+    function search_employee(){
+        $.ajax({
+            type: 'GET',
+            url: '/EmployeeList',
+            data: {},
+            success: function (values) {
+                console.log(values.EmployeeList)
+                set_employee_option(values.EmployeeList)
+                employee_select_data = values.EmployeeList
+            },
+            error: function (error) {
+                console.log("error with Ajax");
+                console.log(error);
+            }
+        });
+    }
+
+    function set_employee_option( data ){
+        let text = ""
+        for( let i = 0 ; i < data.length ; i++ ){
+            text += `<option value="${data[i].user_id}">${data[i].user_emp_id} - ${data[i].user_nane_th} ${data[i].user_surname_th} (${data[i].user_nane_en} ${data[i].user_surname_en})</option>`
+
+            if( i === data.length - 1 ){
+                document.getElementById("employee_select").innerHTML = text
+                $('.selectpicker').selectpicker('refresh');
+            }
+        }
+    }
+
+    function SelectedEmployee(event){
         event.preventDefault();
 
-        console.log(document.getElementById("division_selected_id").value)
-        console.log(document.getElementById("new_approver_name").value)
-        console.log(document.getElementById("new_approver_email").value)
-        console.log(document.getElementById("new_approver_division").value)
+        let employee_id = document.getElementById("employee_select").value || ""
+        console.log("employee_id")
+        console.log(employee_id)
+
+        if( employee_id !== "" ){
+            employee_select_data_1 = employee_select_data.filter( function(e){
+                return  e.user_id == employee_id
+            } )
+
+            console.log(employee_select_data_1)
+
+            document.getElementById( "new_approver_name" ).value = `${employee_select_data_1[0].user_nane_th} ${employee_select_data_1[0].user_surname_th} (${employee_select_data_1[0].user_nane_en} ${employee_select_data_1[0].user_surname_en})` || ""
+            document.getElementById( "new_approver_email" ).value = employee_select_data_1[0].user_email || ""
+            document.getElementById( "new_approver_division" ).value = employee_select_data_1[0].user_division || ""
+
+            $('#modal_search_employee').modal('toggle')
+        }
+    }
+
+    function submit_add_new_approver( event ){
+        event.preventDefault();
 
         let data = {
             division_selected_id : document.getElementById("division_selected_id").value , 
@@ -140,10 +222,6 @@
             url: '/add_new_approver',
             data: data,
             success: function (call_back_data) {
-                // console.log("add_new_drive Submit !")
-
-                // window.location.reload();
-
                 console.log("call_back_data")
                 console.log(call_back_data)
 

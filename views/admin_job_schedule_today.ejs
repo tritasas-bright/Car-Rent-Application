@@ -15,12 +15,14 @@
                                     <th>#</th>
                                     <th style="min-width: 150px;">เครื่องมือ</th>
                                     <th>วันที่ยืม</th>
+                                    <th>Doc. NO.</th>
                                     <th>ผู้ยืมชื่อ-นามสกุล (แผนก)</th>
                                     <th>ผู้ขับ</th>
                                     <th>Eazy Pass</th>
                                     <th>บัตรเติมน้ำมัน</th>
                                     <th>ทะเบียนรถที่ยืม</th>
                                     <th>ชื่อรถที่ยืม</th>
+                                    <th>เพื่อ</th>
                                     <th>ผู้สร้างชื่อ-นามสกุล (แผนก)</th>
                                     <th>สร้างเมื่อ</th>
                                 </tr>
@@ -36,6 +38,16 @@
                                                     <i class="fa-solid fa-magnifying-glass"></i>
                                                 </button>
                                             </a>
+
+                                            <% if( e.cds_include_work == "/" ){ %>
+                                                <a onclick="view_include_work( '<%= e.cds_id %>')" >
+                                                    <button type="button" class="btn btn-warning btn-icon">
+                                                        <i class="fa-solid fa-sitemap"></i>
+                                                    </button>
+                                                </a>
+                                            <% }else{ %>
+                                            <% } %>
+
                                             <% if( e.cds_status == "อนุมัติแล้ว" ){ %>
                                                 <a onclick="set_last_miles('<%= e.cds_id %>' , '<%= e.car_registration_code %>' , '<%= e.car_id %>' , '<%= e.car_last_miles %>')" data-bs-toggle="modal" data-bs-target="#modal_set_last_miles" style="cursor: pointer;">
                                                     <button type="button" class="btn btn-warning" style="color: white; margin-left: 10px;">
@@ -74,12 +86,14 @@
                                             <% } %>
                                         </td>
                                         <td><%= dayjs(e.cds_date).format("DD/MM/YYYY") %> (<%= e.cds_phase %>)</td>
-                                        <td><%= e.cdm_for_person %> (<%= e.cdm_for_person_division %>)</td>
+                                        <td><%= e.cdm_document_no %></td>
+                                        <td><%= e.user_nane_en + " " + e.user_surname_en %> (<%= e.user_division %>)</td>
                                         <td><%= e.cdm_driver_type %> (<%= e.cdm_driver_name %>)</td>
                                         <td><%= e.cdm_eazy_pass %></td>
                                         <td><%= e.cdm_fuel_card %></td>
                                         <td><%= e.car_registration_code %></td>
                                         <td><%= e.car_name %> (<%= e.car_type %>)</td>
+                                        <td><%= e.cdm_for_what %></td>
                                         <td><%= e.cdm_create_by_name %> (<%= e.cdm_create_by_division %>)</td>
                                         <td><%= dayjs(e.cdm_create_date).format("DD/MM/YYYY") %></td>
                                     </tr>
@@ -104,12 +118,14 @@
                                     <th>#</th>
                                     <th style="min-width: 150px;">เครื่องมือ</th>
                                     <th>วันที่ยืม</th>
+                                    <th>Doc. NO.</th>
                                     <th>ผู้ยืมชื่อ-นามสกุล (แผนก)</th>
                                     <th>ผู้ขับ</th>
                                     <th>Eazy Pass</th>
                                     <th>บัตรเติมน้ำมัน</th>
                                     <th>ทะเบียนรถที่ยืม</th>
                                     <th>ชื่อรถที่ยืม</th>
+                                    <th>เพื่อ</th>
                                     <th>ผู้สร้างชื่อ-นามสกุล (แผนก)</th>
                                     <th>สร้างเมื่อ</th>
                                 </tr>
@@ -125,6 +141,16 @@
                                                     <i class="fa-solid fa-magnifying-glass"></i>
                                                 </button>
                                             </a>
+
+                                            <% if( e.cds_include_work == "/" ){ %>
+                                                <a onclick="view_include_work( '<%= e.cds_id %>')" >
+                                                    <button type="button" class="btn btn-warning btn-icon">
+                                                        <i class="fa-solid fa-sitemap"></i>
+                                                    </button>
+                                                </a>
+                                            <% }else{ %>
+                                            <% } %>
+
                                             <% if( e.cds_status == "อนุมัติแล้ว" ){ %>
                                                 <a onclick="set_last_miles('<%= e.cds_id %>' , '<%= e.car_registration_code %>' , '<%= e.car_id %>' , '<%= e.car_last_miles %>')" data-bs-toggle="modal" data-bs-target="#modal_set_last_miles" style="cursor: pointer;">
                                                     <button type="button" class="btn btn-warning" style="color: white; margin-left: 10px;">
@@ -163,12 +189,14 @@
                                             <% } %>
                                         </td>
                                         <td><%= dayjs(e.cds_date).format("DD/MM/YYYY") %> (<%= e.cds_phase %>)</td>
-                                        <td><%= e.cdm_for_person %> (<%= e.cdm_for_person_division %>)</td>
+                                        <td><%= e.cdm_document_no %></td>
+                                        <td><%= e.user_nane_en + " " + e.user_surname_en %> (<%= e.user_division %>)</td>
                                         <td><%= e.cdm_driver_type %> (<%= e.cdm_driver_name %>)</td>
                                         <td><%= e.cdm_eazy_pass %></td>
                                         <td><%= e.cdm_fuel_card %></td>
                                         <td><%= e.car_registration_code %></td>
                                         <td><%= e.car_name %> (<%= e.car_type %>)</td>
+                                        <td><%= e.cdm_for_what %></td>
                                         <td><%= e.cdm_create_by_name %> (<%= e.cdm_create_by_division %>)</td>
                                         <td><%= dayjs(e.cdm_create_date).format("DD/MM/YYYY") %></td>
                                     </tr>
@@ -261,6 +289,30 @@
             <div class="modal-footer">
                 <button onclick="send_car()" type="button" class="btn btn-success">บันทึกเลขไมล์ และส่งรถ</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_view_include_work" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">รายละเอียดงานรวบ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="view_include_work_div_table" style="margin-bottom: 5px;">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark" style="margin-right: 0.3vw;"></i>
+                    Close
+                </button>
             </div>
         </div>
     </div>

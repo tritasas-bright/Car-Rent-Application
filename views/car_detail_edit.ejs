@@ -117,21 +117,37 @@
                         <hr>
                     </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1rem;">
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
                         <label for="" class="form-label">ชื่อรถยนต์</label>
                         <input id="car_name" onchange="auto_save_value( 'car_name' , this.value )" value="<%= car_detail[0].car_name %>" placeholder="" type="text" class="form-control">
                         <input id="car_id" disabled hidden value="<%= car_detail[0].car_id %>" type="text" class="form-control">
                     </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1rem;">
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
                         <label for="" class="form-label">ประเภทรถยนต์</label>
                         <select id="car_type" onchange="auto_save_value( 'car_type' , this.value )" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
                             <option selected style="display: none;" value="<%= car_detail[0].car_type %>"><%= car_detail[0].car_type %></option>
                             <option value="รถเก๋ง">รถเก๋ง</option>
                             <option value="รถกระบะ">รถกระบะ</option>
                             <option value="รถบรรทุ">รถบรรทุ</option>
-                            <option value="รถถัง">รถถัง</option>
+                            <option value="รถตู้">รถตู้</option>
                         </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
+                        <label for="" class="form-label">ค่าเช่าต่อเดือน</label>
+                        <div class="input-group mb-3">
+                            <input id="CarRentPerMonth" onchange="{auto_save_value( 'car_rent_price_per_month' , this.value ) , changeCarRentPerHalfDay(this.value)}" value="<%= car_detail[0].car_rent_price_per_month %>" type="number" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                            <span class="input-group-text" id="inputGroup-sizing-default">บาทต่อเดือน</span>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
+                        <label for="" class="form-label">ค่าเช่าต่อครึ่งวัน</label>
+                        <div class="input-group mb-3">
+                            <input id="CarRentPerHalfDay" value="<%= car_detail[0].car_rent_price_per_halfday || "" %>" disabled type="number" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                            <span class="input-group-text" id="inputGroup-sizing-default">บาทต่อครึ่งวัน</span>
+                        </div>
                     </div>
 
                     <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
@@ -141,7 +157,15 @@
 
                     <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
                         <label for="" class="form-label">ที่อยู่รถ</label>
-                        <input id="car_site_location" onchange="auto_save_value( 'car_site_location' , this.value )" value="<%= car_detail[0].car_site_location %>" type="text" class="form-control">
+                        <!-- <input id="car_site_location" onchange="auto_save_value( 'car_site_location' , this.value )" value="<%= car_detail[0].car_site_location %>" type="text" class="form-control"> -->
+                        
+                        <select id="car_type" onchange="auto_save_value( 'car_site_location' , this.value )" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                            <option selected style="display: none;" value="<%= car_detail[0].car_site_location %>"><%= car_detail[0].car_site_location %></option>
+                            <option value="Plant">Plant</option>
+                            <% divisionType.forEach( function(e) { %>
+                                <option value="<%= e %>"><%= e %></option>
+                            <% } ) %>
+                        </select>
                     </div>
 
                     <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1rem;">
@@ -167,6 +191,19 @@
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 0;">
                         <div class="row" style="display: flex; justify-content: flex-end;">
                             <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 0;">
+                                <% if(car_detail[0].car_status == "ไม่พร้อมใช้งาน"){ %>
+                                    <button onclick="enable_car()" style="width: 100%;" type="button" class="btn btn-warning">
+                                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 0.2rem;"></i>
+                                        แจ้งรถพร้อมใช้งาน
+                                    </button>
+                                <% } else { %>
+                                    <button data-bs-toggle="modal" data-bs-target="#modal_disable_car" style="width: 100%;" type="button" class="btn btn-danger">
+                                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 0.2rem;"></i>
+                                        แจ้งรถไม่พร้อมใช้งาน
+                                    </button>
+                                <% } %>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 0;">
                                 <button onclick="submit_edit_car_detail()" style="width: 100%;" type="button" class="btn btn-success"> <i class="fa-solid fa-floppy-disk" style="margin-right: 0.2rem;"></i> บันทึก </button>
                             </div>
                         </div>
@@ -175,10 +212,85 @@
                 </div>
             </div>
         </div>
+        <div class='card' style="margin-top: 2vh;">
+            <div class='card-header'>
+                <h4>ประวัติ การแจ้งรถไม่พร้อมใช้งาน</h4>
+            </div>
+            <div class='card-body'>
+                <div class="row" style="overflow: auto; margin-bottom: 1vh;">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 0.5rem;">
+                        <table id="main_table_2" class="table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th>ผู้แจ้ง</th>
+                                    <th>วันที่แจ้ง</th>
+                                    <th>วันที่เริ่มปิดการใช้งาน</th>
+                                    <th>วันที่เริ่มเปิดการใช้งาน</th>
+                                    <th>วันที่เริ่มเปิดการใช้งานจริง</th>
+                                    <th>หมายเหตุ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% index = 1 %>
+                                <% disable_doc_data.forEach( function(e) { %>
+                                    <tr>
+                                        <td><%= index %></td>
+                                        <td><%= e.cdl_create_by_name %> (<%= e.cdl_create_by_division %>)</td>
+                                        <td><%= dayjs(e.cdl_create_date).format("DD/MM/YYYY") %></td>
+                                        <td><%= dayjs(e.cdl_start_disable).format("DD/MM/YYYY") %></td>
+                                        <td><%= dayjs(e.cdl_stop_disable).format("DD/MM/YYYY") %></td>
+                                        <% if(e.cdl_stop_disable_real == "" || e.cdl_stop_disable_real == null){ %>
+                                            <td>-</td>
+                                        <% }else{ %>
+                                            <td><%= dayjs(e.cdl_stop_disable_real).format("DD/MM/YYYY") %></td>
+                                        <% } %>
+                                        <td><%= e.cdl_remark %></td>
+                                    </tr>
+                                <% index++ } ) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
     </div>
 </div>
 
 <%- include("2_footer.ejs") %>
+
+<div class="modal fade" id="modal_disable_car" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form onsubmit="submit_disable_car_doc(event)" action="">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">แจ้งรถไม่พร้อมใช้งาน</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                                <label for="" class="form-label"><span class="red">*</span> วันที่เริ่มปิดการใช้งาน</label>
+                                <input required id="start_disable_date" onchange="" type="date" class="form-control">
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                                <label for="" class="form-label"><span class="red">*</span> วันที่กลับมาเปิดการใช้งาน (ประมาณการ)</label>
+                                <input required id="end_disable_date" onchange="" type="date" class="form-control">
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                                <label for="" class="form-label"><span class="red">*</span> หมายเหตุ</label>
+                                <textarea required id="remark_disable_car" onchange="" class="form-control" id="" rows="3"></textarea>
+                            </div>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="modal_upload_file" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -204,6 +316,104 @@
 </div>
 
 <script>
+
+function changeCarRentPerHalfDay(value){
+    let CarRentPerHalfDay = ((value/44) % 1 >= 0.5) ? Math.ceil(value/44) : Math.floor(value/44)
+
+    document.getElementById("CarRentPerHalfDay").value = CarRentPerHalfDay
+    auto_save_value( 'car_rent_price_per_halfday' , CarRentPerHalfDay+"" )
+}
+
+function enable_car(){
+    Swal.fire({
+        title: "ยืนยันการแจ้งรถยนต์พร้อมใช้งานแล้ว",
+        text: "ยืนยันการแจ้งรถยนต์พร้อมใช้งานแล้วหรือไม่ ? หากยืนยันรถยนต์คันนี้จะสามารถถูกจองได้ โปรดยืนยันการทำรายการ",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#55AD9B",
+        cancelButtonColor: "#00000040",
+        confirmButtonText: "ยืนยัน, รถยนต์พร้อมใช้งานแล้ว" ,
+        cancelButtonText: "ปิด"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let data = {
+                car_id : document.getElementById("car_id").value , 
+            }
+    
+            $.ajax({
+                type: 'POST',
+                url: '/submit_enable_car_doc',
+                data: data,
+                success: function (nextPage) {
+                    Swal.fire({
+                        title: "แจ้งรถยนต์พร้อมใช้งานแล้ว",
+                        text: "",
+                        icon: "success"
+                    });
+                    
+                    setTimeout( function(){window.location.reload()} , 800 );
+                },
+                error: function (error) {
+                    console.log("error with Ajax");
+                    console.log(error);
+                }
+            });
+        }
+    });
+}
+
+function submit_disable_car_doc(event){
+    event.preventDefault()
+
+    let start_disable_date = (new Date(document.getElementById("start_disable_date").value)).getTime();
+    let end_disable_date = (new Date(document.getElementById("end_disable_date").value)).getTime();
+
+    console.log(start_disable_date)
+    console.log(end_disable_date)
+
+    if( end_disable_date < start_disable_date ){
+        alert("วันที่กลับมาเปิดการใช้งาน ไม่สามารน้อยกว่า วันที่เริ่มปิดการใช้งาน")
+    }else{
+        Swal.fire({
+            title: "ยืนยันการแจ้งรถไม่พร้อมใช้งาน",
+            text: "ยืนยันการแจ้งรถไม่พร้อมใช้งานหรือไม่ ? หากยืนยันรถยนต์คันนี้จะไม่สามารถถูกจองได้ โปรดยืนยันการทำรายการ",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#00000040",
+            confirmButtonText: "ยืนยัน, รถไม่พร้อมใช้งาน" ,
+            cancelButtonText: "ปิด"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let data = {
+                    car_id : document.getElementById("car_id").value , 
+                    start_disable : document.getElementById("start_disable_date").value , 
+                    stop_disable : document.getElementById("end_disable_date").value , 
+                    remark : document.getElementById("remark_disable_car").value
+                }
+    
+                $.ajax({
+                    type: 'POST',
+                    url: '/submit_disable_car_doc',
+                    data: data,
+                    success: function (nextPage) {
+                        Swal.fire({
+                            title: "แจ้งรถไม่พร้อมใช้งานสำเร็จ",
+                            text: "",
+                            icon: "success"
+                        });
+                        
+                        setTimeout( function(){window.location.reload()} , 800 );
+                    },
+                    error: function (error) {
+                        console.log("error with Ajax");
+                        console.log(error);
+                    }
+                });
+            }
+        });
+    }
+}
 
 function easy_pass_changed( value ){
     let array_value = value.split("_//_");
@@ -309,6 +519,41 @@ function submit_edit_car_detail(){
             text: "กรุณราใส่ประเภทของรถยนต์" ,
             timer: 1500,
         });
+    }else if( document.getElementById("CarRentPerMonth").value == "" ){
+        Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกได้",
+            text: "กรุณราใส่ค่าเช่าต่อเดือน" ,
+            timer: 1500,
+        });
+    }else if( document.getElementById("car_registration_code").value == "" ){
+        Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกได้",
+            text: "กรุณราใส่เลขทะเบียน" ,
+            timer: 1500,
+        });
+    }else if( document.getElementById("car_site_location").value == "" ){
+        Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกได้",
+            text: "กรุณราใส่ที่อยู่ของรถยนต์" ,
+            timer: 1500,
+        });
+    }else if( document.getElementById("car_eazy_pass_code").value == "_//_" || document.getElementById("car_eazy_pass_code").value == "" ){
+        Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกได้",
+            text: "กรุณราใส่ Eazy Pass ของรถยนต์" ,
+            timer: 1500,
+        });
+    }else if( document.getElementById("car_fuel_card_code").value == "" ){
+        Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกได้",
+            text: "กรุณราใส่ Fuel Card ของรถยนต์" ,
+            timer: 1500,
+        });
     }else{
         Swal.fire({
             icon : "question",
@@ -343,5 +588,25 @@ function submit_edit_car_detail(){
         });
     }
 }
+
+$('#main_table_2').DataTable({
+    // "destroy": true,
+    // "retrieve":true,
+    // "stateSave": true,
+    fixedColumns:   {
+        left: 0 ,
+        right: 0
+    },
+    "paging": true,
+    "scrollCollapse": true,
+    "responsive": true, 
+    "lengthChange": true, 
+    "searching": true,
+    "autoWidth": true,
+    "ordering": true,
+    "info": true,
+    "scrollX": true,
+    "scrollY": "46vh" 
+})
 
 </script>

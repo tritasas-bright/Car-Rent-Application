@@ -7,8 +7,6 @@ let fs = require('fs');
 const axios = require('axios').default;
 const multer = require('multer');
 
-const url_api_employee_ite = 'https://hr.italthaiengineering.com/api_employee_ite';
-
 const cookieParser = require('cookie-parser');
 router.use(cookieParser('some_secret_1234'));
 const cookieConfig = {
@@ -23,40 +21,30 @@ let mysql = require('mysql');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Set up multer storage configuration
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'uploads/') // Destination folder for uploaded files
-//   },
-//   filename: function (req, file, cb) {
-//     // Rename the file to prevent naming conflicts
-//     cb(null, Date.now() + '-' + file.originalname);
-//   }
-// });
-
-// // Initialize multer instance with the storage configuration
-// const upload = multer({ storage: storage });
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 let condb = mysql.createConnection({
   host : "localhost" , 
   user : "root" ,
   password : "" ,
-  database : "db_car_rent"
+  database : "db_car_rent_uat_3"
 })
+
+// let condb = mysql.createConnection({
+//   host : "localhost" , 
+//   user : "carssyn_db_car_rent" ,
+//   password : "Tr@903882" ,
+//   database : "carssyn_db_car_rent"
+// })
 
 condb.connect( function(e){
   if(e){
     throw e ;
   }
-  console.log("connect to db_car_rent success 123456");
+  console.log("connect to db_car_rent_uat_3 success 123456");
 } )
 
-// let url_now = "http://192.168.100.169:7011" // syntec-dis
-// let url_now = "http://10.167.200.52:7011" // syntec-control
-// let url_now = "http://172.16.5.148:7011" // syntec-office site 
-let url_now = "http://10.161.200.223:7011" // syntec-office
+let url_now = "http://192.168.100.169:7011"
+// let url_now = "https://cars.syntec.co.th"
+
 let powerapps_link = `https://apps.powerapps.com/play/e/default-031562b8-dcd2-4b83-a934-909ce954f3ae/a/afc06fd8-dbaf-4756-89d5-9a2412ebc9e5?tenantId=031562b8-dcd2-4b83-a934-909ce954f3ae&hint=e1be904e-604c-4ab0-ba3f-89fb7eeeb478&sourcetime=1715157845081`
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,91 +64,42 @@ router.use( function( req , res , next ){
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// const sql = require('mssql')
-
-// let dbConfig = {
-//   server : "" , 
-//   database : "" , 
-//   user : "" , 
-//   password : "" , 
-//   port : ""
-// }
-
-// getEmp()
-
-// function getEmp(){
-//   let conn = new sql.connect(dbConfig);
-//   let req = new sql.Request(conn);
-
-//   conn.connect( function(err){
-//     if(err){ 
-//       console.log("err") 
-//       console.log(err)
-//       return; 
-//     }
-//     req.query("SELECT * FROM emp" , function(err , result){
-//       if(err){throw err}
-//       console.log(result)
-//       conn.close();
-//     })
-//   } )
-// }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// const { networkInterfaces } = require('os');
-
-// const nets = networkInterfaces();
-// const networkInfo = Object.create(null); // Or just '{}', an empty object
-
-// for (const name of Object.keys(nets)) {
-//     for (const net of nets[name]) {
-//         const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
-//         if (net.family === familyV4Value && !net.internal) {
-//             if (!networkInfo[name]) {
-//               networkInfo[name] = [];
-//             }
-//             networkInfo[name].push(net.address);
-//         }
-//     }
-// }
-
-// const ipAddress = networkInfo['Wi-Fi'][0];
-// console.log("ipAddress")
-// console.log(ipAddress)
-
-// test_function_async_await()
-
-// async function test_function_async_await(){
-//   for( let i = 0 ; i < 5 ; i++ ){
-//     await await_funtion(i)
-//     console.log("++++")
-//     console.log("++++")
-//     console.log("++++")
-//     console.log("++++")
-//   }
-
-//   console.log("****")
-//   console.log("****")
-//   console.log("****")
-//   console.log("****")
- 
-//   function await_funtion(i){
-//     return new Promise ( ( resolve , reject ) => {
-//       setTimeout(() => {
-//         console.log("-----------")
-//         console.log(i)
-//         resolve()
-//       }, 1000);
-//     } )
-//   }
-
-// }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// WORK SCHEDULE ////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/user_notification_morning" , async function(req , res){
+  await user_req_doc_today_first_phase_schedule_task()
+  await user_req_doc_today_ticket_schedule_task()
+  insert_job_schedule_record( "User Noti Morning" , "" , "success" )
+  return res.send("user_notification_morning");
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/user_notification_afternoon" , async function(req , res){
+  await user_req_doc_today_second_phase_schedule_task()
+  insert_job_schedule_record( "User Noti Afternoon" , "" , "success" )
+  return res.send("user_notification_afternoon");
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/admin_notification" , async function(req , res){
+  admin_work_today_schedule_task()
+  insert_job_schedule_record( "Admin Noti" , "" , "success" )
+  return res.send("admin_notification");
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/ticket_refresh_status_today" , async function(req , res){
+  let return_result_1 = await ticket_refresh_status_today_open_ticket()
+  let return_result_2 = await ticket_refresh_status_today_close_ticket()
+  insert_job_schedule_record( "Ticket Open" , "" , return_result_1 )
+  insert_job_schedule_record( "Ticket Close" , "" , return_result_2 )
+  return res.send("ticket_refresh_status_today");
+} )
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let cron = require('node-cron');
@@ -169,29 +108,36 @@ cron.schedule('*/1 * * * *', function(){
   auto_generate_ticket()
 });
 
-cron.schedule('30 * * * *', function(){
-  let date_time = new Date()
+// cron.schedule('30 7 * * *', function(){
+//     admin_work_today_schedule_task()
+//     insert_job_schedule_record( "Admin_first_phase_schedule_task" , "" , "success" )
+// });
 
-  if( date_time.getHours() == 7 ){
-    console.log('running a schedule task : admin report call');
-    admin_work_today_schedule_task()
-  }
-});
+// cron.schedule('35 7 * * *', async function(){
+//   await user_req_doc_today_first_phase_schedule_task()
+//   await user_req_doc_today_ticket_schedule_task()
+//   insert_job_schedule_record( "User_first_phase_schedule_task" , "" , "success" )
+// });
 
-cron.schedule('35 * * * *', async function(){
-  if( date_time.getHours() == 7 ){
-    console.log('running a schedule task : user report call');
-    await user_req_doc_today_first_phase_schedule_task()
-    await user_req_doc_today_ticket_schedule_task()
-  }
+// cron.schedule('35 12 * * *', async function(){
+//   await user_req_doc_today_second_phase_schedule_task()
+//     insert_job_schedule_record( "User_second_phase_schedule_task" , "" , "success" )
+// });
 
-  if( date_time.getHours() == 12 ){
-    console.log('running a schedule task : user report call');
-    await user_req_doc_today_second_phase_schedule_task()
-  }
-});
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// user_req_doc_today_ticket_schedule_task()
+function insert_job_schedule_record( title , description , status ){
+  let sql_1 = `INSERT INTO tb_job_schedule_record (jsr_title , jsr_description , jsr_status) VALUES ( ? , ? , ? )`
+  let valus = [
+    title , 
+    description , 
+    status
+  ]
+  condb.query( sql_1 , valus , function(err , result){
+    if(err){throw err}
+    return
+  } )
+}
 
 function user_req_doc_today_ticket_schedule_task(){
   return new Promise( ( resolve , reject ) => {
@@ -425,43 +371,200 @@ function admin_work_today_schedule_task(){
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function adminEmail(){
+  return new Promise((resolve , reject) => {
+    const sql_1 = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_enable = ? AND tb_user_in_app.user_admin = ?`
+    condb.query( sql_1 , [ "ใช้งาน" ,  "ใช่" ] , function(err , result){
+      if(err){throw err} 
+      let admin_data = result
+      if(result.length === 0){
+        resolve("")
+      }else{
+        let admin_emails = admin_data.map(item => item.user_email).join('; ');
+        resolve(admin_emails)
+      }
+    })
+  })
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// router.get( "/login/:nane_en/:surname_en/:email/:division/:job_title/:office_location" , function(req , res){
+//   let nane_en = req.params.nane_en
+//   let surname_en = req.params.surname_en
+//   let email = req.params.email
+//   let division = req.params.division
+//   let job_title = req.params.job_title
+//   let office_location = req.params.office_location
+  
+//   if( email == "" ){
+
+//   }else{
+
+//     let sql_1 = `SELECT * FROM tb_user_in_app WHERE user_email = ?`
+
+//     condb.query( sql_1 , email , async function(err , result){
+//       if(err){throw err}
+
+//       if(result.length == 0){
+//         console.log("111111111111111111")
+//         let user_data = await function_for_on_user_data()
+//         let status_login = await set_cookie(user_data)
+//         redirect(status_login , user_data)
+//       }else{
+//         console.log("2222222222222222222")
+//         let user_data = result
+//         let status_login = await set_cookie(user_data)
+//         redirect(status_login , user_data)
+//       }
+
+//       async function redirect(status_login , user_data){
+//         if( status_login == "success" ){
+
+//           if( req.cookies.cr_save_old_url == null || req.cookies.cr_save_old_url == "" ){
+//             check_division_and_insert(user_data);
+//             res.redirect( "/home" )
+//           }else{
+//             let old_url = req.cookies.cr_save_old_url
+//             res.cookie( "cr_save_old_url", "" );
+//             res.redirect( old_url )
+//           }
+//         }else{
+//           res.redirect( "/user_list_not_enable" )
+//         }
+//       }
+
+//       function check_division_and_insert(user_data){
+
+//         let sql_5 = `SELECT * FROM tb_division WHERE tb_division.div_name = ?`
+//         let sql_6 = `INSERT INTO tb_division 
+//         (div_create_by_user_app_id , div_create_by_name , div_create_by_email , div_create_by_division , div_create_timestamp , div_name) 
+//         VALUES (? , ? , ? , ? , ? , ?)`
+
+//         let timestamp = Date.now();
+
+//         condb.query( sql_5 , user_data[0].user_division , function(err , result){
+//           if(err){throw err}
+//           if( result.length == 0 ){
+//             let input_6 = [
+//               user_data[0].user_id , 
+//               user_data[0].user_nane_en + " " + user_data[0].user_surname_en , 
+//               user_data[0].user_email , 
+//               user_data[0].user_division , 
+//               timestamp ,
+//               user_data[0].user_division 
+//             ]
+//             condb.query( sql_6 , input_6 , function(err , result){
+//               if(err){throw err}
+//               return;
+//             } )
+//           }else{
+//             return;
+//           }
+//         } )
+//       };
+
+//       function set_cookie( user_data ){
+//         return new Promise( async (resolve , reject) => {
+//           if( user_data[0].user_enable == 'ใช้งาน' ){
+//             res.cookie( "cr_user_app_id", user_data[0].user_id );
+//             res.cookie( "cr_user_app_name_th", user_data[0].user_nane_th );
+//             res.cookie( "cr_user_app_surname_th", user_data[0].user_surname_th );
+//             res.cookie( "cr_user_app_name_en", user_data[0].user_nane_en );
+//             res.cookie( "cr_user_app_surname_en", user_data[0].user_surname_en );
+//             res.cookie( "cr_user_app_email", user_data[0].user_email );
+//             res.cookie( "cr_user_app_division", user_data[0].user_division );
+//             res.cookie( "cr_user_app_job_title", user_data[0].user_job_title );
+//             res.cookie( "cr_user_app_office_location", user_data[0].user_office_location );
+
+//             await check_row( user_data[0].user_email , res )
+
+//             resolve("success");
+//           }else{
+
+//             resolve("error");
+//           }
+//         })
+//       }
+
+//       function function_for_on_user_data(){
+//         return new Promise( (resolve , reject) => {
+//           let sql_2 = `INSERT INTO tb_user_in_app (user_nane_en , user_surname_en , user_email , user_division , user_job_title , user_office_location) VALUES (? , ? , ? , ? , ? , ?)`
+//           let sql_3 = `SELECT * FROM tb_user_in_app WHERE user_email = ?`
+//           let input_2 = [
+//             nane_en , 
+//             surname_en , 
+//             email , 
+//             division , 
+//             job_title , 
+//             office_location
+//           ]
+  
+//           condb.query( sql_2 , input_2 , function(err , result){
+//             if(err){reject(err)}
+  
+//             condb.query( sql_3 , email , function(err , result){
+//               if(err){reject(err)}
+  
+//               console.log("result")
+//               console.log(result)
+
+//               resolve(result);
+//             } )
+//           } )
+//         } )
+//       }
+//     } )
+//   }
+// } )
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.get( "/login/:nane_en/:surname_en/:email/:division/:job_title/:office_location" , function(req , res){
-  let nane_en = req.params.nane_en
-  let surname_en = req.params.surname_en
-  let email = req.params.email
-  let division = req.params.division
-  let job_title = req.params.job_title
-  let office_location = req.params.office_location
+  let nane_en = req.params.nane_en || ""
+  let surname_en = req.params.surname_en || ""
+  let email = req.params.email || ""
   
-  if( email == "" ){
-
+  if( email === "" ){
+    res.send("การเข้าสู่ระบบ จะต้องใช้อีเมล")
   }else{
-
     let sql_1 = `SELECT * FROM tb_user_in_app WHERE user_email = ?`
+    let sql_2 = `INSERT INTO tb_user_in_app (user_nane_en , user_surname_en , user_email , user_enable) VALUES ( ? , ? , ? , "ไม่ใช้งาน")`
 
     condb.query( sql_1 , email , async function(err , result){
       if(err){throw err}
+      let user_data = result
 
-      if(result.length == 0){
-        console.log("111111111111111111")
-        let user_data = await function_for_on_user_data()
-        let status_login = await set_cookie(user_data)
-        redirect(status_login , user_data)
+      if(result.length === 0){
+        // user_data = await create_new_user()
+        // res.send("อีเมลของคุณ ยังไม่มีในฐานข้อมูล โปรดติดต่อทีม DIS เพื่อประสานงานต่อ")
+        res.render( "ErrorPage" , {  } )
       }else{
-        console.log("2222222222222222222")
-        let user_data = result
         let status_login = await set_cookie(user_data)
         redirect(status_login , user_data)
       }
 
+
+      // function create_new_user(){
+      //   return new Promise( (resolve , reject) => {
+      //     condb.query( sql_2 , [nane_en , surname_en , email] , async function(err , result){
+      //       if(err){reject(err)}
+
+      //       condb.query( sql_1 , email , async function(err , result){
+      //         if(err){reject(err)}
+      //         /// ส่งเมล
+      //         resolve(result)
+      //       } )
+      //     } )
+      //   } )
+      // }
+
       async function redirect(status_login , user_data){
         if( status_login == "success" ){
-
           if( req.cookies.cr_save_old_url == null || req.cookies.cr_save_old_url == "" ){
-            check_division_and_insert(user_data);
             res.redirect( "/home" )
           }else{
             let old_url = req.cookies.cr_save_old_url
@@ -473,40 +576,11 @@ router.get( "/login/:nane_en/:surname_en/:email/:division/:job_title/:office_loc
         }
       }
 
-      function check_division_and_insert(user_data){
-
-        let sql_5 = `SELECT * FROM tb_division WHERE tb_division.div_name = ?`
-        let sql_6 = `INSERT INTO tb_division 
-        (div_create_by_user_app_id , div_create_by_name , div_create_by_email , div_create_by_division , div_create_timestamp , div_name) 
-        VALUES (? , ? , ? , ? , ? , ?)`
-
-        let timestamp = Date.now();
-
-        condb.query( sql_5 , user_data[0].user_division , function(err , result){
-          if(err){throw err}
-          if( result.length == 0 ){
-            let input_6 = [
-              user_data[0].user_id , 
-              user_data[0].user_nane_en + " " + user_data[0].user_surname_en , 
-              user_data[0].user_email , 
-              user_data[0].user_division , 
-              timestamp ,
-              user_data[0].user_division 
-            ]
-            condb.query( sql_6 , input_6 , function(err , result){
-              if(err){throw err}
-              return;
-            } )
-          }else{
-            return;
-          }
-        } )
-      };
-
       function set_cookie( user_data ){
         return new Promise( async (resolve , reject) => {
           if( user_data[0].user_enable == 'ใช้งาน' ){
             res.cookie( "cr_user_app_id", user_data[0].user_id );
+            res.cookie( "cr_user_emp_id", user_data[0].user_emp_id );
             res.cookie( "cr_user_app_name_th", user_data[0].user_nane_th );
             res.cookie( "cr_user_app_surname_th", user_data[0].user_surname_th );
             res.cookie( "cr_user_app_name_en", user_data[0].user_nane_en );
@@ -524,34 +598,6 @@ router.get( "/login/:nane_en/:surname_en/:email/:division/:job_title/:office_loc
             resolve("error");
           }
         })
-      }
-
-      function function_for_on_user_data(){
-        return new Promise( (resolve , reject) => {
-          let sql_2 = `INSERT INTO tb_user_in_app (user_nane_en , user_surname_en , user_email , user_division , user_job_title , user_office_location) VALUES (? , ? , ? , ? , ? , ?)`
-          let sql_3 = `SELECT * FROM tb_user_in_app WHERE user_email = ?`
-          let input_2 = [
-            nane_en , 
-            surname_en , 
-            email , 
-            division , 
-            job_title , 
-            office_location
-          ]
-  
-          condb.query( sql_2 , input_2 , function(err , result){
-            if(err){reject(err)}
-  
-            condb.query( sql_3 , email , function(err , result){
-              if(err){reject(err)}
-  
-              console.log("result")
-              console.log(result)
-
-              resolve(result);
-            } )
-          } )
-        } )
       }
     } )
   }
@@ -581,6 +627,82 @@ router.get("/user_list_in_application" , async function(req , res){
     } )
   }
 })
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/RefreshActivityNumber" , async function(req , res){
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/user_list_in_application` );
+    res.redirect( powerapps_link )
+  }else{
+    const sql_1 = `SELECT * FROM tb_user_in_app`
+    const sql_2 = `SELECT * FROM tb_activity_number`
+    const sql_3 = `UPDATE tb_user_in_app SET tb_user_in_app.user_activity_number = ? WHERE tb_user_in_app.user_id = ?`
+
+    const userDataArr = await query(sql_1 , [])
+    const activityNumberDataArr = await query(sql_2 , [])
+    
+    for( let i = 0 ; i < userDataArr.length ; i++ ){
+      if( userDataArr[i].user_division ){
+        let splitDivision = (userDataArr[i].user_division).split("-")
+        if( splitDivision.length === 0 ){
+          const updateActivityNumberUser = await query(sql_3 , [ "ไม่พบ Division Id" , userDataArr[i].user_id ])
+        }else{
+          const activityNumber = activityNumberDataArr.filter( function(e){
+            return  e.an_project_id == splitDivision[0]
+          } )
+
+          if( activityNumber.length === 0 ){
+            const updateActivityNumberUser = await query(sql_3 , [ "ไม่พบ Activity Number" , userDataArr[i].user_id ])
+          }else{
+            const updateActivityNumberUser = await query(sql_3 , [ activityNumber[0].an_activity_number , userDataArr[i].user_id ])
+          }
+        }
+      }
+
+      if( i === userDataArr.length - 1 ){
+        res.end()
+      }
+    }
+  }
+} )
+
+function query( sql , value ){
+  return new Promise((resolve , reject) => {
+    condb.query( sql , value , function (err , result){
+      if(err){throw err}
+      resolve(result)
+    })
+  })
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/RefreshCostCenter" , async function(req , res){
+  let sql_1 = `SELECT * FROM tb_user_in_app`
+  let sql_2 = `SELECT * FROM tb_costcenter_employeeid WHERE tb_costcenter_employeeid.ce_employee_id = ?`
+  let sql_3 = `UPDATE tb_user_in_app SET user_cost_center = ? WHERE user_emp_id = ?`
+
+  const employeesData = await query(sql_1 , [])
+  console.log("employeesData")
+  console.log(employeesData)
+
+  for( let i = 0 ; i < employeesData.length ; i++ ){
+    const employeeThisId = await query(sql_2 , [employeesData[i].user_emp_id])
+    const CostCenter = employeeThisId.length === 0 ? "-" : employeeThisId[0].ce_cost_center
+    console.log("employeeThisId")
+    console.log(employeeThisId)
+    console.log("CostCenter")
+    console.log(CostCenter)
+    await query(sql_3 , [CostCenter , employeesData[i].user_emp_id])
+
+    if( i === employeesData.length - 1 ){
+      res.send({
+        message : "success"
+      })
+    }
+  }
+} )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -622,6 +744,20 @@ router.post( "/update_user_enable" , function(req , res){
     res.end();
   } )
 
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/EmployeeList" , async function(req , res){
+  let sql_1 = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_enable = "ใช้งาน"`
+
+  condb.query( sql_1 , function(err , result){
+    if(err){throw err}
+
+    res.send( {
+      EmployeeList : result
+    } )
+  } )
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -700,9 +836,10 @@ router.get( "/home" , async function(req , res){
   }else{
 
     let sql_1 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
     LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
     LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
-    WHERE ( tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" ) AND tb_car_rent_document_main.cdm_for_person_email = ? `
+    WHERE ( tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" ) AND tb_user_in_app.user_email = ? `
 
     let sql_2 = `SELECT * FROM tb_car_rent_document_main 
     LEFT JOIN tb_division_approver 
@@ -1054,6 +1191,215 @@ function calculate_money_in_easy_pass(sub_document_id , req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+router.post( "/ChangeCarConfirm" , async function( req , res ){
+  let SubDocIdArr1 = req.body["SubDocIdChecked[]"];
+  let SubDocIdArr = typeof SubDocIdArr1 === "string" ? [SubDocIdArr1] : SubDocIdArr1
+  let CarIdArr = req.body["CarChecked[]"];
+  let CarId = typeof CarIdArr === "string" ? CarIdArr : CarIdArr[0]
+  
+  if( SubDocIdArr.length === 0 || CarIdArr === "" ){
+    return res.send({
+      message : "error" , 
+      result : []
+    })
+  }
+
+  let SubDocData = await querySubDoc(SubDocIdArr)
+  let CarBusyAndDisableData = await queryCarFreeData(SubDocData)
+
+  let CarBusyAndDisableOnlythisCar = CarBusyAndDisableData.filter( function(e){
+    return  e.car_id == CarId
+  } )
+
+  console.log("CarBusyAndDisableOnlythisCar")
+  console.log(CarBusyAndDisableOnlythisCar)
+
+  if( CarBusyAndDisableOnlythisCar.length === 0 ){
+    res.send({
+      status : "error" ,
+      message : "ไม่มีข้อมูลรถที่คุณเลือก" , 
+      result : []
+    })
+  }else{
+    if( CarBusyAndDisableOnlythisCar[0].status === "Free" ){
+      await ChangeCarConfirm(SubDocData , CarId)
+      res.send({
+        status : "success" ,
+        message : "บันทึกเปลี่ยนรถยนต์สำเร็จ" , 
+        result : []
+      })
+    }else if( CarBusyAndDisableOnlythisCar[0].status === "Busy" ){
+      res.send({
+        status : "error" ,
+        message : "รถยนต์ที่คุณเลือกไม่ว่างแล้วในขณะนี้" , 
+        result : []
+      })
+    }else if( CarBusyAndDisableOnlythisCar[0].status === "Disable" ){
+      res.send({
+        status : "error" ,
+        message : "รถยนต์ที่คุณเลือกไม่พร้อมใช้งานแล้วในขณะนี้" , 
+        result : []
+      })
+    }else{
+      res.send({
+        status : "error" ,
+        message : "ไม่มีข้อมูลรถที่คุณเลือก V.2" , 
+        result : []
+      })
+    }
+  }
+} )
+
+async function ChangeCarConfirm ( SubDocArr , CarId ) {
+  return new Promise ( async (resolve , reject) => {
+    const sql_1 = `UPDATE tb_car_rent_document_sub SET tb_car_rent_document_sub.cds_join_car_id = ? , tb_car_rent_document_sub.cds_car_price_rate = ? WHERE tb_car_rent_document_sub.cds_id = ?`
+    const CarDataArr = await query( "SELECT * FROM tb_car_list WHERE tb_car_list.car_id = ?" , CarId )
+    for( let i = 0 ; i < SubDocArr.length ; i++ ){
+      condb.query( sql_1 , [CarId , CarDataArr[0].car_rent_price_per_halfday , SubDocArr[i].cds_id] , async function(err , result){
+        if(err){throw err}
+        if( i === SubDocArr.length - 1 ){
+          send_email( 
+            `${SubDocArr[0].cdm_create_by_email} , ${SubDocArr[0].cdm_for_person_email} , ${await adminEmail()}` , 
+            `เรียน ${SubDocArr[0].cdm_create_by_name} , ${SubDocArr[0].cdm_for_person} , แอดมินระบบ ` , 
+            "อัพเดท : เอกสารขอยืมรถยนต์ มีการเปลี่ยนแปลงรถยนต์" , 
+
+            `เอกสารขอยืมรถยนต์ มีการเปลี่ยนแปลงรถยนต์ สำเร็จแล้ว` , 
+
+            `เอกสารขอยืมรถยนต์` , 
+            `${url_now}/car_rent_document_approve_view/${btoa(SubDocArr[0].cdm_id)}` , 
+
+            "สามารถกดที่ปุ่มด้านบนนี้ เพื่อเข้าสู่ระบบ" 
+          )
+          resolve();
+        }
+      } )
+    }
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/find_car_free" , async function(req , res){
+  console.log(req.body["SubDocId[]"]);
+  let SubDocIdArr1 = req.body["SubDocId[]"];
+  let SubDocIdArr = typeof SubDocIdArr1 === "string" ? [SubDocIdArr1] : SubDocIdArr1
+  let SubDocData = await querySubDoc(SubDocIdArr)
+  let CarBusyAndDisableData = await queryCarFreeData(SubDocData)
+  console.log("CarBusyAndDisableData")
+  console.log(CarBusyAndDisableData[CarBusyAndDisableData.length - 1].busyTime)
+
+  res.send(CarBusyAndDisableData)
+} )
+
+function queryCarFreeData(SubDocData){
+  return new Promise( (resolve , reject) => {
+    if( SubDocData.length === 0 ){
+      resolve([])
+    }else{
+      let result_1 = []
+      let sql_1 = `SELECT * FROM tb_car_list`
+      let sql_2 = `SELECT * FROM tb_car_list 
+      LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_join_car_id = tb_car_list.car_id 
+      WHERE tb_car_list.car_id = ? AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ?`
+      let sql_3 = `SELECT * FROM tb_car_list 
+      LEFT JOIN tb_car_disable_log ON tb_car_disable_log.cdl_car_id = tb_car_list.car_id 
+      WHERE tb_car_disable_log.cdl_stop_disable_real IS NULL AND tb_car_disable_log.cdl_car_id = ?`
+      condb.query( sql_1 , async function(err , result){
+        if(err){throw err}
+        const CarData = result
+        const CarDataArr = []
+        for( let c = 0 ; c < CarData.length ; c++ ){
+          let ThisCar = {
+            ...CarData[c] , 
+            imagePath : await findImagePathOnlyOne(CarData[c].car_id) ,
+            status : "Free" , 
+            busyTime : [] ,
+            disableTime : ""
+          }
+          for( let d = 0 ; d < SubDocData.length ; d++ ){
+            condb.query( sql_2 , [ CarData[c].car_id , SubDocData[d].cds_date , SubDocData[d].cds_phase ] , function(err , result){
+              if(err){throw err}
+
+              if( result.length > 0 ){
+                ThisCar.status = "Busy"
+                ThisCar.busyTime.push({
+                  Date : SubDocData[d].cds_date , 
+                  Phase : SubDocData[d].cds_phase
+                })
+              }
+
+              condb.query( sql_3 , CarData[c].car_id , function(err , result){
+                if(err){throw err}
+                if( result.length === 0 ){
+                  
+                }else{
+                  const AllLogDisable = result 
+
+                  let checkedLogDisableDate = AllLogDisable.filter( function(e){
+                    return  new Date(e.cdl_start_disable).getTime() <= new Date(SubDocData[d].cds_date).getTime() && new Date(e.cdl_stop_disable).getTime() >= new Date(SubDocData[d].cds_date).getTime()
+                  } )
+
+                  if( checkedLogDisableDate.length > 0 ){
+                    let StartDisable = set_date_templece(checkedLogDisableDate[0].cdl_start_disable , "" , "th_long" )
+                    let EndDisable = set_date_templece(checkedLogDisableDate[0].cdl_stop_disable , "" , "th_long" )
+                    ThisCar.status = "Disable"
+                    ThisCar.disableTime = `${StartDisable} - ${EndDisable}`
+                  }
+                } 
+
+
+                if( d === SubDocData.length - 1 ){
+                  CarDataArr.push(ThisCar)
+                }
+                if( c === CarData.length - 1 && d === SubDocData.length - 1 ){
+                  resolve(CarDataArr)
+                }
+              } )
+            })
+          }
+        }
+      } )
+    }
+  } )
+}
+
+function findImagePathOnlyOne(car_id){
+  return new Promise( (resolve , reject) => {
+    let sql_1 = `SELECT * FROM tb_car_image WHERE tb_car_image.ci_join_car_id = ?`
+    condb.query( sql_1 , car_id , function(err , result){
+      if(err){throw err}
+      if( result.length === 0 ){
+        resolve("/assets/images/400x400.png")
+      }else{
+        resolve( result[0].ci_file_part )
+      }
+    } )
+  } )
+}
+
+function querySubDoc(SubDocIdArr){
+  return new Promise( (resolve , reject) => {
+    if( SubDocIdArr.length === 0 ){
+      resolve([])
+    }else{
+      let result_1 = []
+      let sql_1 = `SELECT * FROM tb_car_rent_document_sub 
+      LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id WHERE tb_car_rent_document_sub.cds_id = ?`
+      for( let i = 0 ; i < SubDocIdArr.length ; i++ ){
+        condb.query( sql_1 , SubDocIdArr[i] , function(err , result){
+          if(err){throw err}
+          result_1.push(result[0] || {})
+          if( i === SubDocIdArr.length - 1 ){
+            resolve(result_1)
+          }
+        } )
+      }
+    }
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.get( "/report_expressway" , function(req , res){
   let sql_1 = `SELECT * FROM tb_easy_pass_recharge 
   LEFT JOIN tb_easy_pass ON tb_easy_pass.ezp_id = tb_easy_pass_recharge.epr_join_ezp_id 
@@ -1096,7 +1442,7 @@ router.get( "/car_list" , function(req , res){
     res.redirect( powerapps_link )
 
   }else{
-    let sql_1 = `SELECT * FROM tb_car_list WHERE tb_car_list.car_status = "ใช้งานปกติ"`
+    let sql_1 = `SELECT * FROM tb_car_list `
     let sql_2 = `SELECT * FROM tb_car_image`
   
     condb.query( sql_1 , function(err , result){
@@ -1170,7 +1516,7 @@ router.get( "/create_new_car" , function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.get( "/car_detait_edit/:car_id_code" , function(req , res){
+router.get( "/car_detait_edit/:car_id_code" , async function(req , res){
   if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
     res.cookie( "cr_save_old_url", `/car_detait_edit/${req.params.car_id_code}` );
     res.redirect( powerapps_link )
@@ -1180,6 +1526,13 @@ router.get( "/car_detait_edit/:car_id_code" , function(req , res){
     let sql_1 = `SELECT * FROM tb_car_list WHERE tb_car_list.car_id = ?`
     let sql_2 = `SELECT * FROM tb_car_image WHERE tb_car_image.ci_join_car_id = ?`
     let sql_3 = `SELECT * FROM tb_easy_pass`
+    let sql_4 = `SELECT * FROM tb_car_disable_log WHERE tb_car_disable_log.cdl_car_id = ? ORDER BY tb_car_disable_log.cdl_id DESC`
+    let sql_5 = `SELECT * FROM tb_division`
+
+    const divisionSelect = await query( sql_5 , [] )
+    const divisionType = [...new Set(divisionSelect.map(item => item.div_type))];
+
+    console.log(divisionSelect)
   
     condb.query( sql_1 , car_id , function(err , result){
       if(err){throw err}
@@ -1193,13 +1546,21 @@ router.get( "/car_detait_edit/:car_id_code" , function(req , res){
           if(err){throw err}
           let easy_pass_data = result
     
-          res.render( "car_detail_edit" , 
-          {
-            user_data : req.cookies , 
-            car_detail : await prepare_data_json(car_detail) , 
-            car_image : await prepare_data_json(car_image) , 
-            easy_pass_data : await prepare_data_json(easy_pass_data) , 
-            dayjs : dayjs} )
+          condb.query( sql_4 , car_id , async function(err , result){
+            if(err){throw err}
+            let disable_doc_data = result
+      
+            res.render( "car_detail_edit" , 
+            {
+              user_data : req.cookies , 
+              car_detail : await prepare_data_json(car_detail) , 
+              car_image : await prepare_data_json(car_image) , 
+              easy_pass_data : await prepare_data_json(easy_pass_data) , 
+              disable_doc_data : await prepare_data_json(disable_doc_data) , 
+              divisionType : await prepare_data_json(divisionType) , 
+              dayjs : dayjs
+            } )
+          } )
         } )
       } )
     } )
@@ -1351,21 +1712,24 @@ router.get( "/car_detail_view/:car_id" , function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.get( "/car_rent_document_create" , function(req , res){
+router.get( "/car_rent_document_create" , async function(req , res){
 
   if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
     res.cookie( "cr_save_old_url", `/car_rent_document_create` );
     res.redirect( powerapps_link )
 
   }else{
+    const documentDataArr = await query( "SELECT * FROM tb_car_rent_document_main" , [] )
     let timestamp = Date.now()
-    let sql_1 = `INSERT INTO tb_car_rent_document_main ( cdm_create_by_user_app_id , cdm_create_by_name , cdm_create_by_email , cdm_create_by_division , cdm_create_timestamp , cdm_status ) VALUES ( ? , ? , ? , ? , ? , ? )`
+    let sql_1 = `INSERT INTO tb_car_rent_document_main ( cdm_create_by_user_app_id , cdm_create_by_name , cdm_create_by_email , cdm_create_by_division , cdm_create_timestamp , cdm_for_person , cdm_document_no , cdm_status ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? )`
     let input_1 = [
       req.cookies.cr_user_app_id , 
       req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
       req.cookies.cr_user_app_email , 
       req.cookies.cr_user_app_division , 
-      timestamp ,  
+      timestamp , 
+      req.cookies.cr_user_app_id , 
+      "CR/" + new Date().getFullYear() + "-" + (documentDataArr.length).toString().padStart(4, '0') , 
       "สร้าง"
     ]
   
@@ -1430,6 +1794,20 @@ router.get( "/car_rent_document_create" , function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+router.post( "/updateSelectedEmployee" , async function(req , res){
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `` );
+    res.redirect( powerapps_link )
+
+  }else{
+    let sql_1 = `UPDATE tb_car_rent_document_main SET tb_car_rent_document_main.cdm_for_person = ? WHERE tb_car_rent_document_main.cdm_id = ?`
+    const result = await query( sql_1 , [ req.body.employeeId , req.body.documentId ] )
+    res.end()
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.get( "/car_rent_document_edit/:document_id" , function(req , res){
 
   if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
@@ -1437,22 +1815,26 @@ router.get( "/car_rent_document_edit/:document_id" , function(req , res){
     res.redirect( powerapps_link )
 
   }else{
-    let sql_1 = `SELECT * FROM tb_car_rent_document_main WHERE tb_car_rent_document_main.cdm_id = ?`
+    let sql_1 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
+    WHERE tb_car_rent_document_main.cdm_id = ?`
     let sql_2 = `SELECT * FROM tb_driver_main WHERE tb_driver_main.dm_status = "ใช้งาน" ORDER BY tb_driver_main.dm_name_th ASC`
-    let sql_3 = `SELECT * FROM tb_division`
+    let sql_3 = `SELECT * FROM tb_division 
+    LEFT JOIN tb_division_approver ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    WHERE tb_division.div_name = ?`
     let sql_4 = `SELECT * FROM tb_division_approver`
   
     condb.query( sql_1 , [ atob(req.params.document_id) ] , function(err , result){
       if(err){throw err}
       let document_data = result
-  
+
       condb.query( sql_2 , async function(err , result){
         if(err){throw err}
         let car_driver_data = result
 
-        condb.query( sql_3 , function(err , result){
+        condb.query( sql_3 , document_data[0].user_division , function(err , result){
           if(err){throw err}
-          let division_data = result
+          let division_data = result.map(item => item.dap_approver_name).join(', ')
 
           condb.query( sql_4 , async function(err , result){
             if(err){throw err}
@@ -1462,7 +1844,7 @@ router.get( "/car_rent_document_edit/:document_id" , function(req , res){
               user_data : req.cookies , 
               document_data : await prepare_data_json(document_data) , 
               car_driver_data : await prepare_data_json(car_driver_data) , 
-              division_data : await prepare_data_json(division_data) , 
+              division_data : division_data , 
               approver_division_data : await prepare_data_json(approver_division_data) , 
               dayjs : dayjs } );
           } )
@@ -1562,11 +1944,12 @@ router.post( "/create_sub_row" , async function (req , res){
 
   function query_car_rent_list( date_data_array ){
     return new Promise( (resolve , reject) => {
-      let sql_3 = `SELECT * FROM tb_car_list WHERE tb_car_list.car_status = "ใช้งานปกติ"`
+      let sql_3 = `SELECT * FROM tb_car_list`
       let sql_4 = `SELECT * FROM tb_car_image`
       let sql_5 = `SELECT * FROM tb_car_rent_document_sub 
-      WHERE (tb_car_rent_document_sub.cds_status <> "สร้าง" AND tb_car_rent_document_sub.cds_status <> "ถูกตีกลับ") 
-      AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ? AND tb_car_rent_document_sub.cds_join_car_id = ?`
+      WHERE (tb_car_rent_document_sub.cds_status <> "สร้าง" AND tb_car_rent_document_sub.cds_status <> "ถูกตีกลับ" AND tb_car_rent_document_sub.cds_status <> "ยกเลิก") 
+      AND tb_car_rent_document_sub.cds_join_car_id = ?`
+      let sql_6 = `SELECT * FROM tb_car_disable_log WHERE tb_car_disable_log.cdl_car_id = ? AND cdl_stop_disable_real IS NULL`
 
       condb.query( sql_3 , function(err , result){
         if(err){throw err}
@@ -1590,31 +1973,52 @@ router.post( "/create_sub_row" , async function (req , res){
               car_1.car_status_time = "free"
               car_1.car_busy_time = []
 
-              for( let i = 0 ; i < date_data_array.length ; i++ ){
+              car_1.car_disable_status = "enable"
+              car_1.car_disable_time = []
 
-                let date_split_array = (date_data_array[i].date).split("/")
+              condb.query( sql_5 , car_1.car_id , function(err , result){ 
+                if(err){throw err}
+                let old_doc = result
+                console.log("old_doc")
+                console.log(old_doc)
 
-                condb.query( sql_5 , [`${date_split_array[2]}-${date_split_array[1]}-${date_split_array[0]}` , date_data_array[i].phase , car_1.car_id] , function(err , result){
-                  if(err){reject(err)}
+                condb.query( sql_6 , car_1.car_id , function(err , result){ 
+                  if(err){throw err}
+                  let disable_doc = result
+                  console.log("disable_doc")
+                  console.log(disable_doc)
 
-                  console.log("sql_5 ///////////////////////////////////////////////////////")
-                  console.log(result)
+                  for( let i = 0 ; i < date_data_array.length ; i++ ){
+    
+                    let date_split_array = (date_data_array[i].date).split("/")
 
-                  if( result.length > 0 ){
-                    console.log("not free")
-                    car_1.car_status_time = "not free"
+                    let result_filter_busy_day = old_doc.filter( function(e){
+                      return  (new Date(e.cds_date)).setHours(0,0,0,0) == (new Date(`${date_split_array[2]}-${date_split_array[1]}-${date_split_array[0]}`)).setHours(0,0,0,0)
+                      && e.cds_join_car_id == car_1.car_id 
+                      && e.cds_phase == date_data_array[i].phase
+                    } )
 
-                    console.log(result[0].cds_id)
-                    console.log(result[0].cds_date)
+                    let result_filter_disable_car = disable_doc.filter( function(e){
+                      return  (new Date(e.cdl_start_disable)).getTime() <= (new Date(`${date_split_array[2]}-${date_split_array[1]}-${date_split_array[0]}`)).getTime()
+                      && (new Date(e.cdl_stop_disable)).getTime() >= (new Date(`${date_split_array[2]}-${date_split_array[1]}-${date_split_array[0]}`)).getTime()
+                    } )
+    
+                    if( result_filter_busy_day.length > 0 ){
+                      car_1.car_status_time = "not free"
+                      car_1.car_busy_time.push(result_filter_busy_day[0].cds_date + ` ///${date_data_array[i].phase}`)
+                    }
 
-                    car_1.car_busy_time.push(result[0].cds_date)
-                  }
-
-                  if( i == date_data_array.length - 1 ){
-                    resolve(car_1);
+                    if( result_filter_disable_car.length > 0 ){
+                      car_1.car_disable_status = "disable"
+                      car_1.car_disable_time.push(`${date_split_array[2]}-${date_split_array[1]}-${date_split_array[0]}`)
+                    }
+  
+                    if( i == date_data_array.length - 1 ){
+                      resolve(car_1);
+                    }
                   }
                 } )
-              }
+               } )
             } )
           }
 
@@ -1631,6 +2035,9 @@ router.post( "/create_sub_row" , async function (req , res){
               }
 
               car_1 = await check_busy_time( car_1 )
+
+              console.log("car_1")
+              console.log(car_1)
 
               resolve(car_1);
             } )
@@ -1729,17 +2136,19 @@ router.post( "/submit_document_car_rent" , function(req , res){
   } )
 
   function update_status_document(){
-    return new Promise( (resolve , reject) => {
+    return new Promise( async (resolve , reject) => {
       let sql_3 = `UPDATE tb_car_rent_document_main SET cdm_status = ? WHERE tb_car_rent_document_main.cdm_id = ?`
-      let sql_4 = `UPDATE tb_car_rent_document_sub SET cds_status = ? , cds_join_car_id = ? WHERE tb_car_rent_document_sub.cds_join_cdm_id = ?`
+      let sql_4 = `UPDATE tb_car_rent_document_sub SET cds_status = ? , cds_join_car_id = ? , cds_car_price_rate = ? WHERE tb_car_rent_document_sub.cds_join_cdm_id = ?`
       let sql_5 = `SELECT * FROM tb_car_rent_document_main WHERE tb_car_rent_document_main.cdm_id = ?`
       let sql_6 = `INSERT INTO tb_driver_sub (ds_join_dm_id , ds_join_doc_id) VALUES ( ? , ? )`
+
+      const CarDataArr = await query( "SELECT * FROM tb_car_list WHERE tb_car_list.car_id = ?" , req.body.car_id )
 
       condb.query( sql_3 , [ "บันทึกแล้ว" , req.body.document_id ] , function(err , result){
         if(err){reject(err)}
         console.log("update 1")
 
-        condb.query( sql_4 , [ "บันทึกแล้ว" , req.body.car_id , req.body.document_id ] , function(err , result){
+        condb.query( sql_4 , [ "บันทึกแล้ว" , req.body.car_id , CarDataArr[0].car_rent_price_per_halfday || 0 , req.body.document_id ] , function(err , result){
           if(err){reject(err)}
           console.log("update 2") 
 
@@ -1783,20 +2192,27 @@ router.post( "/submit_document_car_rent" , function(req , res){
 
 function send_email_to_approver( document_id ){
   return new Promise( (resolve , reject) => {
-    let sql_7 = `SELECT * FROM tb_car_rent_document_main WHERE tb_car_rent_document_main.cdm_id = ?`
-    let sql_8 = `SELECT * FROM tb_division_approver WHERE tb_division_approver.dap_join_div_id = ?`
+    let sql_7 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
+    WHERE tb_car_rent_document_main.cdm_id = ?`
+    let sql_8 = `SELECT * FROM tb_division 
+    LEFT JOIN tb_division_approver ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    WHERE tb_division.div_name = ?`
 
     condb.query( sql_7 , document_id , function(err , result){
       if(err){throw err}
       let main_document_data = result
 
-      condb.query( sql_8 , main_document_data[0].cdm_for_person_division_id , function(err , result){
+      condb.query( sql_8 , main_document_data[0].user_division , async function(err , result){
         if(err){throw err}
         let approver_data = result
 
         if( approver_data.length > 0 ){
           let approver_emails = approver_data.map(item => item.dap_approver_email).join('; ');
           let approver_name = approver_data.map(item => item.dap_approver_name).join(', ');
+
+          const sql_user_useThisCar = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_id = ?`
+          const user_useThisCar = await query( sql_user_useThisCar , main_document_data[0].cdm_for_person )
 
           send_email( 
             approver_emails , 
@@ -1805,7 +2221,7 @@ function send_email_to_approver( document_id ){
 
             `เอกสารขอยืมรถยนต์ รออนุมัติจากคุณ  <br><br>
             ผู้สร้างเอกสาร : ${main_document_data[0].cdm_create_by_name} / ${main_document_data[0].cdm_create_by_division} / ${main_document_data[0].cdm_create_by_email} <br> 
-            ผู้ขอใช้ : ${main_document_data[0].cdm_for_person} / ${main_document_data[0].cdm_for_person_division} / ${main_document_data[0].cdm_for_person_email} <br>
+            ผู้ขอใช้ : ${user_useThisCar[0].user_nane_th} ${user_useThisCar[0].user_surname_th} / ${user_useThisCar[0].user_division} / ${user_useThisCar[0].user_email} <br>
             <br>
             มีความประสงค์ขอใช้รถไปยังสถานที่ : ${main_document_data[0].cdm_destination_location} <br> 
             เพื่อ : ${main_document_data[0].cdm_for_what} <br>
@@ -1836,8 +2252,13 @@ router.get( "/car_rent_document_list" , function(req , res){
 
   }else{
 
-    let sql_1 = `SELECT * FROM tb_car_rent_document_main WHERE tb_car_rent_document_main.cdm_create_by_email = ? AND tb_car_rent_document_main.cdm_status <> ? ORDER BY tb_car_rent_document_main.cdm_id DESC `
-    let sql_2 = `SELECT * FROM tb_ticket_document_main WHERE tb_ticket_document_main.tdm_create_by_email = ? AND tb_ticket_document_main.tdm_status <> ? ORDER BY tb_ticket_document_main.tdm_id DESC `
+    let sql_1 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
+    WHERE tb_car_rent_document_main.cdm_create_by_email = ? AND tb_car_rent_document_main.cdm_status <> ? ORDER BY tb_car_rent_document_main.cdm_id DESC `
+    let sql_2 = `SELECT * FROM tb_ticket_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_ticket_document_main.tdm_user_id 
+    WHERE tb_ticket_document_main.tdm_create_by_email = ? AND tb_ticket_document_main.tdm_status <> ? 
+    ORDER BY tb_ticket_document_main.tdm_id DESC `
   
     condb.query( sql_1 , [req.cookies.cr_user_app_email , "สร้าง"] , function(err , result){
       if(err){throw err}
@@ -1868,20 +2289,20 @@ router.get( "/car_rent_document_approve_list" , function(req , res){
     res.redirect( powerapps_link )
 
   }else{
-    // let sql_1 = `SELECT * FROM tb_car_rent_document_main 
-    // LEFT JOIN tb_division_approver 
-    // ON tb_car_rent_document_main.cdm_for_person_division_id = tb_division_approver.dap_join_div_id 
-    // WHERE tb_car_rent_document_main.cdm_status = "บันทึกแล้ว" AND tb_division_approver.dap_approver_email = ?`
 
-    let sql_1 = `SELECT * FROM tb_car_rent_document_main 
-    LEFT JOIN tb_division_approver 
-    ON tb_car_rent_document_main.cdm_for_person_division_id = tb_division_approver.dap_join_div_id 
-    WHERE tb_division_approver.dap_approver_email = ? AND tb_car_rent_document_main.cdm_status = "บันทึกแล้ว"`
+    let sql_1 = `SELECT * FROM tb_division_approver 
+    LEFT JOIN tb_division ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_division = tb_division.div_name 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_for_person = tb_user_in_app.user_id 
+    WHERE tb_division_approver.dap_approver_email = ? AND tb_car_rent_document_main.cdm_status = "บันทึกแล้ว" 
+    ORDER BY tb_car_rent_document_main.cdm_id DESC`
 
-    let sql_2 = `SELECT * FROM tb_ticket_document_main 
-    LEFT JOIN tb_division_approver 
-    ON tb_ticket_document_main.tdm_user_division_id = tb_division_approver.dap_join_div_id 
-    WHERE tb_division_approver.dap_approver_email = ? AND tb_ticket_document_main.tdm_status = "บันทึกแล้ว"`
+    let sql_2 = `SELECT * FROM tb_division_approver 
+    LEFT JOIN tb_division ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_division = tb_division.div_name 
+    LEFT JOIN tb_ticket_document_main ON tb_ticket_document_main.tdm_user_id = tb_user_in_app.user_id 
+    WHERE tb_division_approver.dap_approver_email = ? AND tb_ticket_document_main.tdm_status = "บันทึกแล้ว" 
+    ORDER BY tb_ticket_document_main.tdm_id DESC`
 
     condb.query( sql_1 , req.cookies.cr_user_app_email , async function (err , result){
       if(err){throw err}
@@ -1943,16 +2364,37 @@ router.get( "/car_rent_document_view/:document_id" , function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+router.get( "/find_main_doc_from_sub_doc/:sub_doc_id" , function (req , res){
+  let sql_1 = `SELECT * FROM tb_car_rent_document_sub WHERE tb_car_rent_document_sub.cds_id = ?`
+
+  condb.query( sql_1 , req.params.sub_doc_id , function( err , result ){
+    if(err){throw err}
+
+    res.send({
+      message : "success" , 
+      result : result
+    })
+  } )
+
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.get( "/car_rent_document_approve_view/:document_id" , function(req , res){
   if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
     res.cookie( "cr_save_old_url", `/car_rent_document_approve_view/${req.params.document_id}` );
     res.redirect( powerapps_link )
 
   }else{
-
-    let sql_1 = `SELECT * FROM tb_car_rent_document_main WHERE tb_car_rent_document_main.cdm_id = ?`
-    let sql_2 = `SELECT * FROM tb_car_rent_document_sub WHERE tb_car_rent_document_sub.cds_join_cdm_id = ? ORDER BY tb_car_rent_document_sub.cds_date`
-    let sql_3 = `SELECT * FROM tb_division_approver WHERE tb_division_approver.dap_join_div_id = ?`
+    let sql_1 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
+    WHERE tb_car_rent_document_main.cdm_id = ?`
+    let sql_2 = `SELECT * FROM tb_car_rent_document_sub 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+    WHERE tb_car_rent_document_sub.cds_join_cdm_id = ? ORDER BY tb_car_rent_document_sub.cds_date`
+    let sql_3 = `SELECT * FROM tb_division 
+    LEFT JOIN tb_division_approver ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    WHERE tb_division.div_name = ?`
     let sql_4 = `SELECT * FROM tb_car_list WHERE tb_car_list.car_id = ?`
     let sql_5 = `SELECT * FROM tb_car_image WHERE tb_car_image.ci_join_car_id = ?`
     let sql_6 = `SELECT * FROM tb_car_rent_document_comment WHERE tb_car_rent_document_comment.cdc_document_id = ?`
@@ -1963,81 +2405,175 @@ router.get( "/car_rent_document_approve_view/:document_id" , function(req , res)
       if(err){throw err}
       let document_data = result
   
-      condb.query( sql_2 , document_id , function(err , result){
+      condb.query( sql_2 , document_id , async function(err , result){
         if(err){throw err}
         let document_sub_data = result
-    
-        condb.query( sql_3 , document_data[0].cdm_for_person_division_id , function(err , result){
-          if(err){throw err}
-          let approver_document_data = result
-      
-          condb.query( sql_4 , document_sub_data[0].cds_join_car_id , function(err , result){
+        let car_id = await find_car_id(document_sub_data)
+        console.log("car_id")
+        console.log(car_id)
+
+        if( car_id.message == "have value" ){
+          condb.query( sql_3 , document_data[0].user_division , function(err , result){
             if(err){throw err}
-            let car_data = result
+            let approver_document_data = result
         
-            condb.query( sql_5 , car_data[0].car_id , async function(err , result){
+            condb.query( sql_4 , car_id.result , function(err , result){
               if(err){throw err}
-              let car_img_data = result
+              let car_data = result
           
-              condb.query( sql_6 , document_id , async function(err , result){
+              condb.query( sql_5 , car_data[0].car_id , async function(err , result){
                 if(err){throw err}
-                let comment_data = result
-  
-                let permission = await set_permission(document_data , approver_document_data)
-  
-                console.log("permission")
-                console.log(permission)
+                let car_img_data = result
+            
+                condb.query( sql_6 , document_id , async function(err , result){
+                  if(err){throw err}
+                  let comment_data = result
     
-                res.render( "car_rent_document_approve_view" , 
-                {
-                  user_data : req.cookies , 
-                  document_data : await prepare_data_json(document_data) , 
-                  document_sub_data : await prepare_data_json(document_sub_data) , 
-                  approver_document_data : await prepare_data_json(approver_document_data) , 
-                  car_data : await prepare_data_json(car_data) , 
-                  car_image_data : await prepare_data_json(car_img_data) , 
-                  comment_data : await prepare_data_json(comment_data) , 
-                  permission : permission , 
-                  dayjs : dayjs
-                } )
-  
-                function set_permission(document_data , approver_document_data){
-                  return new Promise( ( resolve , reject ) => {
-                    let permission = "viewer"
-  
-                    let creater = document_data.filter( function(e){
-                      return  e.cdm_create_by_email == req.cookies.cr_user_app_email
-                    } )
-  
-                    let approver = approver_document_data.filter( function(e){
-                      return  e.dap_approver_email == req.cookies.cr_user_app_email
-                    } )
-  
-                    console.log("creater")
-                    console.log(creater)
-                    console.log("approver")
-                    console.log(approver)
-  
-                    if( approver.length > 0 ){
-                      permission = "approver"
-                      resolve(permission)
-                    }else if( creater.length > 0 ){
-                      permission = "creater"
-                      resolve(permission)
-                    }else{
-                      permission = "viewer"
-                      resolve(permission)
-                    }
+                  let permission = await set_permission(document_data , approver_document_data)
+    
+                  console.log("permission")
+                  console.log(permission)
+      
+                  res.render( "car_rent_document_approve_view" , 
+                  {
+                    user_data : req.cookies , 
+                    document_data : await prepare_data_json(document_data) , 
+                    document_sub_data : await prepare_data_json(document_sub_data) , 
+                    approver_document_data : await prepare_data_json(approver_document_data) , 
+                    car_data : await prepare_data_json(car_data) , 
+                    car_image_data : await prepare_data_json(car_img_data) , 
+                    comment_data : await prepare_data_json(comment_data) , 
+                    permission : permission , 
+                    dayjs : dayjs , 
+                    status_sub_work : "have car"
                   } )
-                }
-  
+    
+                  function set_permission(document_data , approver_document_data){
+                    return new Promise( ( resolve , reject ) => {
+                      let permission = {
+                        viewer : true , 
+                        approver : false , 
+                        creater : false , 
+                      }
+    
+                      if(document_data[0].user_email === req.cookies.cr_user_app_email){
+                        permission.creater = true
+                      }
+    
+                      let approver = approver_document_data.filter( function(e){
+                        return  e.dap_approver_email == req.cookies.cr_user_app_email
+                      } )
+    
+                      if( approver.length > 0 ){
+                        permission.approver = true
+                      }else{
+
+                      }
+
+                      resolve(permission)
+                    } )
+                  }
+    
+                } )
               } )
             } )
           } )
-        } )
+        }else{
+          condb.query( sql_3 , document_data[0].user_division , function(err , result){
+            if(err){throw err}
+            let approver_document_data = result
+        
+            condb.query( sql_6 , document_id , async function(err , result){
+              if(err){throw err}
+              let comment_data = result
+
+              let permission = await set_permission(document_data , approver_document_data)
+
+              console.log("permission")
+              console.log(permission)
+  
+              res.render( "car_rent_document_approve_view" , 
+              {
+                user_data : req.cookies , 
+                document_data : await prepare_data_json(document_data) , 
+                document_sub_data : await prepare_data_json(document_sub_data) , 
+                approver_document_data : await prepare_data_json(approver_document_data) , 
+                // car_data : await prepare_data_json(car_data) , 
+                // car_image_data : await prepare_data_json(car_img_data) , 
+                comment_data : await prepare_data_json(comment_data) , 
+                permission : permission , 
+                dayjs : dayjs , 
+                status_sub_work : "no car"
+              } )
+
+              function set_permission(document_data , approver_document_data){
+                return new Promise( ( resolve , reject ) => {
+                  let permission = {
+                    viewer : true , 
+                    approver : false , 
+                    creater : false , 
+                  }
+
+                  if(document_data[0].user_email === req.cookies.cr_user_app_email){
+                    permission.creater = true
+                  }
+
+                  let approver = approver_document_data.filter( function(e){
+                    return  e.dap_approver_email == req.cookies.cr_user_app_email
+                  } )
+
+                  if( approver.length > 0 ){
+                    permission.approver = true
+                  }else{
+
+                  }
+
+                  resolve(permission)
+                } )
+              }
+
+            } )
+          } )
+        }
+    
       } )
     } )
   }
+} )
+
+function find_car_id(document_sub_data){
+  return new Promise( (resolve , reject) => {
+    let car_id_not_0 = document_sub_data.filter(item => item.cds_join_car_id !== "0");
+    console.log("car_id_not_0")
+    console.log(car_id_not_0)
+    if( car_id_not_0.length == 0 ){
+      resolve({
+        message : "not value" ,
+        result : ""
+      })
+    }else{
+      resolve({
+        message : "have value" ,
+        result : car_id_not_0[0].cds_join_car_id
+      })
+    }
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/view_include_work/:sub_work_id" , function(req , res){
+  let sql_1 = `SELECT * FROM tb_car_rent_document_sub 
+  LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+  WHERE tb_car_rent_document_sub.cds_include_work = ?`
+
+  condb.query( sql_1 , req.params.sub_work_id , function(err , result){
+    if(err){throw err}
+    res.send({
+      message : "success" , 
+      data : result
+    })
+  } )
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2105,9 +2641,12 @@ router.post( "/approve_car_rent_document" , function(req , res){
     return new Promise( (resolve , reject) => {
       let sql_7 = `SELECT * FROM tb_car_rent_document_main WHERE tb_car_rent_document_main.cdm_id = ?`
 
-      condb.query( sql_7 , req.body.document_id , function(err , result){
+      condb.query( sql_7 , req.body.document_id , async function(err , result){
         if(err){throw err}
         let main_document_data = result
+
+        const sql_user_useThisCar = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_id = ?`
+        const user_useThisCar = await query( sql_user_useThisCar , main_document_data[0].cdm_for_person )
 
         if( req.body.action == "อนุมัติแล้ว" ){
           send_email( 
@@ -2117,7 +2656,7 @@ router.post( "/approve_car_rent_document" , function(req , res){
     
             `เอกสารขอยืมรถยนต์ของคุณ ได้รับการอนุมัติโดย ${main_document_data[0].cdm_approver_name} ณ วันที่ ${dayjs(main_document_data[0].cdm_approve_date).format("DD/MM/YYYY")} <br><br>
             ผู้สร้างเอกสาร : ${main_document_data[0].cdm_create_by_name} / ${main_document_data[0].cdm_create_by_division} / ${main_document_data[0].cdm_create_by_email} <br> 
-            ผู้ขอใช้ : ${main_document_data[0].cdm_for_person} / ${main_document_data[0].cdm_for_person_division} / ${main_document_data[0].cdm_for_person_email} <br>
+            ผู้ขอใช้ : ${user_useThisCar[0].user_nane_th} ${user_useThisCar[0].user_surname_th} / ${user_useThisCar[0].user_division} / ${user_useThisCar[0].user_email} <br>
             <br>
             มีความประสงค์ขอใช้รถไปยังสถานที่ : ${main_document_data[0].cdm_destination_location} <br> 
             เพื่อ : ${main_document_data[0].cdm_for_what} <br>
@@ -2136,7 +2675,7 @@ router.post( "/approve_car_rent_document" , function(req , res){
     
             `เอกสารขอยืมรถยนต์ของคุณ ถูกตีกลับโดย ${main_document_data[0].cdm_approver_name} ณ วันที่ ${dayjs(main_document_data[0].cdm_approve_date).format("DD/MM/YYYY")} <br><br>
             ผู้สร้างเอกสาร : ${main_document_data[0].cdm_create_by_name} / ${main_document_data[0].cdm_create_by_division} / ${main_document_data[0].cdm_create_by_email} <br> 
-            ผู้ขอใช้ : ${main_document_data[0].cdm_for_person} / ${main_document_data[0].cdm_for_person_division} / ${main_document_data[0].cdm_for_person_email} <br>
+            ผู้ขอใช้ : ${user_useThisCar[0].user_nane_th} ${user_useThisCar[0].user_surname_th} / ${user_useThisCar[0].user_division} / ${user_useThisCar[0].user_email} <br>
             <br>
             มีความประสงค์ขอใช้รถไปยังสถานที่ : ${main_document_data[0].cdm_destination_location} <br> 
             เพื่อ : ${main_document_data[0].cdm_for_what} <br>
@@ -2153,6 +2692,58 @@ router.post( "/approve_car_rent_document" , function(req , res){
       resolve()
 
     } )
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ADD New User
+
+router.get( "/CreateNewUser" , async function (req , res){
+  let sql_division = `SELECT * FROM tb_user_in_app`
+  const data_division = await query( sql_division , [] )
+
+  res.render( "CreateNewUser" , {data_division : [...new Set(data_division.map(item => item.user_division))]} )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/submit_CreateNewUserForm" , async function (req , res){
+  let sql_insert_newUser = `INSERT INTO tb_user_in_app (user_emp_id , user_nane_th , user_surname_th , user_nane_en , user_surname_en , 
+  user_email , user_division , user_job_title , user_office_location , user_cost_center , user_activity_number , user_enable) 
+  VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )`
+  let vulues_insert_newUser = [
+    req.body.user_emp_id , 
+    req.body.user_nane_th , 
+    req.body.user_surname_th , 
+    req.body.user_nane_en , 
+    req.body.user_surname_en , 
+    req.body.user_email , 
+    req.body.user_division , 
+    req.body.user_job_title , 
+    req.body.user_division , 
+    "" , 
+    "" , 
+    "ไม่ใช้งาน" , 
+  ]
+
+  let sql_userEmail = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_email = ?`
+  let vulues_sql_userEmail = [ req.body.user_email ]
+
+  const result_sql_userEmail = await query( sql_userEmail , vulues_sql_userEmail )
+
+  if( result_sql_userEmail.length === 0 ){
+    const result_insert_newUser = await query( sql_insert_newUser , vulues_insert_newUser )
+
+    res.send({
+      message : "success" , 
+      data : {} 
+    })
+  }else{
+    res.send({
+      message : "error" , 
+      data : {} 
+    })
   }
 } )
 
@@ -2207,8 +2798,8 @@ router.post( "/add_new_approver" , function (req , res){
           req.body.division_selected_id , 
           req.body.new_approver_name , 
           req.body.new_approver_email , 
-          approver_division_array[0] , 
-          approver_division_array[1] 
+          "0" , 
+          approver_division_array[0] 
         ]
   
         condb.query( sql_2 , input_2 , function (err , result){
@@ -2343,7 +2934,7 @@ router.post( "/check_status_driver" , function(req , res){
               let sql_4 = `SELECT * FROM tb_driver_main 
               LEFT JOIN tb_driver_sub ON tb_driver_main.dm_id = tb_driver_sub.ds_join_dm_id 
               LEFT JOIN tb_car_rent_document_sub ON tb_driver_sub.ds_join_doc_id = tb_car_rent_document_sub.cds_join_cdm_id 
-              WHERE tb_driver_main.dm_id = ? AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ? AND tb_car_rent_document_sub.cds_status <> "ถูกตีกลับ"`
+              WHERE tb_driver_main.dm_id = ? AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ? AND tb_car_rent_document_sub.cds_status <> "ถูกตีกลับ" AND tb_car_rent_document_sub.cds_status <> "ยกเลิก"`
 
               condb.query( sql_4 , [ driver_data_1.dm_id , sub_date_document_data[i].cds_date , sub_date_document_data[i].cds_phase ] , function(err , result){
                 if(err){throw err}
@@ -2382,15 +2973,18 @@ router.post( "/check_status_driver" , function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.get( "/ticket_request_document_create" , function(req , res){
+router.get( "/ticket_request_document_create" , async function(req , res){
 
   if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
     res.cookie( "cr_save_old_url", `/home` );
     res.redirect( powerapps_link )
   }else{
-    let sql_1 = `INSERT INTO tb_ticket_document_main ( tdm_create_by_user_app_id , 	tdm_create_by_name , tdm_create_by_email , tdm_create_by_division , tdm_create_date , tdm_create_timestamp , tdm_status ) VALUES ( ? , ? , ? , ? , ? , ? , ? )`
+    let sql_1 = `INSERT INTO tb_ticket_document_main ( tdm_create_by_user_app_id , 	tdm_create_by_name , tdm_create_by_email , tdm_create_by_division , tdm_create_date , tdm_create_timestamp , 
+    tdm_document_number , tdm_user_id , tdm_status ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )`
     let sql_2 = `SELECT * FROM tb_ticket_document_main WHERE tb_ticket_document_main.tdm_create_timestamp = ? AND tb_ticket_document_main.tdm_create_by_email = ?`
+    let sql_3 = `SELECT * FROM tb_ticket_document_main`
 
+    const ticketDocumentArr = await query(sql_3 , [])
     let timestamp = Date.now()
     let input_1 = [
       req.cookies.cr_user_app_id , 
@@ -2399,6 +2993,8 @@ router.get( "/ticket_request_document_create" , function(req , res){
       req.cookies.cr_user_app_division , 
       new Date() , 
       timestamp , 
+      "TK/" + new Date().getFullYear() + "-" + (ticketDocumentArr.length).toString().padStart(4, '0') , 
+      req.cookies.cr_user_app_id , 
       "สร้าง"
     ]
 
@@ -2429,9 +3025,13 @@ router.get( "/ticket_request_document_edit/:document_code" , function(req , res)
   }else{
 
     let document_id = atob(req.params.document_code)
-    let sql_1 = `SELECT * FROM tb_ticket_document_main WHERE tb_ticket_document_main.tdm_id = ?`
+    let sql_1 = `SELECT * FROM tb_ticket_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_ticket_document_main.tdm_user_id 
+    WHERE tb_ticket_document_main.tdm_id = ?`
     let sql_2 = `SELECT * FROM tb_ticket_document_sub WHERE tb_ticket_document_sub.tds_join_jdm_id = ?`
-    let sql_3 = `SELECT * FROM tb_division`
+    let sql_3 = `SELECT * FROM tb_division 
+    LEFT JOIN tb_division_approver ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    WHERE tb_division.div_name = ?`
 
     condb.query( sql_1 , document_id , function(err , result){
       if(err){throw err}
@@ -2441,19 +3041,40 @@ router.get( "/ticket_request_document_edit/:document_code" , function(req , res)
         if(err){throw err}
         let ticket_document_sub = result
 
-        condb.query( sql_3 , async function(err , result){
+        condb.query( sql_3 , ticket_document_main[0].user_division , async function(err , result){
           if(err){throw err}
           let division_data = result
   
           if( ticket_document_main.length == 0 ){
             res.send("error")
           }else{
-            res.render( "ticket_request_document_edit" , {user_data : req.cookies , division_data : await prepare_data_json(division_data) , ticket_document_main : await prepare_data_json(ticket_document_main) , ticket_document_sub : await prepare_data_json(ticket_document_sub) , dayjs : dayjs} )
+            res.render( "ticket_request_document_edit" , 
+              {
+                user_data : req.cookies , 
+                division_data : division_data.map(item => item.dap_approver_name).join(', ') , 
+                ticket_document_main : await prepare_data_json(ticket_document_main) , 
+                ticket_document_sub : await prepare_data_json(ticket_document_sub) , 
+                dayjs : dayjs
+              } 
+            )
           }
         } )
       } )
     } )
   }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/updateSelectedEmployeeTKD" , async function(req , res){
+  const documentId = req.body.documentId
+  const employeeId = req.body.employeeId
+
+  let sql_1 = `UPDATE tb_ticket_document_main SET tdm_user_id = ? WHERE tb_ticket_document_main.tdm_id = ?`
+
+  const result = await query(sql_1 , [employeeId , documentId])
+
+  res.end()
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2486,33 +3107,20 @@ router.post( "/ticket_insert_sub_row" , function(req , res){
 
 router.post( "/ticket_request_document_submit" , function(req , res){
   let sql_1 = `SELECT * FROM tb_division WHERE tb_division.div_id = ?`
-  let sql_2 = `UPDATE tb_ticket_document_main SET tdm_user_name = ? , tdm_user_email = ? , tdm_user_division_id = ? , tdm_user_division_name = ? , tdm_for_what = ? , tdm_status = ? 
-  WHERE tb_ticket_document_main.tdm_id = ?`
+  let sql_2 = `UPDATE tb_ticket_document_main SET tdm_for_what = ? , tdm_status = ? WHERE tb_ticket_document_main.tdm_id = ?`
   let sql_3 = `UPDATE tb_ticket_document_sub SET tds_status = ? WHERE tb_ticket_document_sub.tds_join_jdm_id = ?`
 
-  condb.query( sql_1 , req.body.tdm_user_division_id , function(err , result){
+  condb.query( sql_2 , [req.body.tdm_for_what , req.body.status  , req.body.tdm_id] , function(err , result){
     if(err){throw err}
-
-    let division_name_selected = ""
-
-    if( result.length == 0 ){
-      division_name_selected = ""
-    }else{
-      division_name_selected = result[0].div_name
-    }
-
-    condb.query( sql_2 , [req.body.tdm_user_name , req.body.tdm_user_email , req.body.tdm_user_division_id , division_name_selected , req.body.tdm_for_what , req.body.status  , req.body.tdm_id] , function(err , result){
+    
+    condb.query( sql_3 , [req.body.status  , req.body.tdm_id] , async function(err , result){
       if(err){throw err}
       
-      condb.query( sql_3 , [req.body.status  , req.body.tdm_id] , async function(err , result){
-        if(err){throw err}
-        
-        if( req.body.status == "บันทึกแล้ว" ){
-          await ticket_req_send_email_to_approver( req.body.tdm_id )
-        }
+      if( req.body.status == "บันทึกแล้ว" ){
+        await ticket_req_send_email_to_approver( req.body.tdm_id )
+      }
 
-        res.send("/car_rent_document_list");
-      } )
+      res.send("/car_rent_document_list");
     } )
   } )
 } )
@@ -2521,9 +3129,13 @@ router.post( "/ticket_request_document_submit" , function(req , res){
 
 function ticket_req_send_email_to_approver( ticket_req_document_id ){
   return new Promise( (resolve , reject) => {
-    let sql_1 = `SELECT * FROM tb_ticket_document_main WHERE tb_ticket_document_main.tdm_id = ?`
+    let sql_1 = `SELECT * FROM tb_ticket_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_ticket_document_main.tdm_user_id 
+    WHERE tb_ticket_document_main.tdm_id = ?`
     let sql_2 = `SELECT * FROM tb_ticket_document_sub WHERE tb_ticket_document_sub.tds_join_jdm_id = ?`
-    let sql_3 = `SELECT * FROM tb_division_approver WHERE tb_division_approver.dap_join_div_id = ?`
+    let sql_3 = `SELECT * FROM tb_division 
+    LEFT JOIN tb_division_approver ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    WHERE tb_division.div_name = ?`
 
     condb.query( sql_1 , ticket_req_document_id , function(err , result){
       if(err){throw err}
@@ -2533,7 +3145,7 @@ function ticket_req_send_email_to_approver( ticket_req_document_id ){
         if(err){throw err}
         let sub_document_data = result
 
-        condb.query( sql_3 , main_document_data[0].tdm_user_division_id , function(err , result){
+        condb.query( sql_3 , main_document_data[0].user_division , function(err , result){
           if(err){throw err}
           let approver_data = result
   
@@ -2577,10 +3189,14 @@ router.get( "/ticket_requset_document_view/:document_id" , function(req , res){
     res.cookie( "cr_save_old_url", `/ticket_requset_document_view/${ req.params.document_id }` );
     res.redirect( powerapps_link )
   }else{
-    let sql_1 = `SELECT * FROM tb_ticket_document_main WHERE tb_ticket_document_main.tdm_id = ?`
+    let sql_1 = `SELECT * FROM tb_ticket_document_main 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_ticket_document_main.tdm_user_id 
+    WHERE tb_ticket_document_main.tdm_id = ?`
     let sql_2 = `SELECT * FROM tb_ticket_document_sub WHERE tb_ticket_document_sub.tds_join_jdm_id = ?`
     let sql_3 = `SELECT * FROM tb_ticket_document_comment WHERE tb_ticket_document_comment.tdc_join_tdm_id = ?`
-    let sql_4 = `SELECT * FROM tb_division_approver WHERE tb_division_approver.dap_join_div_id = ?`
+    let sql_4 = `SELECT * FROM tb_division_approver 
+    LEFT JOIN tb_division ON tb_division.div_id = tb_division_approver.dap_join_div_id 
+    WHERE tb_division.div_name = ?`
   
     let document_id = atob(req.params.document_id)
   
@@ -2596,7 +3212,7 @@ router.get( "/ticket_requset_document_view/:document_id" , function(req , res){
           if(err){throw err}
           let document_comment_data = result
       
-          condb.query( sql_4 , document_main_data[0].tdm_user_division_id , async function(err , result){
+          condb.query( sql_4 , document_main_data[0].user_division , async function(err , result){
             if(err){throw err}
             let approver_document_data = result
         
@@ -2618,26 +3234,27 @@ router.get( "/ticket_requset_document_view/:document_id" , function(req , res){
   
             function set_permission(document_data , approver_document_data){
               return new Promise( ( resolve , reject ) => {
-                let permission = "viewer"
-  
-                let creater = document_data.filter( function(e){
-                  return  e.tdm_create_by_email == req.cookies.cr_user_app_email
-                } )
-  
+                let permission = {
+                  viewer : true , 
+                  approver : false , 
+                  creater : false , 
+                }
+
+                if(document_data[0].user_email === req.cookies.cr_user_app_email){
+                  permission.creater = true
+                }
+
                 let approver = approver_document_data.filter( function(e){
                   return  e.dap_approver_email == req.cookies.cr_user_app_email
                 } )
-  
+
                 if( approver.length > 0 ){
-                  permission = "approver"
-                  resolve(permission)
-                }else if( creater.length > 0 ){
-                  permission = "creater"
-                  resolve(permission)
+                  permission.approver = true
                 }else{
-                  permission = "viewer"
-                  resolve(permission)
+
                 }
+
+                resolve(permission)
               } )
             }
           } )
@@ -2705,6 +3322,117 @@ router.post( "/approve_ticket_request_document" , function(req, res){
       }
       res.end();
     } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/CostCenter/AddDivision" , function(req , res){
+
+  let sql_1 = `UPDATE tb_division SET tb_division.division_fk_cc_id = ? WHERE tb_division.div_id = ?`
+
+  condb.query( sql_1 , [req.body.cc_id , req.body.division_id] , function(err , result){
+    if(err){throw err}
+    res.send({
+      message : "success" , 
+      result : ""
+    });
+  } )
+
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/CostCenter/DeleteDivision" , function(req , res){
+  let sql_1 = `UPDATE tb_division SET tb_division.division_fk_cc_id = "" WHERE tb_division.div_id = ?`
+
+  condb.query( sql_1 , req.body.division_id , function(err , result){
+    if(err){throw err}
+    res.send({
+      message : "success" , 
+      result : ""
+    });
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/CostCenter/Config" , function(req , res){
+
+  let sql_1 = `SELECT * FROM tb_cost_center ORDER BY cc_id DESC`
+  let sql_2 = `SELECT * FROM tb_division LEFT JOIN tb_cost_center ON tb_division.division_fk_cc_id = tb_cost_center.cc_id`
+
+  condb.query( sql_1 , async function( err , result ){
+    if(err){throw err}
+    let cost_center_data = result
+    let cost_center_with_division_data = result.length > 0 ? await cost_center_map_division(result) : result
+    console.log("cost_center_with_division_data")
+    console.log(cost_center_with_division_data)
+
+    condb.query( sql_2 , async function( err , result ){
+      if(err){throw err}
+      let division_data = result
+  
+      res.render( "cost_center_config" , {user_data : req.cookies , cost_center_data : cost_center_data , division_data : division_data} )
+    } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function cost_center_map_division( data ){
+  return new Promise( (resolve , reject) => {
+    let sql_1 = `SELECT * FROM tb_division WHERE tb_division.division_fk_cc_id = ?`
+    for( let i = 0; i < data.length; i++ ){
+      condb.query( sql_1 , data[i].cc_id , function(err , result){
+        if(err){throw err}
+        data[i].division_in_this = result
+
+        if( i == data.length - 1 ){
+          resolve(data)
+        }
+      } )
+    }
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/CostCenter/Craete" , function(req , res){
+  let sql_1 = `SELECT * FROM tb_cost_center WHERE tb_cost_center.cc_cost_center_id = ?`
+  let sql_2 = `INSERT INTO tb_cost_center 
+  (cc_create_by_user_app_id , cc_create_by_name , cc_create_by_email , cc_create_by_division , cc_create_date , cc_create_timestamp , 
+  cc_cost_center_id , cc_cost_center_name , cc_cost_center_description , cc_cost_center_status) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ?)`
+
+  condb.query( sql_1 , req.body.cost_center_id , function(err , result){
+    if(err){throw err}
+    if( result.length > 0 ){
+      res.send({
+        message : "error" , 
+        result : "มี cost center id นี้อยู่แล้ว"
+      });
+    }else{
+      let data = [
+        req.cookies.cr_user_app_id , 
+        req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+        req.cookies.cr_user_app_email , 
+        req.cookies.cr_user_app_division , 
+        new Date() , 
+        Date.now() , 
+        req.body.cost_center_id , 
+        req.body.cost_center_name , 
+        req.body.cost_center_description , 
+        "/"
+      ]
+
+      condb.query( sql_2 , data , function(err , result){
+        if(err){throw err}
+        res.send({
+          message : "success" , 
+          result : ""
+        });
+      } )
+    }
   } )
 } )
 
@@ -2785,40 +3513,48 @@ router.get( "/driver_list" , function( req , res ){
 
 router.get( "/admin_job_schedule_today" , function(req , res){
 
-  let sql_1 = `SELECT * FROM tb_car_rent_document_main 
-  LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
-  LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
-  WHERE (tb_car_rent_document_sub.cds_status = "อนุมัติแล้ว" OR tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" OR tb_car_rent_document_sub.cds_status = "คืนรถแล้ว" OR tb_car_rent_document_sub.cds_status = "สำเร็จแล้ว") 
-  AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = "ช่วงเช้า"`
-  let sql_2 = `SELECT * FROM tb_car_rent_document_main 
-  LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
-  LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
-  WHERE (tb_car_rent_document_sub.cds_status = "อนุมัติแล้ว" OR tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" OR tb_car_rent_document_sub.cds_status = "คืนรถแล้ว" OR tb_car_rent_document_sub.cds_status = "สำเร็จแล้ว") 
-  AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = "ช่วงบ่าย"`
-  let sql_3 = `SELECT * FROM tb_ticket_document_main LEFT JOIN tb_ticket_document_sub ON tb_ticket_document_main.tdm_id = tb_ticket_document_sub.tds_join_jdm_id WHERE tb_ticket_document_main.tdm_status = "อนุมัติแล้ว" AND tb_ticket_document_sub.tds_want_date = ?`
-
-  let now = new Date(new Date().setHours(0,0,0,0))
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/admin_job_schedule_today` );
+    res.redirect( powerapps_link )
+  }else{
+    let sql_1 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
+    WHERE (tb_car_rent_document_sub.cds_status = "อนุมัติแล้ว" OR tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" OR tb_car_rent_document_sub.cds_status = "คืนรถแล้ว" OR tb_car_rent_document_sub.cds_status = "สำเร็จแล้ว") 
+    AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = "ช่วงเช้า"`
+    let sql_2 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
+    WHERE (tb_car_rent_document_sub.cds_status = "อนุมัติแล้ว" OR tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" OR tb_car_rent_document_sub.cds_status = "คืนรถแล้ว" OR tb_car_rent_document_sub.cds_status = "สำเร็จแล้ว") 
+    AND tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = "ช่วงบ่าย"`
+    let sql_3 = `SELECT * FROM tb_ticket_document_main LEFT JOIN tb_ticket_document_sub ON tb_ticket_document_main.tdm_id = tb_ticket_document_sub.tds_join_jdm_id WHERE tb_ticket_document_main.tdm_status = "อนุมัติแล้ว" AND tb_ticket_document_sub.tds_want_date = ?`
   
-  condb.query( sql_1 , now , function(err , result){
-    if(err){throw err}
-    let document_morning_data = result
-
-    condb.query( sql_2 , now , async function(err , result){
+    let now = new Date(new Date().setHours(0,0,0,0))
+    
+    condb.query( sql_1 , now , function(err , result){
       if(err){throw err}
-      let document_afternoon_data = result
-
-      condb.query( sql_3 , now , async function(err , result){
+      let document_morning_data = result
+  
+      condb.query( sql_2 , now , async function(err , result){
         if(err){throw err}
-        let ticket_request_document_data = result
-
-        console.log("ticket_request_document_data")
-        console.log(ticket_request_document_data)
-
-        res.render( "admin_job_schedule_today" , {user_data : req.cookies , ticket_request_document_data : await prepare_data_json(ticket_request_document_data) , document_morning_data : await prepare_data_json(document_morning_data) , document_afternoon_data : await prepare_data_json(document_afternoon_data) , dayjs : dayjs} )
-
+        let document_afternoon_data = result
+  
+        condb.query( sql_3 , now , async function(err , result){
+          if(err){throw err}
+          let ticket_request_document_data = result
+  
+          console.log("ticket_request_document_data")
+          console.log(ticket_request_document_data)
+  
+          res.render( "admin_job_schedule_today" , {user_data : req.cookies , ticket_request_document_data : await prepare_data_json(ticket_request_document_data) , document_morning_data : await prepare_data_json(document_morning_data) , document_afternoon_data : await prepare_data_json(document_afternoon_data) , dayjs : dayjs} )
+  
+        } )
       } )
     } )
-  } )
+  }
+
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2895,9 +3631,10 @@ router.get( "/admin_job_schedule_alltime" , function(req , res){
   let sql_1 = `SELECT * FROM tb_car_rent_document_main 
   LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
   LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_main.cdm_for_person 
   WHERE ( tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" OR tb_car_rent_document_sub.cds_status = "อนุมัติแล้ว" OR tb_car_rent_document_sub.cds_status = "ส่งรถแล้ว" 
   OR tb_car_rent_document_sub.cds_status = "รับรถแล้ว" OR tb_car_rent_document_sub.cds_status = "คืนรถแล้ว" OR tb_car_rent_document_sub.cds_status = "สำเร็จแล้ว" ) 
-  ORDER BY tb_car_rent_document_sub.cds_id DESC`
+  ORDER BY tb_car_rent_document_main.cdm_id DESC , tb_car_rent_document_sub.cds_date`
   
   condb.query( sql_1 , async function(err , result){
     if(err){throw err}
@@ -2939,6 +3676,89 @@ router.post( "/admin_send_car" , function(req , res){
   } )
 
 } )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/include_work_submit" , async function(req , res){
+  let include_work_id_all = (req.body.include_work_id_all).split(",")
+  let include_work_id_main_work = req.body.include_work_id_main_work
+
+  let new_include_work_id_all = include_work_id_all.filter(item => item !== include_work_id_main_work)
+
+  console.log("include_work_id_all")
+  console.log(include_work_id_all)
+
+  console.log("include_work_id_main_work")
+  console.log(include_work_id_main_work)
+
+  console.log("new_include_work_id_all")
+  console.log(new_include_work_id_all)
+
+  if( new_include_work_id_all.length == 0 ){
+    res.send( {
+      message: "Error"
+    } )
+  }else{
+
+    await find_include_work_older(new_include_work_id_all , include_work_id_main_work , req)
+
+    let sql_1 = `UPDATE tb_car_rent_document_sub SET cds_status = ? , cds_include_work = ? , cds_include_work_user = ? , cds_join_car_id = ? WHERE tb_car_rent_document_sub.cds_id = ?`
+    let sql_2 = `UPDATE tb_car_rent_document_sub SET cds_include_work = ? , cds_include_work_user = ? WHERE tb_car_rent_document_sub.cds_id = ?`
+
+    for( let i = 0 ; i < new_include_work_id_all.length ; i++ ){
+
+      let input_1 = [
+        "งานรวบ" , 
+        include_work_id_main_work , 
+        `${req.cookies.cr_user_app_name_en} ${req.cookies.cr_user_app_surname_en} (${req.cookies.cr_user_app_email})` , 
+        "0" ,
+        new_include_work_id_all[i]
+      ]
+
+      condb.query( sql_1 , input_1 , function(err , result){
+        if(err){throw err}
+        if( i == new_include_work_id_all.length - 1 ){
+          let input_2 = [
+            "/" , 
+            `${req.cookies.cr_user_app_name_en} ${req.cookies.cr_user_app_surname_en} (${req.cookies.cr_user_app_email})` , 
+            include_work_id_main_work
+          ]
+          condb.query( sql_2 , input_2 , function(err , result){
+            if(err){throw err}
+            res.send( {
+              message: "Success"
+            } )
+          } )
+        }
+      } )
+    }
+  }
+} )
+
+function find_include_work_older(new_include_work_id_all , new_main_work , req){
+  return new Promise( (resolve , reject) => {
+
+    let sql_1 = `UPDATE tb_car_rent_document_sub SET cds_status = ? , cds_include_work = ? , cds_include_work_user = ? , cds_join_car_id = ? WHERE tb_car_rent_document_sub.cds_include_work = ?`
+    
+    for( let i = 0 ; i < new_include_work_id_all.length ; i++ ){
+
+      let input_1 = [
+        "งานรวบ" , 
+        new_main_work , 
+        `${req.cookies.cr_user_app_name_en} ${req.cookies.cr_user_app_surname_en} (${req.cookies.cr_user_app_email})` , 
+        "0" ,
+        new_include_work_id_all[i]
+      ]
+
+      condb.query( sql_1 , input_1 , function(err , result){
+        if(err){reject(err)}
+        if( i == new_include_work_id_all.length - 1 ){
+          resolve()
+        }
+      } )
+    }
+  } )
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3338,6 +4158,69 @@ router.get( "/approval_division_edit/:division_code" , function(req , res){
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/cancel_car_rent_document" , function(req , res){
+  let sql_1 = `UPDATE tb_car_rent_document_main SET cdm_status = ? WHERE tb_car_rent_document_main.cdm_id = ?`
+  let sql_2 = `UPDATE tb_car_rent_document_sub SET cds_status = ? WHERE tb_car_rent_document_sub.cds_join_cdm_id = ? 
+  AND ( tb_car_rent_document_sub.cds_status = "อนุมัติแล้ว" OR tb_car_rent_document_sub.cds_status = "บันทึกแล้ว" )`
+
+  condb.query( sql_1 , [ "ยกเลิก" , req.body.document_id] , function (err , result){
+    if(err){throw err}
+
+    condb.query( sql_2 , [ "ยกเลิก" , req.body.document_id ] , function (err , result){
+      if(err){throw err}
+      res.end();
+    } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function set_date_templece(date , syntax , type , time = false){
+  let day = (new Date(date)).getDate();
+  let month = (new Date(date)).getMonth();
+  let year = (new Date(date)).getFullYear();
+
+  let time_show = ""
+
+  if( time === true ){
+      time_show = (new Date(date).getHours()).toString().padStart(2, '0') + ":" + (new Date(date).getMinutes()).toString().padStart(2, '0') + ":" + (new Date(date).getSeconds()).toString().padStart(2, '0')
+  }else{
+      time_show = ""
+  }
+
+  if( type === "en_short" ){
+      return day.toString().padStart(2, '0') + syntax + (month + 1).toString().padStart(2, '0') + syntax + year.toString() + " " + time_show
+
+  }else if( type === "th_short" ){
+      return day.toString().padStart(2, '0') + syntax + (month + 1).toString().padStart(2, '0') + syntax + (year + 543).toString() + " " + time_show
+
+  }else if( type === "en_long" ){
+      const monthNames = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+      ];
+
+      return day.toString().padStart(2, '0') + " " + monthNames[month] + " " + year.toString() + " " + time_show
+
+  }else if( type === "th_long" ){
+      const thaiMonths = [
+          "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+          "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ];
+      return day.toString().padStart(2, '0') + " " + thaiMonths[month] + " " + (year + 543).toString() + " " + time_show
+
+  }else if( type === "for_erp" ){
+      return day + syntax + (month + 1).toString().padStart(2, '0') + syntax + year.toString() + " " + time_show
+
+  }else{
+      return ""
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3370,14 +4253,18 @@ router.get( "/test_json" , async function(req , res){
 function prepare_data_json(array_obj) {
   return new Promise((resolve, reject) => {
     try {
-      array_obj.forEach(obj => {
-        Object.entries(obj).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            obj[key] = value.replace(/["\\]/g, ' ');
-          }
+      if( array_obj.length === 0 ){
+        resolve(array_obj);
+      }else{
+        array_obj.forEach(obj => {
+          Object.entries(obj).forEach(([key, value]) => {
+            if (typeof value === 'string') {
+              obj[key] = value.replace(/["\\']/g, ' ');
+            }
+          });
         });
-      });
-      resolve(array_obj);
+        resolve(array_obj);
+      }
     } catch (error) {
       reject(error);
     }
@@ -3388,7 +4275,10 @@ function prepare_data_json(array_obj) {
 
 router.get( "/report_refueling_per_month" , async function(req , res){
 
-  let sql_1 = `SELECT * FROM tb_report_refueling_per_month`
+  let sql_1 = `SELECT * FROM tb_report_refueling_per_month 
+  LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_id = tb_report_refueling_per_month.rrm_join_cds_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_refueling_per_month.rrm_join_user_id 
+  LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_refueling_per_month.rrm_join_car_id `
 
   condb.query( sql_1 , async function(err , result){
     if(err){throw err}
@@ -3444,59 +4334,48 @@ router.post( "/find_main_document_from_sub_document_id" , function( req , res ){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const path = require('path');
+
 const fileUpload = require('express-fileupload');
 const uploadOpts = {
   useTempFiles : true , 
   tempFileDir : "/tmp/"
 }
 
-// const multer = require('multer');
 const XLSX = require('xlsx')
 // const fs = require('fs')
 
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      cb(null, 'public/uploads/'); // โฟลเดอร์ที่จะจัดเก็บไฟล์
+  },
+  filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)); // ชื่อไฟล์ที่จัดเก็บ
+  }
+});
 const upload = multer({ storage: storage });
+const uploadXLSX = multer();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.post( "/uploads_refueling_excel" , upload.single('fileupload') , async function(req , res){
+router.post( "/uploads_refueling_excel" , uploadXLSX.single('fileupload') , async function(req , res){
   console.log("+++")
-
   try {
     const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-    console.log("worksheet[10].NULL")
-    console.log(worksheet[10].NULL)
-
-    // if( worksheet[10].NULL == undefined ){
-    //   console.log("Can Check")
-    // }
-
     let excel_header = worksheet.slice(0, 4);
     let excel_detail = worksheet.slice(4, worksheet.length - 1);
     let excel_footer = worksheet.slice(worksheet.length - 1 , worksheet.length);
 
-    console.log("excel_header")
-    console.log(excel_header)
-
-    console.log("excel_detail")
-    console.log(excel_detail)
-
-    console.log("excel_detail.length")
-    console.log(excel_detail.length)
-
-    console.log("excel_footer")
-    console.log(excel_footer)
-
+    await deleteSameAsOf(excel_header[2]['บริษัท ซินเท็ค คอนสตรัคชั่น จำกัด (มหาชน)'])
     let return_value = await insert_data_excel_to_sql( excel_header , excel_detail , excel_footer , req )
 
     if( return_value.message == "success" ){
       await join_report_to_sub_document( return_value.As_Of )
-      res.redirect( "/report_refueling_per_month" );
-    }else{
-      res.redirect( "/report_refueling_per_month" );
+      await calculateCostPrice( return_value.As_Of )
     }
 
     console.log("return_value")
@@ -3508,6 +4387,1180 @@ router.post( "/uploads_refueling_excel" , upload.single('fileupload') , async fu
     console.log(error)
   }
 } )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function calculateCostPrice( As_Of ){
+  return new Promise( async (resolve , reject) => {
+    const sql_1 = `SELECT * FROM tb_report_refueling_per_month WHERE tb_report_refueling_per_month.rrm_header_As_Of = ?`
+    const sql_2 = `SELECT * FROM tb_report_refueling_per_month WHERE tb_report_refueling_per_month.rrm_header_As_Of = ? AND tb_report_refueling_per_month.rrm_Fleet_Card_Number = ?`
+    const sql_3 = `SELECT * FROM tb_report_refueling_per_month 
+    LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_id = tb_report_refueling_per_month.rrm_join_cds_id 
+    WHERE tb_report_refueling_per_month.rrm_join_cds_id IS NOT NULL 
+    AND tb_report_refueling_per_month.rrm_header_As_Of = ? 
+    AND tb_report_refueling_per_month.rrm_Fleet_Card_Number = ?`
+    const reportThisAsOf = await query( sql_1 , As_Of )
+
+    if( reportThisAsOf.length === 0 ){
+      resolve()
+    }
+
+    const FleetCardNumber = [...new Set(reportThisAsOf.map(item => item.rrm_Fleet_Card_Number))];
+
+    for( let i = 0 ; i < FleetCardNumber.length ; i++ ){
+      const reportThisAsOfAndThisFleetCard = await query( sql_2 , [As_Of , FleetCardNumber[i]] )
+      const reportWithSubDocThisAsOfAndThisFleetCard = await query( sql_3 , [As_Of , FleetCardNumber[i]] )
+      let totalPayPrice = 0
+      let totalUsingMiles = 0
+
+      reportThisAsOfAndThisFleetCard.map( item => {
+        totalPayPrice += (+item.rrm_Total_Amount)
+      } )
+
+      reportWithSubDocThisAsOfAndThisFleetCard.map( item => {
+        totalUsingMiles += ((+item.cds_return_last_miles) - (+item.cds_admin_sender_last_miles))
+      } )
+
+      if(reportWithSubDocThisAsOfAndThisFleetCard.length === 0){
+        
+      }else{
+        const sql_4 = `UPDATE tb_report_refueling_per_month SET rrm_total_miles = ? , rrm_multiplier_rate = ? , rrm_total_change_cost = ? WHERE tb_report_refueling_per_month.rrm_id = ?`
+        for( let x = 0 ; x < reportWithSubDocThisAsOfAndThisFleetCard.length ; x++ ){
+          const multiplierRate = (totalPayPrice/totalUsingMiles)
+          let UsingMiles = ((+reportWithSubDocThisAsOfAndThisFleetCard[x].cds_return_last_miles) - (+reportWithSubDocThisAsOfAndThisFleetCard[x].cds_admin_sender_last_miles))
+          await query( sql_4 , [UsingMiles , multiplierRate , ((+multiplierRate)*(+UsingMiles)) , reportWithSubDocThisAsOfAndThisFleetCard[x].rrm_id] )
+          console.log([UsingMiles , multiplierRate , ((+multiplierRate)*(+UsingMiles)) , reportWithSubDocThisAsOfAndThisFleetCard[x].rrm_id])
+          if(x === reportWithSubDocThisAsOfAndThisFleetCard.length - 1){
+            console.log("2")
+            resolve()
+          }
+        }
+      }
+    }
+  })
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function deleteSameAsOf( AsOf ){
+  return new Promise ( async (resolve , reject) => {
+    const sql_1 = `DELETE FROM tb_report_refueling_per_month WHERE tb_report_refueling_per_month.rrm_header_As_Of = ?`
+    await query( sql_1 , AsOf )
+    resolve()
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/reportCostCenter/:StastTimestamp/:EndTimestamp" , async function (req , res){
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/reportCostCenter` );
+    res.redirect( powerapps_link )
+  }else{
+    const userData = await query( "SELECT * FROM tb_user_in_app" , [] )
+    const CostCenterData = [...new Set(userData.map(item => item.user_cost_center))]
+    const result = []
+
+    const sql_1 = `SELECT * FROM tb_report_expressway_record 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_expressway_record.rer_fk_user_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_expressway_record.rer_fk_car_id 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_report_expressway_record.rer_fk_cdm_id 
+    WHERE tb_user_in_app.user_cost_center = ?`
+
+    const sql_2 = `SELECT * FROM tb_report_refueling_per_month 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_refueling_per_month.rrm_join_user_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_refueling_per_month.rrm_join_car_id 
+    LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_id = tb_report_refueling_per_month.rrm_join_cds_id 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+    WHERE tb_user_in_app.user_cost_center = ?`
+
+    const sql_3 = `SELECT * FROM tb_car_rent_document_sub 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_sub.cds_receive_user_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+    WHERE tb_user_in_app.user_cost_center = ?`
+
+    const StastTimestamp = req.params.StastTimestamp === "-" ? 0 : req.params.StastTimestamp
+    const EndTimestamp = req.params.EndTimestamp === "-" ? new Date().getTime() : req.params.EndTimestamp
+
+    const StastDate = req.params.StastTimestamp === "-" ? set_date_templece(new Date("1-1-2024") , "" , "th_long" , false) : set_date_templece(new Date(+req.params.StastTimestamp) , "" , "th_long" , false)
+    const EndDate = req.params.EndTimestamp === "-" ? set_date_templece(new Date() , "" , "th_long" , false) : set_date_templece(new Date(+req.params.EndTimestamp) , "" , "th_long" , false)
+
+    const _StastDate = req.params.StastTimestamp === "-" ? new Date("1-1-2024") : new Date(+req.params.StastTimestamp)
+    const _EndDate = req.params.EndTimestamp === "-" ? new Date() : new Date(+req.params.EndTimestamp)
+
+    for( let i = 0 ; i < CostCenterData.length ; i++ ){
+      let _Expressway = await query( sql_1 , [CostCenterData[i]] )
+      let _Refueling = await query( sql_2 , [CostCenterData[i]] )
+      let _CarRent = await query( sql_3 , [CostCenterData[i]] )
+
+      let _divisionInCostCenter = [...new Set(_Expressway.map(item => item.user_division))]
+      _divisionInCostCenter.push(...[...new Set(_Refueling.map(item => item.user_division))]) 
+      _divisionInCostCenter.push(...[...new Set(_CarRent.map(item => item.user_division))]) 
+      const divisionInCostCenter = [...new Set(_divisionInCostCenter)]
+
+      // console.log(_divisionInCostCenter)
+      // console.log(divisionInCostCenter)
+
+      _Expressway.map( item => {
+        item.timestamp = new Date(item.rer_pay_date).setHours(0 , 0 , 0)
+      } )
+
+      _Refueling.map( item => {
+        item.timestamp = new Date(item.rrm_Transaction_Date).setHours(0 , 0 , 0)
+      } )
+
+      _CarRent.map( item => {
+        item.timestamp = new Date(item.cds_date).setHours(0 , 0 , 0)
+      } )
+
+      let Expressway = await filterByTime(_Expressway , StastTimestamp , EndTimestamp)
+      let Refueling = await filterByTime(_Refueling , StastTimestamp , EndTimestamp)
+      let CarRent = await filterByTime(_CarRent , StastTimestamp , EndTimestamp)
+
+      let ExpresswayTotalPrice = 0 
+      Expressway.map( item => {
+        ExpresswayTotalPrice += (+item.rer_price)
+      } )
+
+      let RefuelingTotalPrice = 0 
+      Refueling.map( item => {
+        RefuelingTotalPrice += (+item.rrm_total_change_cost)
+      } )
+
+      let CarRentTotalPrice = 0 
+      CarRent.map( item => {
+        CarRentTotalPrice += (+item.cds_car_price_rate)
+      } )
+
+      result.push({
+        divisionInCostCenter : divisionInCostCenter ,
+        StastDate: StastDate , 
+        _StastDate: _StastDate , 
+        EndDate : EndDate , 
+        _EndDate : _EndDate , 
+        CostCenter : CostCenterData[i] , 
+        ExpresswayTotalPrice : ExpresswayTotalPrice , 
+        RefuelingTotalPrice : RefuelingTotalPrice , 
+        CarRentTotalPrice : CarRentTotalPrice , 
+        Expressway : Expressway , 
+        Refueling : Refueling , 
+        CarRent : await prepare_data_json(CarRent)
+      })
+
+      if( i === CostCenterData.length - 1 ){
+        // result.forEach( (item , index) => {
+        //   item.CarRent.forEach( (itemSub , indexSub) => {
+        //     if(itemSub.cdm_id == "518"){
+        //       console.log("itemSub")
+        //       console.log(itemSub)
+        //     }
+        //   } )
+        // } )
+        res.render( "report_cost_center" , { user_data : req.cookies , ReportData : await prepare_data_json(result) , CostCenterListArr : [...new Set(result.map(item => item.CostCenter))] } )
+      }
+    }
+  }
+} )
+
+function filterByTime( data , StastTimestamp , EndTimestamp ){
+  return new Promise( (resolve , reject) => {
+    // console.log("StastTimestamp")
+    // console.log(StastTimestamp)
+    const result = data.filter( function(e){
+      // console.log(e.timestamp)
+      return (+StastTimestamp-25200000) <= (+e.timestamp) && (+e.timestamp) <= (+EndTimestamp)
+    } )
+
+    resolve(result)
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/DownloadExcel_Refueling_All" , async function ( req , res ){
+  let CostCenterListArr = (req.body.CostCenterListText).split(",")
+  let startDate = new Date( req.body.startDate )
+  let endDate = new Date( req.body.endDate )
+
+  const sql_1 = `SELECT * FROM tb_report_refueling_per_month 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_refueling_per_month.rrm_join_user_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_refueling_per_month.rrm_join_car_id 
+    LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_id = tb_report_refueling_per_month.rrm_join_cds_id 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+    WHERE tb_user_in_app.user_cost_center = ? 
+    AND rrm_Transaction_Date BETWEEN '${startDate.getFullYear()}-${(startDate.getMonth()+1).toString().padStart( 2 , "0" )}-${(startDate.getDate()).toString().padStart( 2 , "0" )}' 
+    AND '${endDate.getFullYear()}-${(endDate.getMonth()+1).toString().padStart( 2 , "0" )}-${endDate.getDate().toString().padStart( 2 , "0" )}' `
+
+  if( CostCenterListArr.length === 0 || CostCenterListArr?.[0] === "" ){
+    return res.send({
+      message : "error" , 
+      description : "ไม่มี Cost Center ส่งมา" , 
+      result : []
+    })
+  }
+
+  let output = []
+  let index = 0
+
+  for( let i = 0 ; i < CostCenterListArr.length ; i++ ){
+    let result_1_ReportListArr = await query( sql_1 , CostCenterListArr[i] )
+    if( result_1_ReportListArr.length === 0 ){
+      if( i === CostCenterListArr.length - 1 ){
+        res.send({
+          message : "success" , 
+          description : "" , 
+          result : output
+        })
+      }
+    }else{
+      for( let r = 0 ; r < result_1_ReportListArr.length ; r++ ){
+        let division = (result_1_ReportListArr[r].user_division).split("-")
+        let site = ""
+        ++index
+        if( division[0].startsWith("00") ){
+          site = division[0]
+        }
+        let ActivityNumber = result_1_ReportListArr[r].user_activity_number === "ไม่พบ Activity Number" ? "" : result_1_ReportListArr[r].user_activity_number
+        output.push( [
+          "" , 
+          "ADMIN Change ค่า น้ำมัน : " + set_date_templece(req.body.startDate , "/" , "en_short" , false) + "- " + set_date_templece(req.body.endDate , "/" , "en_short" , false) ,
+          "" , 
+          "Internal Charge-ADM" , 
+          "SYNT" , 
+          "SYNTEC" , 
+          "86000" , 
+          "" , 
+          "CFO" , 
+          "" , 
+          "NONE" , 
+          set_date_templece(req.body.endDate , "/" , "for_erp" , false) , 
+          "Inter.Charge-ADM Fuel" , 
+          (result_1_ReportListArr[r].rrm_total_change_cost).toFixed(2) , 
+          "1.00" , 
+          site , 
+          "BILLABLE" , 
+          ActivityNumber , 
+          "No" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "RC-" + index.toString().padStart(2, '0') , 
+          "" , 
+          "" , 
+          "ADMIN Change ค่า น้ำมัน : " + result_1_ReportListArr[r].cdm_for_what , 
+          "SYNT" , 
+          "SYNTEC" , 
+          result_1_ReportListArr[r].user_cost_center , 
+          "" , 
+          "CFO" , 
+          "" , 
+          site === "" ? "NONE" : site , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "" , 
+          "หักภาษี ณ ที่จ่าย" , 
+          "" , 
+          "" , 
+        ] )
+        if( r === result_1_ReportListArr.length - 1 ){
+
+        }
+
+        if( r === result_1_ReportListArr.length - 1 && i === CostCenterListArr.length - 1 ){
+          res.send({
+            message : "success" , 
+            description : "" , 
+            result : output
+          })
+        }
+      }
+    }
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post("/DownloadExcel_EazyPass_All" , async function (req , res){
+  let CostCenterListArr = (req.body.CostCenterListText).split(",")
+  let startDate = new Date( req.body.startDate )
+  let endDate = new Date( req.body.endDate )
+
+  const sql_1 = `SELECT * FROM tb_report_expressway_record 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_expressway_record.rer_fk_user_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_expressway_record.rer_fk_car_id 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_report_expressway_record.rer_fk_cdm_id 
+    WHERE tb_user_in_app.user_cost_center = ? 
+    AND rer_pay_date BETWEEN '${startDate.getFullYear()}-${(startDate.getMonth()+1).toString().padStart( 2 , "0" )}-${(startDate.getDate()).toString().padStart( 2 , "0" )}' 
+    AND '${endDate.getFullYear()}-${(endDate.getMonth()+1).toString().padStart( 2 , "0" )}-${endDate.getDate().toString().padStart( 2 , "0" )}' `
+
+    if( CostCenterListArr.length === 0 ){
+      return res.send({
+        message : "error" , 
+        description : "ไม่มี Cost Center ส่งมา" , 
+        result : []
+      })
+    }else{
+      let output = []
+      let index = 0
+      
+      for( let CostCenter = 0 ; CostCenter < CostCenterListArr.length ; CostCenter++ ){
+        let RecordOfCostCenter = await query( sql_1 , CostCenterListArr[CostCenter] )
+        if( RecordOfCostCenter.length === 0 ){
+          if( CostCenter === CostCenterListArr.length - 1 ){
+            res.send({
+              message : "success" , 
+              description : "" , 
+              result : output
+            })
+          }
+        }else{
+          for( let R = 0 ; R < RecordOfCostCenter.length ; R++ ){
+            let division = (RecordOfCostCenter[R].user_division).split("-")
+            let site = ""
+            ++index
+            if( division[0].startsWith("00") ){
+                site = division[0]
+            }
+            let ActivityNumber = RecordOfCostCenter[R].user_activity_number === "ไม่พบ Activity Number" ? "" : RecordOfCostCenter[R].user_activity_number
+
+            output.push( [
+              "" , 
+              "ADMIN Change ค่า ผ่านทางด่วน : " + set_date_templece((req.body.startDate , "/" , "en_short" , false)) + "- " + set_date_templece((req.body.endDate , "/" , "en_short" , false)) ,
+              "" , 
+              "Internal Charge-ADM" , 
+              "SYNT" , 
+              "SYNTEC" , 
+              "86000" , 
+              "" , 
+              "CFO" , 
+              "" , 
+              "NONE" , 
+              set_date_templece(RecordOfCostCenter[R].rer_pay_date , "/" , "for_erp" , false) , 
+              "Inter.Charge-ADM Easy pass" , 
+              (RecordOfCostCenter[R].rer_price).toFixed(2) , 
+              "1.00" , 
+              site , 
+              "BILLABLE" , 
+              ActivityNumber , 
+              "No" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "RC-" + index.toString().padStart(2, '0') , 
+              "" , 
+              "" , 
+              "ADMIN Change ค่า ผ่านทางด่วน : " + RecordOfCostCenter[R].cdm_for_what , 
+              "SYNT" , 
+              "SYNTEC" , 
+              RecordOfCostCenter[R].user_cost_center , 
+              "" , 
+              "CFO" , 
+              "" , 
+              site === "" ? "NONE" : site , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "หักภาษี ณ ที่จ่าย" , 
+              "" , 
+              "" , 
+            ] )
+          }
+
+          if( CostCenter === CostCenterListArr.length - 1 ){
+            res.send({
+              message : "success" , 
+              description : "" , 
+              result : output
+            })
+          }
+        }
+      }
+    }
+})
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/DownloadExcel_CarRent_All" , async function (req , res){
+  let CostCenterListArr = (req.body.CostCenterListText).split(",") || []
+  let startDate = new Date( req.body.startDate ) || new Date()
+  let endDate = new Date( req.body.endDate ) || new Date()
+
+  if( CostCenterListArr.length === 0 ){
+    return res.send({
+      message : "error" , 
+      description : "ไม่มี Cost Center ส่งมา" , 
+      result : []
+    })
+  }else{
+    let output = [];
+    let index = 0; 
+
+    const sql_1 = `SELECT * FROM tb_car_rent_document_sub 
+      LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_sub.cds_receive_user_id 
+      LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+      LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+      WHERE tb_user_in_app.user_cost_center = ? 
+      AND cds_date BETWEEN '${startDate.getFullYear()}-${(startDate.getMonth()+1).toString().padStart( 2 , "0" )}-${(startDate.getDate()).toString().padStart( 2 , "0" )}' 
+      AND '${endDate.getFullYear()}-${(endDate.getMonth()+1).toString().padStart( 2 , "0" )}-${endDate.getDate().toString().padStart( 2 , "0" )}' `
+  
+      for( let C = 0 ; C < CostCenterListArr.length ; C++ ){
+        let RecordOfCostCenter = await query( sql_1 , CostCenterListArr[C] )
+
+        if( RecordOfCostCenter.length === 0 ){
+          if( C === CostCenterListArr.length - 1 ){
+            res.send({
+              message : "success" , 
+              description : "" , 
+              result : output
+            })
+          }
+        }else{
+          for( let R = 0 ; R < RecordOfCostCenter.length ; R++ ){
+            let division = (RecordOfCostCenter[R].user_division).split("-")
+            let site = ""
+            ++index
+            if( division[0].startsWith("00") ){
+                site = division[0]
+            }
+            let ActivityNumber = RecordOfCostCenter[R].user_activity_number === "ไม่พบ Activity Number" ? "" : RecordOfCostCenter[R].user_activity_number
+            
+            output.push( [
+              "" , 
+              "ADMIN Change ค่า เช่ารถยนต์ : " + set_date_templece(startDate , "/" , "en_short" , false) + "-" + set_date_templece(endDate , "/" , "en_short" , false) ,
+              "" , 
+              "Internal Charge-ADM" , 
+              "SYNT" , 
+              "SYNTEC" , 
+              "86000" , 
+              "" , 
+              "CFO" , 
+              "" , 
+              "NONE" , 
+              set_date_templece(endDate , "/" , "for_erp" , false) , 
+              "IR 903-ADM" , 
+              (RecordOfCostCenter[R].cds_car_price_rate).toFixed(2) , 
+              "1.00" , 
+              site , 
+              "BILLABLE" , 
+              ActivityNumber , 
+              "No" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "RC-" + index.toString().padStart(2, '0') , 
+              "" , 
+              "" , 
+              "ADMIN Change ค่า เช่ารถยนต์ : " + RecordOfCostCenter[R].cdm_for_what , 
+              "SYNT" , 
+              "SYNTEC" , 
+              RecordOfCostCenter[R].user_cost_center , 
+              "" , 
+              "CFO" , 
+              "" , 
+              site === "" ? "NONE" : site , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "" , 
+              "หักภาษี ณ ที่จ่าย" , 
+              "" , 
+              "" , 
+            ] )
+
+            if( R === RecordOfCostCenter.length - 1 ){
+              console.log("output")
+              console.log(output)
+            }
+          }
+          if( C === CostCenterListArr.length - 1 ){
+            res.send({
+              message : "success" , 
+              description : "" , 
+              result : output
+            })
+          }
+        }
+      }
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/reportGrabOldVersion" , async function ( req , res ){
+
+  let sql_1 = `SELECT * FROM tb_user_in_app`
+  let sql_2 = `SELECT * FROM tb_ticket_document_from_grab 
+  LEFT JOIN tb_ticket_document_sub ON tb_ticket_document_sub.tds_id = tb_ticket_document_from_grab.tdfg_fk_tds_id 
+  LEFT JOIN tb_ticket_document_main ON tb_ticket_document_main.tdm_id = tb_ticket_document_sub.tds_join_jdm_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_email = tb_ticket_document_sub.tds_create_by_email 
+  WHERE tb_user_in_app.user_cost_center = ?`
+  let sql_3 = `SELECT * FROM tb_ticket_document_from_grab_food 
+  LEFT JOIN tb_ticket_document_sub ON tb_ticket_document_sub.tds_id = tb_ticket_document_from_grab_food.tdfgc_fk_tds_id 
+  LEFT JOIN tb_ticket_document_main ON tb_ticket_document_main.tdm_id = tb_ticket_document_sub.tds_join_jdm_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_email = tb_ticket_document_sub.tds_create_by_email`
+
+  const ReportGrabFood = await query( sql_3 , [] )
+  console.log("ReportGrabFood")
+  console.log(ReportGrabFood)
+
+  const UserData = await query( sql_1 , [] )
+  let CostCenterList = [...new Set(UserData.map(item => item.user_cost_center))]
+  CostCenterList = CostCenterList.filter( function(e){
+    return  e != null
+  } )
+
+  console.log(CostCenterList)
+  let mainData = []
+
+  for( let i = 0 ; i < CostCenterList.length ; i++ ){
+    const CostCenterData = await query( sql_2 , [CostCenterList[i]] )
+    CostCenterData.forEach( e => { delete e.tdfg_creator ; delete e.tdfg_payment_details ; delete e.tdfg_items ; } )
+    mainData.push( 
+      {
+        CostCenter : CostCenterList[i] , 
+        titalPrice : CostCenterData.length === 0 ? 0 : CostCenterData.reduce((total, item) => total + Number(item.tdfg_total), 0) ,
+        division : CostCenterData.length === 0 ? [] : [...new Set(CostCenterData.map(item => item.user_division))] , 
+        data : CostCenterData
+      }
+     )
+    if( i === CostCenterList.length - 1 ){
+      // console.log(mainData)
+      // console.log(mainData)
+      res.render( "report_cost_center_grab" , 
+        { 
+          user_data : req.cookies , 
+          GrabReportData : await prepare_data_json(mainData) , 
+          CostCenterList : await prepare_data_json(CostCenterList) ,
+          ReportGrabFood : await prepare_data_json(ReportGrabFood)
+        } )
+    }
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/reportGrab" , async function ( req , res ){
+
+  let sql_1 = `SELECT * FROM tb_user_in_app`
+  let sql_2 = `SELECT * FROM tb_ticket_document_from_grab 
+  LEFT JOIN tb_ticket_document_sub ON tb_ticket_document_sub.tds_id = tb_ticket_document_from_grab.tdfg_fk_tds_id 
+  LEFT JOIN tb_ticket_document_main ON tb_ticket_document_main.tdm_id = tb_ticket_document_sub.tds_join_jdm_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_email = tb_ticket_document_sub.tds_create_by_email`
+  let sql_3 = `SELECT * FROM tb_ticket_document_from_grab_food 
+  LEFT JOIN tb_ticket_document_sub ON tb_ticket_document_sub.tds_id = tb_ticket_document_from_grab_food.tdfgc_fk_tds_id 
+  LEFT JOIN tb_ticket_document_main ON tb_ticket_document_main.tdm_id = tb_ticket_document_sub.tds_join_jdm_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_email = tb_ticket_document_sub.tds_create_by_email`
+
+  const ReportGrabFood = await query( sql_3 , [] )
+  const ReportGrabCar = await query( sql_2 , [] )
+  const UserData = await query( sql_1 , [] )
+
+  let CostCenterListFilter = [...new Set(UserData.map(item => item.user_cost_center))]
+  CostCenterListFilter = CostCenterListFilter.filter( function(e){
+    return  e != null
+  } )
+
+  let DivisionListFilter = [...new Set(UserData.map(item => item.user_division))]
+  DivisionListFilter = DivisionListFilter.filter( function(e){
+    return  e != null
+  } )
+
+  let mainData = []
+
+  res.render( "report_cost_center_grab" , { 
+      user_data : req.cookies , 
+      GrabReportData : await prepare_data_json(mainData) , 
+      ReportGrabFood : await prepare_data_json(ReportGrabFood) ,
+      ReportGrabCar : await prepare_data_json(ReportGrabCar) ,
+      CostCenterListFilter : await prepare_data_json(CostCenterListFilter) ,
+      DivisionListFilter : await prepare_data_json(DivisionListFilter) ,
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/uploads_report_grab_car" , uploadXLSX.single('fileupload') , async function(req , res){
+  try {
+
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    let excel_header = worksheet.slice(0, 6);
+    let excel_detail = worksheet.slice(6, worksheet.length);
+
+    console.log("---------excel_header---------")
+    console.log(excel_header)
+    console.log("---------excel_detail---------")
+    console.log(excel_detail)
+
+    if( excel_header.length > 0 ){
+      if(excel_header?.[0]?.Company === "Date & Time of Generation" && excel_header?.[1]?.['Syntec Construction'] === "Company bookings"){
+        if( excel_detail.length > 0 ){
+          await insert_report_grab_to_sql( excel_header , excel_detail , req )
+          res.redirect("/reportGrab")
+        }else{
+          res.send("ไม่พบข้อมูล")
+        }
+      }else{
+        res.send("ข้อมูลไม่ถูกต้อง ***โปรดตรวจสอบว่าใช้รีพอร์ตของ Grab Car หรือไม่ ?")
+      }
+    }else{
+      res.send("ข้อมูลไม่ถูกต้อง ***ไม่มี Header")
+    }
+  } catch (error) {
+    console.log(error)
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function insert_report_grab_to_sql( excel_header , excel_detail , req ){
+  return new Promise ( async (resolve , reject) => {
+    let datetime_generated = new Date(excel_header[0]['Syntec Construction'])
+    const user_data = {
+      create_id : req.cookies.cr_user_app_id , 
+      create_name : req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+      create_email : req.cookies.cr_user_app_email , 
+      create_division : req.cookies.cr_user_app_division , 
+      create_datetime : new Date() ,
+      create_timestamp : Date.now() , 
+    }
+
+    let sql_1 = `SELECT * FROM tb_ticket_document_sub WHERE tb_ticket_document_sub.tds_ticket_code_generated = ?`
+    let sql_2 = `INSERT INTO tb_ticket_document_from_grab ( tdfg_creator , tdfg_fk_tds_id , tdfg_datetime_generated , tdfg_datetime_using , tdfg_use_by_name , 
+    tdfg_use_by_emp_id , tdfg_use_by_email , tdfg_use_by_group , tdfg_service_type , tdfg_payment_method , tdfg_merchant , tdfg_pickup_address , tdfg_dropoff_address , 
+    tdfg_orderID , tdfg_distance , tdfg_grab_code , tdfg_order_description , tdfg_order_completion_datetime , tdfg_items , tdfg_payment_details , tdfg_subtotal , 
+    tdfg_total , tdfg_revised_total_after_refund , tdfg_option_1 ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )`
+    let sql_3 = `SELECT * FROM tb_ticket_document_from_grab WHERE tb_ticket_document_from_grab.tdfg_grab_code = ?`
+    let sql_4 = `DELETE FROM tb_ticket_document_from_grab WHERE tb_ticket_document_from_grab.tdfg_grab_code = ?`
+
+    for( let i = 0 ; i < excel_detail.length ; i++ ){
+      const ticket_code = await query( sql_1 , excel_detail[i].__EMPTY_12 )
+      const report_of_this_code = await query( sql_3 , excel_detail[i].__EMPTY_12 )
+
+      let value_2 = [
+        JSON.stringify(user_data) , 
+        ticket_code.length === 0 ? "0" : ticket_code[ ticket_code.length - 1 ].tds_id , 
+        datetime_generated , 
+        new Date(excel_detail[i]['Syntec Construction']) , 
+        excel_detail[i].__EMPTY , 
+        excel_detail[i].__EMPTY_1 , 
+        "" , 
+        excel_detail[i].__EMPTY_2 , /* tdfg_use_by_group */
+        excel_detail[i].__EMPTY_3 , /* tdfg_service_type */
+        excel_detail[i].__EMPTY_4 , /* tdfg_payment_method */
+        "" , /* tdfg_merchant */
+        excel_detail[i].__EMPTY_5 , 
+        excel_detail[i].__EMPTY_7 , /* tdfg_dropoff_address */
+        excel_detail[i].__EMPTY_8 , 
+        excel_detail[i].__EMPTY_10 , /* tdfg_distance */
+        excel_detail[i].__EMPTY_12 , /* tdfg_grab_code */
+        excel_detail[i].__EMPTY_13 , /* tdfg_order_description */
+        excel_detail[i].__EMPTY_15 , /* tdfg_order_completion_datetime */
+        "" , 
+        excel_detail[i].__EMPTY_17 , /* tdfg_payment_details */
+        excel_detail[i].__EMPTY_19 , /* tdfg_subtotal */
+        excel_detail[i].__EMPTY_25 , /* tdfg_total */
+        excel_detail[i].__EMPTY_26 , /* tdfg_revised_total_after_refund */
+        ticket_code.length > 1 ? "โค้ดนี้มีหลายเอกสาร" : report_of_this_code.length > 0 ? "รีพอร์ตรายการนี้อาจะซ้ำ" : "ไม่มีปัญหา" ,  , /* tdfg_option_1 */
+      ]
+      
+      if( report_of_this_code.length === 0 ){
+        await query( sql_2 , value_2 )
+      }else{
+        await query( sql_4 , excel_detail[i].__EMPTY_12 )
+        await query( sql_2 , value_2 )
+      }
+
+      if( i === excel_detail.length - 1 ){
+        resolve()
+      }
+    }
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/uploads_report_grab_food" , uploadXLSX.single('fileupload') , async function(req , res){
+  try {
+
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    let excel_header = worksheet.slice(0, 7);
+    let excel_detail = worksheet.slice(7, worksheet.length);
+
+    console.log("---------excel_header---------")
+    console.log(excel_header)
+    console.log("---------excel_detail---------")
+    console.log(excel_detail)
+
+    if( excel_header.length > 0 ){
+      if(excel_header?.[0]?.Company === "Date & Time of Generation" && excel_header?.[1]?.['Syntec Construction'] === "Company orders"){
+        if( excel_detail.length > 0 ){
+          await insert_report_grab_to_sql_for_food( excel_header , excel_detail , req )
+          res.redirect("/reportGrab")
+        }else{
+          res.send("ไม่พบข้อมูล")
+        }
+      }else{
+        res.send("ข้อมูลไม่ถูกต้อง ***โปรดตรวจสอบว่าใช้รีพอร์ตของ Grab Food หรือไม่ ?")
+      }
+    }else{
+      res.send("ข้อมูลไม่ถูกต้อง ***ไม่มี Header")
+    }
+  } catch (error) {
+    console.log(error)
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function insert_report_grab_to_sql_for_food( excel_header , excel_detail , req ){
+  return new Promise ( async (resolve , reject) => {
+    let datetime_generated = new Date(excel_header[0]['Syntec Construction'])
+    const user_data = {
+      create_id : req.cookies.cr_user_app_id , 
+      create_name : req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+      create_email : req.cookies.cr_user_app_email , 
+      create_division : req.cookies.cr_user_app_division , 
+      create_datetime : new Date() ,
+      create_timestamp : Date.now() , 
+    }
+
+    let sql_1 = `SELECT * FROM tb_ticket_document_sub WHERE tb_ticket_document_sub.tds_ticket_code_generated = ?`
+    let sql_2 = `INSERT INTO tb_ticket_document_from_grab_food ( tdfgc_creator , tdfgc_fk_tds_id , tdfgc_datetime_generated , tdfgc_datetime_using , tdfgc_use_by_name , 
+    tdfgc_use_by_emp_id , tdfgc_use_by_email , tdfgc_use_by_group , tdfgc_change_cost , tdfgc_service_type , tdfgc_payment_method , tdfgc_merchant , tdfgc_pickup_address , 
+    tdfgc_dropoff_address , tdfgc_orderID , tdfgc_distance , tdfgc_grab_code , tdfgc_order_description , tdfgc_order_completion_datetime , tdfgc_items , tdfgc_payment_details , 
+    tdfgc_subtotal , tdfgc_delivery_fee , tdfgc_total , tdfgc_option_1 ) 
+    VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )`
+    let sql_3 = `SELECT * FROM tb_ticket_document_from_grab_food WHERE tb_ticket_document_from_grab_food.tdfgc_grab_code = ?`
+    let sql_4 = `DELETE FROM tb_ticket_document_from_grab_food WHERE tb_ticket_document_from_grab_food.tdfgc_grab_code = ?`
+
+    for( let i = 0 ; i < excel_detail.length ; i++ ){
+      const ticket_code = await query( sql_1 , excel_detail[i].__EMPTY_14 )
+      const report_of_this_code = await query( sql_3 , excel_detail[i].__EMPTY_14 )
+
+      let value_2 = [
+        JSON.stringify(user_data) , /* tdfgc_creator */
+        ticket_code.length === 0 ? "0" : ticket_code[ ticket_code.length - 1 ].tds_id , /* tdfgc_fk_tds_id */
+        datetime_generated , /* tdfgc_datetime_generated */
+        new Date(excel_detail[i]['Syntec Construction']) , /* tdfgc_datetime_using */
+        excel_detail[i].__EMPTY , /* tdfgc_use_by_name */
+        excel_detail[i].__EMPTY_1 , /* tdfgc_use_by_emp_id */
+        excel_detail[i].__EMPTY_2 , /* tdfgc_use_by_email */
+        excel_detail[i].__EMPTY_3 , /* tdfgc_use_by_group */
+        (excel_detail[i].__EMPTY_15.split("-")).length > 1 ? (excel_detail[i].__EMPTY_15.split("-"))[0] : "ไม่พบ" , /* tdfgc_change_cost */
+        excel_detail[i].__EMPTY_4 , /* tdfgc_service_type */
+        excel_detail[i].__EMPTY_5 , /* tdfgc_payment_method */
+        excel_detail[i].__EMPTY_6 , /* tdfgc_merchant */
+        excel_detail[i].__EMPTY_7 , /* tdfgc_pickup_address */
+        excel_detail[i].__EMPTY_8 , /* tdfgc_dropoff_address */
+        excel_detail[i].__EMPTY_9 , /* tdfgc_orderID */
+        excel_detail[i].__EMPTY_11 , /* tdfgc_distance */
+        excel_detail[i].__EMPTY_14 , /* tdfgc_grab_code */
+        excel_detail[i].__EMPTY_15 , /* tdfgc_order_description */
+        excel_detail[i].__EMPTY_17 , /* tdfgc_order_completion_datetime */
+        excel_detail[i].__EMPTY_20 , /* tdfgc_items */
+        excel_detail[i].__EMPTY_23 , /* tdfgc_payment_details */
+        excel_detail[i].__EMPTY_25 , /* tdfgc_subtotal */
+        excel_detail[i].__EMPTY_28 , /* tdfgc_delivery_fee */
+        excel_detail[i].__EMPTY_32 , /* tdfgc_total */
+        ticket_code.length > 1 ? "โค้ดนี้มีหลายเอกสาร" : report_of_this_code.length > 0 ? "รีพอร์ตรายการนี้อาจจะซ้ำ" : "ไม่มีปัญหา" , /* tdfgc_option_1 */
+      ]
+
+      if( report_of_this_code.length === 0 ){
+        await query( sql_2 , value_2 )
+      }else{
+        await query( sql_4 , excel_detail[i].__EMPTY_14 )
+        await query( sql_2 , value_2 )
+      }
+
+      if( i === excel_detail.length - 1 ){
+        resolve()
+      }
+    }
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// router.post( "/reportCostCenter/filterDivision" , async function (req , res){
+//   const userData = await query( "SELECT * FROM tb_user_in_app" , [] )
+//   const CostCenterData = [...new Set(userData.map(item => item.user_cost_center))]
+//   const result = []
+
+//   const sql_1 = `SELECT * FROM tb_report_expressway_record 
+//   LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_expressway_record.rer_fk_user_id 
+//   LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_expressway_record.rer_fk_car_id 
+//   LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_report_expressway_record.rer_fk_cdm_id 
+//   WHERE tb_user_in_app.user_cost_center = ?`
+
+//   const sql_2 = `SELECT * FROM tb_report_refueling_per_month 
+//   LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_refueling_per_month.rrm_join_user_id 
+//   LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_refueling_per_month.rrm_join_car_id 
+//   LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_id = tb_report_refueling_per_month.rrm_join_cds_id 
+//   LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+//   WHERE tb_user_in_app.user_cost_center = ?`
+
+//   const sql_3 = `SELECT * FROM tb_car_rent_document_sub 
+//   LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_car_rent_document_sub.cds_receive_user_id 
+//   LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+//   LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+//   WHERE tb_user_in_app.user_cost_center = ?`
+
+//   const StastTimestamp = req.params.StastTimestamp === "-" ? 0 : req.params.StastTimestamp
+//   const EndTimestamp = req.params.EndTimestamp === "-" ? new Date().getTime() : req.params.EndTimestamp
+
+//   const StastDate = req.params.StastTimestamp === "-" ? set_date_templece(new Date("1-1-2024") , "" , "th_long" , false) : set_date_templece(new Date(+req.params.StastTimestamp) , "" , "th_long" , false)
+//   const EndDate = req.params.EndTimestamp === "-" ? set_date_templece(new Date() , "" , "th_long" , false) : set_date_templece(new Date(+req.params.EndTimestamp) , "" , "th_long" , false)
+
+//   for( let i = 0 ; i < CostCenterData.length ; i++ ){
+//     let _Expressway = await query( sql_1 , [CostCenterData[i]] )
+//     let _Refueling = await query( sql_2 , [CostCenterData[i]] )
+//     let _CarRent = await query( sql_3 , [CostCenterData[i]] )
+
+//     let _divisionInCostCenter = [...new Set(_Expressway.map(item => item.user_division))]
+//     _divisionInCostCenter.push(...[...new Set(_Refueling.map(item => item.user_division))]) 
+//     _divisionInCostCenter.push(...[...new Set(_CarRent.map(item => item.user_division))]) 
+//     const divisionInCostCenter = [...new Set(_divisionInCostCenter)]
+
+//     console.log(_divisionInCostCenter)
+//     console.log(divisionInCostCenter)
+
+//     _Expressway.map( item => {
+//       item.timestamp = new Date(item.rer_pay_date).setHours(0 , 0 , 0)
+//     } )
+
+//     _Refueling.map( item => {
+//       item.timestamp = new Date(item.rrm_Transaction_Date).setHours(0 , 0 , 0)
+//     } )
+
+//     _CarRent.map( item => {
+//       item.timestamp = new Date(item.cds_date).setHours(0 , 0 , 0)
+//     } )
+
+//     let Expressway = await filterByTime(_Expressway , StastTimestamp , EndTimestamp)
+//     let Refueling = await filterByTime(_Refueling , StastTimestamp , EndTimestamp)
+//     let CarRent = await filterByTime(_CarRent , StastTimestamp , EndTimestamp)
+
+//     let ExpresswayTotalPrice = 0 
+//     Expressway.map( item => {
+//       ExpresswayTotalPrice += (+item.rer_price)
+//     } )
+
+//     let RefuelingTotalPrice = 0 
+//     Refueling.map( item => {
+//       RefuelingTotalPrice += (+item.rrm_total_change_cost)
+//     } )
+
+//     let CarRentTotalPrice = 0 
+//     CarRent.map( item => {
+//       CarRentTotalPrice += (+item.cds_car_price_rate)
+//     } )
+
+//     result.push({
+//       divisionInCostCenter : divisionInCostCenter ,
+//       StastDate: StastDate , 
+//       EndDate : EndDate , 
+//       CostCenter : CostCenterData[i] , 
+//       ExpresswayTotalPrice : ExpresswayTotalPrice , 
+//       RefuelingTotalPrice : RefuelingTotalPrice , 
+//       CarRentTotalPrice : CarRentTotalPrice , 
+//       Expressway : Expressway , 
+//       Refueling : Refueling , 
+//       CarRent : CarRent
+//     })
+
+//     if( i === CostCenterData.length - 1 ){
+//       console.log(result)
+//       res.render( "report_cost_center" , { user_data : req.cookies , ReportData : await prepare_data_json(result) } )
+//     }
+//   }
+// } )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/report_expressway_per_month" , function(req , res){
+
+  let sql_1 = `SELECT * FROM tb_report_expressway_record 
+  LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_report_expressway_record.rer_fk_cdm_id 
+  LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_sub.cds_id = tb_report_expressway_record.rer_fk_cds_id 
+  LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_report_expressway_record.rer_fk_car_id 
+  LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id = tb_report_expressway_record.rer_fk_user_id  
+  ORDER BY tb_report_expressway_record.rer_id DESC`
+
+  let sql_2 = `SELECT * FROM tb_report_expressway_card`
+
+  condb.query( sql_1 , function(err , result){
+    if(err){throw err}
+    let report_data = result
+    
+    condb.query( sql_2 , function(err , result){
+      if(err){throw err}
+      let card_data = result
+      
+      res.render( "report_expressway_per_month" , { user_data : req.cookies , report_data : report_data , card_data : card_data } )
+    } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/uploads_expressway_excel" , uploadXLSX.single('fileupload') , async function(req , res){
+  console.log("+++")
+
+  try {
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    console.log(worksheet)
+
+    let excel_header = worksheet.slice(0, 17);
+    let excel_detail = worksheet.slice(17, worksheet.length);
+
+    let car_registration = excel_header[10].__EMPTY || ""
+    let smart_card_number = excel_header[7].__EMPTY || ""
+    let obu_number = excel_header[6].__EMPTY || ""
+    
+    await insert_expressway_excel_to_sql( excel_detail , car_registration , req , smart_card_number , obu_number)
+
+    await update_expresswaycard_total_price( excel_header , req , car_registration , smart_card_number , obu_number)
+
+    res.redirect( "/report_expressway_per_month" );
+
+  } catch (error) {
+    console.log(error)
+  }
+} )
+
+function update_expresswaycard_total_price( excel_header , req , _car_registration , _smart_card_number , _obu_number){
+  return new Promise( (resolve , reject) => {
+
+    const obu_number = _obu_number
+    const smart_card_number = _smart_card_number
+    const car_registration = _car_registration
+
+    const range_date = excel_header[14].__EMPTY || ""
+    const card_status = excel_header[2].__EMPTY || ""
+    const open_card_date = excel_header[9].__EMPTY || ""
+    const price_in_card_now = excel_header[8].__EMPTY || ""
+
+    const range_date_array = range_date.split( " - " )[1] || ""
+    const range_date_array_2 = range_date_array.split("/")
+
+    const range_date_array_3 = new Date(`${range_date_array_2[2]}-${(+range_date_array_2[1])}-${range_date_array_2[0]}`) || ""
+    const range_date_array_3_timstamp = range_date_array_3.getTime() || ""
+
+    if(range_date_array_3 === "" || range_date_array_3_timstamp === ""){
+      resolve()
+    }else{
+      let sql_1 = `SELECT * FROM tb_report_expressway_card WHERE tb_report_expressway_card.rec_smart_card_number = ?`
+      let sql_2 = `INSERT INTO tb_report_expressway_card (rec_open_date , rec_status , rec_car_registration , rec_obu_number , rec_smart_card_number , rec_total_money , rec_last_update , rec_last_update_timestamp ) 
+      VALUES ( ? , ? ,  ? , ? , ? , ? , ? , ? )`
+      let sql_3 = `UPDATE tb_report_expressway_card SET rec_status = ? , rec_total_money = ? , rec_last_update = ? , rec_last_update_timestamp = ? 
+      WHERE tb_report_expressway_card.rec_smart_card_number = ?`
+
+      condb.query( sql_1 , smart_card_number , function(err , result){
+        if(err){throw err}
+        if( result.length === 0 ){
+          let data = [
+            new Date(open_card_date) , 
+            card_status , 
+            car_registration , 
+            obu_number , 
+            smart_card_number , 
+            price_in_card_now , 
+            range_date_array_3 , 
+            range_date_array_3_timstamp , 
+          ]
+          condb.query( sql_2 , data , function(err , result){
+            if(err){throw err}
+            resolve()
+          } )
+        }else{
+          if( (+result[0].rec_last_update_timestamp) > (+range_date_array_3_timstamp) ){
+            resolve()
+          }else{
+            let data = [
+              card_status , 
+              price_in_card_now , 
+              range_date_array_3 , 
+              range_date_array_3_timstamp , 
+              smart_card_number , 
+            ]
+            condb.query( sql_3 , data , function(err , result){
+              if(err){throw err}
+              resolve()
+            } )
+          }
+        }
+      } )
+    }
+  } )
+}
+
+function insert_expressway_excel_to_sql( excel_detail_array , car_registration , req , smart_card_number , obu_number){
+  return new Promise( async (resolve , reject) => {
+    if( excel_detail_array.length === 0 ){
+      resolve()
+    }else{
+      for( let i = 0 ; i < excel_detail_array.length ; i++ ){
+        await check_and_insert_record(excel_detail_array[i] , car_registration , req , smart_card_number , obu_number)
+        resolve()
+      }
+      // console.log(car_registration)
+    }
+  } )
+}
+
+function check_and_insert_record( excel_detail_obj , car_registration , req, _smart_card_number , _obu_number){
+  return new Promise( async (resolve , reject) => {
+
+    const dateString = excel_detail_obj.__EMPTY_2;
+    const dateString_ARR_1 = dateString.split(" ");
+    const dateString_ARR_2 = dateString_ARR_1[0].split("/")
+
+    const [datePart, timePart] = dateString.split(" ");
+    const [day, month , year] = datePart.split("/");
+    const [hour, minute, second] = timePart.split(":");
+
+    const date = new Date(year, month - 1, day, hour, minute, second);
+
+    const timestamp = Math.floor(date.getTime() / 1000);
+
+    const pay_date = new Date(`${dateString_ARR_2[1]}/${dateString_ARR_2[0]}/${dateString_ARR_2[2]}`);
+    const pay_date_timestamp = timestamp
+    const phase = (+pay_date.getHours()) > 12 ? "ช่วงบ่าย" : "ช่วงเช้า"
+
+    const smart_card_number = _smart_card_number;
+    const obu_number = _obu_number;
+
+    let sql_1 = `SELECT * FROM tb_report_expressway_record 
+    WHERE tb_report_expressway_record.rer_car_registration = ? 
+    AND tb_report_expressway_record.rer_pay_date_timestamp = ? 
+    AND tb_report_expressway_record.rer_location = ? 
+    AND tb_report_expressway_record.rer_smart_card_number = ?`
+
+    let sql_2 = `SELECT * FROM tb_car_list WHERE tb_car_list.car_eazy_pass_code = ?`
+
+    let sql_3 = `SELECT * FROM tb_car_rent_document_sub 
+    LEFT JOIN tb_car_rent_document_main ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id 
+    LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+    LEFT JOIN tb_user_in_app ON tb_user_in_app.user_id  = tb_car_rent_document_sub.cds_receive_user_id 
+    WHERE tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ? AND tb_car_list.car_id = ? AND tb_car_rent_document_sub.cds_status = "สำเร็จแล้ว"`
+
+    let sql_5 = `INSERT INTO tb_report_expressway_record 
+    (rer_create_by_user_app_id , rer_create_by_name , rer_create_by_email , rer_create_by_division , rer_create_date , rer_create_timestamp , 
+    rer_status_matching , rer_fk_cdm_id , rer_fk_cds_id , rer_fk_user_id , rer_fk_division_id , rer_fk_cc_id , rer_fk_car_id , rer_fk_car_registration , 
+    rer_car_registration , rer_obu_number , rer_smart_card_number , rer_location , rer_lane_number , rer_pay_date , rer_pay_date_timestamp , rer_type , rer_price) 
+    VALUES ( '${req.cookies.cr_user_app_id}' , '${req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en}' , '${req.cookies.cr_user_app_email}' , 
+    '${req.cookies.cr_user_app_division}' , ? , '${Date.now()}' , 
+    ? , ? , ? , ? , ? , ? , ? , ? ,
+    '${car_registration}' , '${obu_number}' , '${smart_card_number}' , '${excel_detail_obj.__EMPTY}' , '${excel_detail_obj.__EMPTY_1}' , 
+    ? , '${pay_date_timestamp}' , '${excel_detail_obj.__EMPTY_3}' , '${excel_detail_obj.__EMPTY_4}')`
+
+    console.log("[car_registration , pay_date_timestamp , excel_detail_obj.__EMPTY , smart_card_number]")
+    console.log([car_registration , pay_date_timestamp , excel_detail_obj.__EMPTY , smart_card_number])
+
+    condb.query( sql_1 , [car_registration , pay_date_timestamp , excel_detail_obj.__EMPTY , smart_card_number] , async function(err , result){
+      if(err){throw err}
+
+      if( result.length > 0 ){
+        await delete_duplicate_record(result)
+      }
+
+      condb.query( sql_2 , smart_card_number , function(err , result){
+        if(err){throw err}
+        let car_data = result
+
+        if(car_data.length === 0){
+          condb.query( sql_5 , [ new Date() , "Eazy Pass นี้ไม่ได้ผูกกับรถคันใด" , "" , "" , "" , "" , "" , "" , "" , pay_date ] , function(err , result){
+            if(err){throw err}
+            resolve()
+          } )
+        }else if(car_data.length > 1){
+          condb.query( sql_5 , [ new Date() , "Eazy Pass นี้ผูกกับรถยนต์มากกว่า 1 คัน" , "" , "" , "" , "" , "" , "" , "" , pay_date ] , function(err , result){
+            if(err){throw err}
+            resolve()
+          } )
+        }else{
+          condb.query( sql_3 , [ `${pay_date.getFullYear()}-${(+pay_date.getMonth()) + 1}-${pay_date.getDate()}` , phase , car_data[0].car_id ] , function(err , result){
+            if(err){throw err}
+            let document_join = result
+
+            if(document_join.length === 0){
+              condb.query( sql_5 , [ new Date() , "ไม่มีเอกสารที่ตรงกัน" , "" , "" , "" , "" , "" , "" , "" , pay_date ] , function(err , result){
+                if(err){throw err}
+                resolve()
+              } )
+            }else{
+              condb.query( sql_5 , [ 
+                new Date() , 
+                "จับคู่สำเร็จ" , 
+                document_join[0].cdm_id , 
+                document_join[0].cds_id , 
+                document_join[0].user_id , 
+                document_join[0].user_division , 
+                document_join[0].user_cost_center || "ไม่พบ Cost Center" , 
+                document_join[0].car_id , 
+                document_join[0].car_registration_code , 
+                pay_date ] , function(err , result){
+                if(err){throw err}
+                resolve()
+              } )
+            }
+          } )
+        }
+      } ) 
+    } )
+  } )
+}
+
+function delete_duplicate_record( data ){
+  return new Promise( async (resolve , reject) => {
+    let sql_1 = `DELETE FROM tb_report_expressway_record WHERE tb_report_expressway_record.rer_id = ?`
+
+    for( let i = 0 ; i < data.length ; i++ ){
+      condb.query( sql_1 , data[i].rer_id , function(err , result){
+        if(err){throw err}
+        if( i == data.length - 1 ){
+          resolve()
+        }
+      } )
+    }
+  } )
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3525,36 +5578,44 @@ async function join_report_to_sub_document( As_Of ){
         for( let i = 0 ; i < report_this_as_of.length ; i++ ){
           let morning_or_afternoon = await set_morning_or_afternoon( report_this_as_of[i].rrm_Transaction_Time ) 
 
-          let sql_2 = `SELECT * FROM tb_car_rent_document_sub LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
-          WHERE tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ? AND 
-          ( tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? )`
-          let sql_3 = `UPDATE tb_report_refueling_per_month SET rrm_join_cds_id = ? WHERE tb_report_refueling_per_month.rrm_id = ?`
+          let carLinkDataArr = await query( "SELECT * FROM tb_car_list WHERE tb_car_list.car_fuel_card_code = ?" , report_this_as_of[i].rrm_Fleet_Card_Number )
 
-          let input_2 = [
-            report_this_as_of[i].rrm_Settlement_Date , 
-            morning_or_afternoon , 
-            "อนุมัติแล้ว" , 
-            "ส่งรถแล้ว" , 
-            "รับรถแล้ว" , 
-            "คืนรถแล้ว" , 
-            "สำเร็จแล้ว" , 
-          ]
-          condb.query( sql_2 , input_2 , function(err , result){
-            if(err){throw err}
-            
-            if( result.length == 0 ){
-              if( i == report_this_as_of.length - 1 ){
-                resolve()
+          if( carLinkDataArr.length === 0 ){
+            await query( "UPDATE tb_report_refueling_per_month SET rrm_join_status = 'ไม่มีรถที่ผูกกับบัตรนี้' WHERE tb_report_refueling_per_month.rrm_id = ?" , report_this_as_of[i].rrm_id )
+          }else if( carLinkDataArr.length > 1 ){
+            await query( "UPDATE tb_report_refueling_per_month SET rrm_join_status = 'บัตรนี้มีรถที่ผูกมากกว่า 1 คัน' WHERE tb_report_refueling_per_month.rrm_id = ?" , report_this_as_of[i].rrm_id )
+          }else{
+            let sql_2 = `SELECT * FROM tb_car_rent_document_sub 
+            LEFT JOIN tb_car_list ON tb_car_list.car_id = tb_car_rent_document_sub.cds_join_car_id 
+            WHERE tb_car_rent_document_sub.cds_date = ? AND tb_car_rent_document_sub.cds_phase = ? AND tb_car_list.car_id = ?
+            AND ( tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? OR tb_car_rent_document_sub.cds_status = ? )`
+            let sql_3 = `UPDATE tb_report_refueling_per_month SET rrm_join_cds_id = ? , rrm_join_user_id = ? , rrm_join_car_id = ? , rrm_join_status = ? WHERE tb_report_refueling_per_month.rrm_id = ?`
+  
+            let input_2 = [
+              report_this_as_of[i].rrm_Settlement_Date , 
+              morning_or_afternoon , 
+              carLinkDataArr[0].car_id ,
+              "อนุมัติแล้ว" , 
+              "ส่งรถแล้ว" , 
+              "รับรถแล้ว" , 
+              "คืนรถแล้ว" , 
+              "สำเร็จแล้ว" , 
+            ]
+            condb.query( sql_2 , input_2 , async function(err , result){
+              if(err){throw err}
+              
+              if( result.length == 0 ){
+                await query( "UPDATE tb_report_refueling_per_month SET rrm_join_status = 'ไม่พบเอกสารที่ตรงกัน' WHERE tb_report_refueling_per_month.rrm_id = ?" , report_this_as_of[i].rrm_id )
+              }else{
+                condb.query( sql_3 , [result[0].cds_id , result[0].cds_receive_user_id || "" , carLinkDataArr[0].car_id , "จับคู่สำเร็จ" , report_this_as_of[i].rrm_id] , function(err , result){
+                  if(err){throw err}
+                } )
               }
-            }else{
-              condb.query( sql_3 , [result[0].cds_id , report_this_as_of[i].rrm_id] , function(err , result){
-                if(err){throw err}
-                if( i == report_this_as_of.length - 1 ){
-                  resolve()
-                }
-              } )
-            }
-          } )
+            } )
+          }
+          if( i == report_this_as_of.length - 1 ){
+            resolve()
+          }
         }
       }
     } )
@@ -3672,7 +5733,7 @@ function insert_data_excel_to_sql( excel_header , excel_detail , excel_footer , 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.post( "/uploads_ticket_excel" , upload.single('fileupload') , async function(req , res){
+router.post( "/uploads_ticket_excel" , uploadXLSX.single('fileupload') , async function(req , res){
   console.log("+++")
 
   if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
@@ -3802,13 +5863,300 @@ function insert_data_ticket_excel_to_sql( data_obj , req ){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+router.get( "/Location/List" , function( req , res ){
+  let sql_1 = `SELECT * FROM tb_location WHERE tb_location.lct_local_status = "/"`
+
+  condb.query( sql_1 , function(err , result){
+    if(err){throw err}
+    let LocationData = result
+
+    res.render( "localtion_list" , { user_data : req.cookies , LocationData : LocationData } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.post( "/test_multi_files_upload" , upload.array('files') , function(req , res){
 
   res.send('Files uploaded successfully.');
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/Location/UploadImg" , upload.single('fileData') , function( req , res ){
+  try {
+    // เข้าถึงไฟล์ที่อัปโหลดได้ผ่าน req.file
+    console.log("Uploaded file:", req.file);
+    // เข้าถึงข้อมูลอื่นๆ ผ่าน req.body
+    console.log("Additional data:", req.body.LocationData);
+    let LocationData = JSON.parse(req.body.LocationData)
+    let FileData = req.file
+    let FilePath = url_now + "/uploads/" + FileData.filename
+
+    let sql_1 = `INSERT INTO tb_location (lct_create_id , lct_create_name , lct_create_email , lct_create_division , lct_create_date , lct_create_timestamp , 
+    lct_local_name , lct_local_description , lct_local_link , lct_img_name , lct_img_path_show , lct_img_path_delete , lct_local_status ) 
+    VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )`
+
+    let values_1 = [
+      req.cookies.cr_user_app_id , 
+      req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+      req.cookies.cr_user_app_email , 
+      req.cookies.cr_user_app_division , 
+      new Date() ,
+      Date.now() , 
+      LocationData.Location_Form_name , 
+      LocationData.Location_Form_description , 
+      LocationData.Location_Form_link , 
+      FileData.originalname , 
+      FilePath , 
+      FilePath , 
+      "/"
+    ]
+
+    condb.query(sql_1 , values_1 , function(err , result){
+      if(err){throw err}
+
+      res.send({ 
+        message: "File uploaded successfully!", 
+        file: req.file 
+      });
+    })
+
+} catch (error) {
+    res.status(500).json({ message: "File upload failed", error: error.message });
+}
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/SelfCarDocument/Create" , function( req , res ){
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/admin_setup_ticket` );
+    res.redirect( powerapps_link )
+  }else{
+
+    let sql_1 = `SELECT COUNT(*) as Doc_Number FROM tb_self_car_document_main`
+    let sql_2 = `INSERT INTO tb_self_car_document_main (
+    sdm_create_id , sdm_create_name , sdm_create_email , sdm_create_division , sdm_create_date , 
+    sdm_create_timestamp , sdm_document_id , sdm_status
+    ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? )`
+    let sql_3 = `SELECT * FROM tb_self_car_document_main WHERE tb_self_car_document_main.sdm_create_timestamp = ? AND tb_self_car_document_main.sdm_create_email = ? `
+
+    condb.query( sql_1 , function(err , result){
+      if(err){throw err}
+      let document_number = (+result[0].Doc_Number + 1).toString().padStart(3, '0')
+      let time_stamp = Date.now()
+      let values_1 = [
+        req.cookies.cr_user_app_id , 
+        req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+        req.cookies.cr_user_app_email , 
+        req.cookies.cr_user_app_division , 
+        new Date() ,
+        time_stamp , 
+        "SCD/" + req.cookies.cr_user_emp_id + "/" + document_number , 
+        "Pending"
+      ]
+
+      condb.query( sql_2 , values_1 , function(err , result){
+        if(err){throw err}
+
+        condb.query( sql_3 , [time_stamp , req.cookies.cr_user_app_email] , function(err , result){
+          if(err){throw err}
+          let newDocumentData = result
+
+          res.redirect( `/SelfCarDocument/Edit/${btoa(newDocumentData[0].sdm_id )}` )
+        } )
+      } )
+    } )
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/SelfCarDocument/Edit/:document_id" , function( req , res ){
+
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/admin_setup_ticket` );
+    return res.redirect( powerapps_link )
+  }
+
+  let document_id = atob(req.params.document_id)
+
+  let sql_1 = `SELECT * FROM tb_self_car_document_main WHERE tb_self_car_document_main.sdm_id = ?`
+  let sql_2 = `SELECT * FROM tb_location WHERE tb_location.lct_local_status = "/"`
+  let sql_3 = `SELECT * FROM tb_self_car_document_sub 
+  LEFT JOIN tb_location ON tb_location.lct_id = tb_self_car_document_sub.sds_location_id 
+  WHERE tb_self_car_document_sub.sds_main_doc_id = ? ORDER BY tb_self_car_document_sub.sds_priority`
+  let sql_4 = `SELECT * FROM tb_self_car_document_file WHERE tb_self_car_document_file.sdf_document_id = ? AND tb_self_car_document_file.sdf_type = ? `
+
+  condb.query( sql_1 , document_id , function(err , result){
+    if(err){throw err}
+    let DocumentData = result
+    // console.log(DocumentData)
+
+    condb.query( sql_2 , function(err , result){
+      if(err){throw err}
+      let LocationData = result
+  
+      condb.query( sql_3 , document_id , function(err , result){
+        if(err){throw err}
+        let LocationInDocument = result
+
+        condb.query( sql_4 , [document_id , "image"] , function(err , result){
+          if(err){throw err}
+          let imgUploaded = result
+
+          condb.query( sql_4 , [document_id , "pdf"] , function(err , result){
+            if(err){throw err}
+            let pdfUploaded = result
+  
+            res.render( "self_car_document_edit" , { 
+              user_data : req.cookies , 
+              LocationData : LocationData ,
+              DocumentData : DocumentData , 
+              LocationInDocument : LocationInDocument , 
+              imgUploaded : imgUploaded , 
+              pdfUploaded : pdfUploaded , 
+              dayjs : dayjs
+            } )
+          } )
+        } )
+      } )
+    } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/EmployeeDeepDetail/:user_id" , function(req , res){
+  let sql_1 = `SELECT * FROM tb_user_in_app 
+  LEFT JOIN tb_division ON tb_division.div_name = tb_user_in_app.user_division 
+  LEFT JOIN tb_cost_center ON tb_cost_center.cc_id = tb_division.division_fk_cc_id 
+  LEFT JOIN tb_division_approver ON tb_division_approver.dap_join_div_id = tb_division.div_id  
+  WHERE tb_user_in_app.user_id = ?`
+
+  condb.query( sql_1 , req.params.user_id , function(err , result){
+    if(err){throw err}
+    console.log(result)
+
+    res.send(result)
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/LocationList" , function(req , res){
+  let sql_1 = `SELECT * FROM tb_location WHERE tb_location.lct_local_status = "/"`
+
+  condb.query( sql_1 , req.params.user_id , function(err , result){
+    if(err){throw err}
+    res.send({
+      LocationList : result
+    })
+  } )
+} ) 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/Document/Location/Insert" , function(req , res){
+
+  let sql_1 = `SELECT COUNT(*) as SubDocNumber FROM tb_self_car_document_sub WHERE tb_self_car_document_sub.sds_main_doc_id = ?`
+  let sql_2 = `INSERT INTO tb_self_car_document_sub (sds_create_date , sds_create_timestamp , sds_priority , sds_main_doc_id , sds_location_id , sds_status) 
+  VALUES ( ? , ? , ? , ? , ? , ?)`
+
+  condb.query( sql_1 , req.body.DocumentId , function(err , result){
+    if(err){throw err}
+    let SubDocNumber = (+result[0].SubDocNumber) + 1
+
+    condb.query( sql_2 , [ new Date() , Date.now() , SubDocNumber , req.body.DocumentId , req.body.LocationId , "Save" ] , function(err , result){
+      if(err){throw err}
+      res.end()
+    } )
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/Document/Loction/Update/Priority" , function(req , res){
+  let sql_1 = `UPDATE tb_self_car_document_sub SET sds_priority = ? WHERE tb_self_car_document_sub.sds_id = ?`
+
+  condb.query( sql_1 , [req.body.newPriority , req.body.LocationId] , function(err , result){
+    if(err){throw err}
+    res.end()
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/Document/Loction/Update/Remark" , function(req , res){
+  let sql_1 = `UPDATE tb_self_car_document_sub SET sds_remark_system = ? WHERE tb_self_car_document_sub.sds_id = ?`
+
+  condb.query( sql_1 , [req.body.remark , req.body.LocationId] , function(err , result){
+    if(err){throw err}
+    res.end()
+  } )
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post( "/SelfCarDocument/UploadImg" , upload.array('fileupload', 5) , function( req , res ){
+  try {
+
+    if (!req.files) {
+        return res.status(400).send('No files were uploaded.');
+    }
+
+    // เข้าถึงไฟล์ที่อัปโหลดได้ผ่าน req.file
+    console.log("Uploaded file:", req.files);
+    // เข้าถึงข้อมูลอื่นๆ ผ่าน req.body
+    console.log("Additional data:", req.body.fileuploadName);
+
+    let DocumentData = JSON.parse(req.body.DocumnetData)
+    let FilesArray = req.files
+
+    let sql_1 = `INSERT INTO tb_self_car_document_file ( sdf_create_data , sdf_document_id , sdf_display_name , sdf_file_name , sdf_part_show , sdf_part_delete , sdf_type ) 
+    VALUES ( ? , ? , ? , ? , ? , ? , ? )`
+
+    const user_data = {
+      create_id : req.cookies.cr_user_app_id , 
+      create_name : req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+      create_email : req.cookies.cr_user_app_email , 
+      create_division : req.cookies.cr_user_app_division , 
+      create_datetime : new Date() ,
+      create_timestamp : Date.now() , 
+    }
+
+    for( let i = 0 ; i < FilesArray.length ; i++ ){
+      let FilePath = url_now + "/uploads/" + FilesArray[i].filename
+      let values_1 = [
+        JSON.stringify(user_data) , 
+        DocumentData.DocumnetId , 
+        FilesArray[i].originalname , 
+        FilesArray[i].filename , 
+        FilePath , 
+        FilePath , 
+        DocumentData.type
+      ]
+
+      condb.query(sql_1 , values_1 , function(err , result){
+        if(err){throw err}
+        
+        if( i === FilesArray.length - 1 ){
+          res.send({ 
+            message : "success"
+          });
+        }
+      })
+    }
+    
+  } catch (error) {
+      res.status(500).json({ message: "File upload failed", error: error.message });
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////// ADMIN SETUP ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.get( "/admin_system_control_user" , function(req , res){
 
@@ -6437,6 +8785,266 @@ router.get( "/report_time_filter" , async function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+router.post( "/submit_enable_car_doc" , function ( req , res ){
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/car_list` );
+    res.redirect( powerapps_link )
+  }else{
+
+    let sql_1 = `SELECT * FROM tb_car_list WHERE tb_car_list.car_id = ?`
+    let sql_2 = `SELECT * FROM tb_car_disable_log WHERE tb_car_disable_log.cdl_id = ?`
+    let sql_3 = `UPDATE tb_car_list SET car_status = ? , car_enable_from_doc_id = ? WHERE car_id = ?`
+    let sql_4 = `UPDATE tb_car_disable_log SET cdl_stop_disable_real = ? WHERE tb_car_disable_log.cdl_id = ?`
+
+    condb.query( sql_1 , req.body.car_id , function(err , result){
+      if(err){throw err}
+      let car_data = result
+
+      condb.query( sql_2 , car_data[0].car_enable_from_doc_id , function(err , result){
+        if(err){throw err}
+        let disable_doc_data = result
+        
+        condb.query( sql_3 , [ "ใช้งานปกติ" , "-" , car_data[0].car_id ] , function(err , result){
+          if(err){throw err}
+          
+          if(disable_doc_data.length > 0){
+            condb.query( sql_4 , [ new Date() , disable_doc_data[0].cdl_id ] , function(err , result){
+              if(err){throw err}
+              res.end();
+            } )
+          }else{
+            res.end();
+          }
+        } )
+      } )
+    } )
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post("/submit_disable_car_doc" , function(req , res){
+
+  if( req.cookies.cr_user_app_email == null || req.cookies.cr_user_app_email == "" ){
+    res.cookie( "cr_save_old_url", `/car_list` );
+    res.redirect( powerapps_link )
+  }else{
+
+    let sql_1 = `INSERT INTO tb_car_disable_log (cdl_create_by_user_app_id , cdl_create_by_name , cdl_create_by_email , cdl_create_by_division , cdl_create_date , cdl_create_timestamp , 
+  cdl_car_id , cdl_start_disable , cdl_stop_disable	, cdl_remark) VALUES (? , ? , ? , ? , ? , ? , ? , ? , ? , ?)`
+
+    let input_1 = [
+      req.cookies.cr_user_app_id , 
+      req.cookies.cr_user_app_name_en + " " + req.cookies.cr_user_app_surname_en , 
+      req.cookies.cr_user_app_email , 
+      req.cookies.cr_user_app_division , 
+      new Date() ,
+      Date.now() , 
+      req.body.car_id , 
+      req.body.start_disable , 
+      req.body.stop_disable , 
+      req.body.remark
+    ]
+
+    condb.query( sql_1 , input_1 , async function(err , result){
+      if(err){throw err}
+      await trigger_enable_disable_car()
+      res.end();
+    } )
+  }
+})
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// trigger_enable_disable_car()
+
+function trigger_enable_disable_car(){
+  return new Promise( async (resolve , reject) => {
+    await trigger_disable_car()
+    await trigger_enable_car()
+
+    resolve()
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function trigger_enable_car(){
+  return new Promise( (resolve , reject) => {
+    let sql_1 = `SELECT * FROM tb_car_disable_log LEFT JOIN tb_car_list ON tb_car_disable_log.cdl_car_id = tb_car_list.car_id 
+    WHERE tb_car_disable_log.cdl_stop_disable = ?`
+    let date_now = new Date()
+    let date_now_text = `${date_now.getFullYear()}-${+date_now.getMonth()+1}-${date_now.getDate()}`
+
+    let sql_2 = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_enable = ? AND ( tb_user_in_app.user_admin = ? OR tb_user_in_app.user_master_admin = ? )`
+    let input_2 = [
+      "ใช้งาน" , 
+      "ใช่" , 
+      "ใช่" , 
+    ]
+
+    condb.query( sql_2 , input_2 , function(err , result){
+      if(err){throw err}
+      let admin_data = result
+
+      let admin_names = admin_data.map(item => item.user_nane_en + " " + item.user_surname_en + " (แอดมินระบบ)").join('; ');
+      let admin_emails = admin_data.map(item => item.user_email).join('; ');
+      
+      condb.query(sql_1 , date_now_text , function (err , result){
+        if(err){reject(err)}
+        let car_enable_today = result
+        let car_registration_code = car_enable_today.map(item => item.car_registration_code).join(', ');
+
+  
+        if(car_enable_today.length > 0){
+          send_email( 
+            admin_emails , 
+            "เรียน " + admin_names , 
+            "แจ้งเตือน : รถยนต์ที่จะต้องกลับมาเปิดใช้งานวันนี้" , 
+    
+            `<br>
+            ทะเบียนรถยนต์ที่ต้องเปิดใช้งานวันนี้ : ${car_registration_code}` , 
+    
+            `รายการรถยนต์` , 
+            `${url_now}/car_list` , 
+    
+            "สามารถกดที่ปุ่มด้านบนนี้ เพื่อเข้าสู่ระบบ" 
+          )
+
+          console.log("car_enable_today")
+          console.log(car_enable_today)
+          console.log("car_registration_code")
+          console.log(car_registration_code)
+
+          resolve()
+        }else{
+          resolve()
+        }
+      })
+    } )
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function trigger_disable_car(){
+  return new Promise( (resolve , reject) => {
+    let sql_1 = `SELECT * FROM tb_car_disable_log WHERE tb_car_disable_log.cdl_start_disable = ?`
+    let sql_2 = `UPDATE tb_car_list SET car_status = ? , car_enable_from_doc_id = ? WHERE car_id = ?`
+    let date_now = new Date()
+    let date_now_text = `${date_now.getFullYear()}-${+date_now.getMonth()+1}-${date_now.getDate()}`
+    
+    condb.query(sql_1 , date_now_text , function (err , result){
+      if(err){reject(err)}
+      let car_disable_today = result
+
+      if(car_disable_today.length > 0){
+        for(let i = 0 ; i < car_disable_today.length ; i++){
+          condb.query(sql_2 , [ "ไม่พร้อมใช้งาน" , car_disable_today[i].cdl_id , car_disable_today[i].cdl_car_id ] , async function (err , result){
+            if(err){reject(err)}
+
+            if(i == car_disable_today.length - 1){
+              await disable_car_send_email_alert();
+              resolve()
+            }
+          } )
+        }
+      }else{
+        resolve()
+      }
+    })
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// disable_car_send_email_alert()
+
+function disable_car_send_email_alert(){
+  return new Promise( (resolve , reject) => {
+    let sql_1 = `SELECT * FROM tb_car_list 
+    LEFT JOIN tb_car_disable_log ON tb_car_list.car_enable_from_doc_id = tb_car_disable_log.cdl_id 
+    WHERE tb_car_list.car_status = "ไม่พร้อมใช้งาน"`
+    // let sql_2 = `SELECT * FROM tb_car_rent_document_sub WHERE tb_car_rent_document_sub.cds_join_car_id = ?`
+    let sql_2 = `SELECT * FROM tb_car_rent_document_main 
+    LEFT JOIN tb_car_rent_document_sub ON tb_car_rent_document_main.cdm_id = tb_car_rent_document_sub.cds_join_cdm_id WHERE tb_car_rent_document_sub.cds_join_car_id = ?`
+
+    condb.query( sql_1 , function(err , result){
+      if(err){throw err}
+      let disable_car_doc = result
+
+      console.log("disable_car_doc")
+      console.log(disable_car_doc)
+
+      if( disable_car_doc.length == 0 ){
+        resolve();
+      }else{
+        for( let i = 0 ; i < disable_car_doc.length ; i++ ){
+          condb.query( sql_2 , disable_car_doc[i].car_id , function(err , result){
+            if(err){throw err} 
+            let car_rent_document = result
+
+            console.log("car_rent_document")
+            console.log(car_rent_document)
+  
+            let result_filter_disable_car = car_rent_document.filter( function(e){
+              return (new Date(e.cds_date)).getTime() >= (new Date(disable_car_doc[i].cdl_start_disable)).getTime() 
+              && (new Date(e.cds_date)).getTime() <= (new Date(disable_car_doc[i].cdl_stop_disable)).getTime()
+            } )
+
+            console.log("result_filter_disable_car")
+            console.log(result_filter_disable_car)
+
+            if( result_filter_disable_car.length > 0 ){
+              let emails_creator = result_filter_disable_car.map(item => item.cdm_create_by_email);
+              let emails_user = result_filter_disable_car.map(item => item.cdm_for_person_email);
+              let emails_sum = [...emails_creator , ...emails_user]
+              let emails_sum_text = [...new Set(emails_sum)].join('; ');
+
+              let names_creator = result_filter_disable_car.map(item => item.cdm_create_by_name);
+              let names_user = result_filter_disable_car.map(item => item.cdm_for_person);
+              let names_sum = [...names_creator , ...names_user]
+              let names_sum_text = [...new Set(names_sum)].join('; ');
+
+              let disable_car_start = new Date(disable_car_doc[i].cdl_start_disable);
+              let disable_car_start_text = disable_car_start.getDate()  + "/" + (disable_car_start.getMonth()+1) + "/" + disable_car_start.getFullYear()
+              
+              let disable_car_stop = new Date(disable_car_doc[i].cdl_stop_disable);
+              let disable_car_stop_text = disable_car_stop.getDate()  + "/" + (disable_car_stop.getMonth()+1) + "/" + disable_car_stop.getFullYear()
+
+              send_email( 
+                emails_sum_text , 
+                "เรียน " + names_sum_text , 
+                "แจ้งเตือน (สำคัญ) : รถยนต์ที่คุณจองไว้ไม่พร้อมใช้งาน" , 
+    
+                `รถยนต์ที่คุณทำเอกสารจองไว้ไม่พร้อมใช้งาน ในวันที่คุณจองแล้ว <br><br>
+                ทะเบียนรถยนต์ที่จอง : ${disable_car_doc[i].car_registration_code} <br> 
+                ช่วงวันที่ไม่พร้อมใช้งาน (ประมาณการ) : ${disable_car_start_text} ถึง ${disable_car_stop_text} <br>
+                <br><br>
+                วิธีการ <br> 
+                1. เข้าไปที่เอกสารขอยืมรถยนต์ที่คุณทำไว้ <br>
+                2. กดยกเลิกเอกสาร ที่มุมซ้ายบนของหน้าเอกสาร <br>
+                3. และทำรายการขออนุมัติใหม่อีกครั้ง` , 
+    
+                `รายการเอกสารขอยืมรถยนต์ของคุณ` , 
+                `${url_now}/car_rent_document_list` , 
+    
+                "สามารถกดที่ปุ่มด้านบนนี้ เพื่อเข้าสู่ระบบ" 
+              )
+            }
+  
+            if( i == disable_car_doc.length - 1 ){
+              resolve();
+            }
+          } )
+        }
+      }
+    } )
+  } )
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.post( "/only_for_run_sql" , function(req , res){
   let sql_1 = req.body.sql_command
 
@@ -6945,134 +9553,6 @@ router.get( "/example_email/:css_id_code" , function(req , res){
   } )
 } )
 
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// router.post( "/add_sm_admin_to_db_multiple" , async function(req , res){
-
-//   let type_add = req.body.type_add
-//   let user_data_str = (req.body.user_data_str).replace(/\n|\t|\r/g, "")
-//   let project_data_str = req.body.project_data_str
-
-//   let user_data_obj = JSON.parse(user_data_str)
-//   let project_data_obj = JSON.parse(project_data_str)
-
-//   console.log("type_add")
-//   console.log(type_add)
-
-//   console.log("user_data_str")
-//   console.log(user_data_str)
-
-//   console.log("project_data_str")
-//   console.log(project_data_str)
-
-//   console.log("-------------------------------------")
-
-//   console.log("user_data_obj")
-//   console.log(user_data_obj)
-
-//   console.log("project_data_obj")
-//   console.log(project_data_obj)
-
-//   if( user_data_obj.length == 0 || project_data_obj.length == 0 || type_add == "" ){
-
-//   }else{
-
-//     let sql_1 = ``
-//     let sql_2 = ``
-
-//     if( type_add == "admin" ){
-//       sql_1 = `DELETE FROM tb_site_admin WHERE tb_site_admin.sa_project_id = ? AND tb_site_admin.sa_email = ?`
-//       sql_2 = `INSERT INTO tb_site_admin 
-//       ( sa_create_by_id , sa_create_by_name_th , sa_create_by_name_en , sa_create_by_email , sa_project_id , sa_project_code , sa_employee_id , sa_employee_code , sa_name_th , sa_name_en , sa_email , sa_division ) 
-//       VALUE ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )`
-//     }else{
-//       sql_1 = `DELETE FROM tb_site_manager WHERE tb_site_manager.sm_project_id = ? AND tb_site_manager.sm_email = ?`
-//       sql_2 = `INSERT INTO tb_site_manager 
-//       ( sm_create_by_id , sm_create_by_name_th , sm_create_by_name_en , sm_create_by_email , sm_project_id , sm_project_code , sm_employee_id , sm_employee_code , sm_name_th , sm_name_en , sm_email , sm_division ) 
-//       VALUE ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )`
-//     }
-
-//     for( let i = 0 ; i < user_data_obj.length ; i++ ){
-//       let user_data_checked = await prepare_user_data(user_data_obj[i])
-//       await delete_and_insert_to_db( project_data_obj , user_data_checked , sql_1 , sql_2 )
-
-//       if( i == user_data_obj.length - 1 ){
-//         res.end()
-//       }
-//     }
-//   }
-
-//   function delete_and_insert_to_db( project_array , user_data_only_one , sql_1 , sql_2 ){
-//     return new Promise( (resolve , reject) => {
-//       for( let i = 0 ; i < project_array.length ; i++ ){
-
-//         condb.query( sql_1 , [project_array[i].project_id , user_data_only_one.sa_email] , function(err , result){
-//           if(err){reject(err)}
-//           let input_2 = [
-//             req.cookies.css_user_id , 
-//             req.cookies.css_user_fullname_th , 
-//             req.cookies.css_user_fullname_en , 
-//             req.cookies.css_user_email , 
-//             project_array[i].project_id , 
-//             project_array[i].project_name , 
-//             user_data_only_one.sa_employee_id , 
-//             user_data_only_one.sa_employee_code , 
-//             user_data_only_one.sa_name_th , 
-//             user_data_only_one.sa_name_en , 
-//             user_data_only_one.sa_email , 
-//             user_data_only_one.sa_division
-//           ]
-
-//           condb.query( sql_2 , input_2 , function(err , result){
-//             if(err){reject(err)}
-            
-//             if( i == project_array.length - 1){
-//               resolve()
-//             }
-//           } )
-//         } )
-//       }
-//     } )
-//   }
-
-//   async function prepare_user_data(user_data_only_one) {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-//             let same_email_in_hr = await fetchData(user_data_only_one);
-
-//             // console.log("same_email_in_hr:", same_email_in_hr);
-
-//             if (same_email_in_hr.length === 0) {
-//                 resolve(user_data_only_one);
-//             } else {
-//                 // Resolve with modified user data
-//                 resolve({
-//                     sa_employee_id: same_email_in_hr[0].ed_id,
-//                     sa_employee_code: same_email_in_hr[0].ed_employee_id,
-//                     sa_name_th: user_data_only_one.sa_name_th,
-//                     sa_name_en: user_data_only_one.sa_name_en,
-//                     sa_email: user_data_only_one.sa_email,
-//                     sa_division: user_data_only_one.sa_division,
-//                 });
-//             }
-//         } catch (error) {
-//             console.error("Error in prepare_user_data:", error);
-//             reject(error);
-//         }
-//     });
-//   }
-
-//   async function fetchData(user_data_only_one) {
-//     try {
-//         let employee_ite_data = await axios.get(url_api_employee_ite);
-//         return employee_ite_data.data.filter(e => e.ed_email_ite === user_data_only_one.sa_email);
-//     } catch (error) {
-//         console.error("Error fetching employee data:", error);
-//         throw error;
-//     }
-//   }
-// } )
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.post( "/change_pm_bu_to_db_multiple" , async function(req , res){
@@ -7153,6 +9633,28 @@ router.post( "/change_pm_bu_to_db_multiple" , async function(req , res){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// divisionUpdateType()
+
+async function divisionUpdateType(){
+  let sql_1 = `SELECT * FROM tb_division`
+  let sql_2 = `UPDATE tb_division SET div_type = ? WHERE tb_division.div_id = ?`
+
+  const divisionData = await query( sql_1 , [] )
+  for( let i = 0 ; i < divisionData.length ; i++ ){
+    let divisionSpilt = (divisionData[i].div_name).split( "-" )
+    let numberDivision = divisionSpilt.length === 0 ? "" : divisionSpilt[0]
+    let typeDivision = numberDivision === "" ? "H/O" : numberDivision.toString().startsWith("00") ? divisionData[i].div_name : "H/O"
+
+    const divisionTypeUpdate = await query( sql_2 , [ typeDivision , divisionData[i].div_id ] )
+
+    if( i === divisionData.length - 1 ){
+      return
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.post( "/add_admin_division_to_db" , async function(req , res){
 
   let division_id = req.body.division_id
@@ -7194,7 +9696,6 @@ router.post( "/add_admin_division_to_db" , async function(req , res){
 
     condb.query( sql_2 , input_2 , function(err , result){
       if(err){throw err}
-  
       res.end();
     } )
   } )
@@ -7252,6 +9753,140 @@ router.get( "/user_log_out" , function(req , res){
 } )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/Insert_New_User_Form_Worklife" , async function(req , res){
+  try {
+    let response = await axios.get(
+      'https://apiservice.syntec.co.th/api/v1.0/EmployeeData/GetEmployeeData' , 
+      {
+        headers: {
+          Authorization: `Bearer -` , 
+          'Content-Type' : 'application/json' , 
+          'Token' : 'a64f4cb9-bef3-4620-9b7f-8eecc6579a6e'
+        }
+      }
+    )
+    const AllEmployeesData = response.data
+
+    let sql_1 = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_emp_id = ?`
+    let sql_2 = `INSERT INTO tb_user_in_app (user_emp_id , user_enable , user_admin , user_master_admin , user_system_admin) VALUE (? , "ใช้งาน" , "ไม่ใช่" , "ไม่ใช่" , "ไม่ใช่")`
+
+    for( let i = 0 ; i < AllEmployeesData.length ; i++ ){
+      condb.query( sql_1 , [ AllEmployeesData[i].employee_code ] , function(err , result){
+        if(err){throw err}
+
+        if( result.length === 0 ){
+          condb.query( sql_2 , [ AllEmployeesData[i].employee_code ] , function(err , result){
+            if(err){throw err}
+          } )
+        }
+      } )
+    }
+
+    return res.send("Success")
+  } catch (error) {
+    console.error("Error fetching employee data:", error);
+    throw error;
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/Update_New_User_Form_Worklife" , async function(req , res){
+  try {
+    let response = await axios.get(
+      'https://apiservice.syntec.co.th/api/v1.0/EmployeeData/GetEmployeeData' , 
+      {
+        headers: {
+          Authorization: `Bearer -` , 
+          'Content-Type' : 'application/json' , 
+          'Token' : 'a64f4cb9-bef3-4620-9b7f-8eecc6579a6e'
+        }
+      }
+    )
+    const AllEmployeesData = response.data
+
+    let sql_1 = `SELECT * FROM tb_user_in_app WHERE tb_user_in_app.user_emp_id = ?`
+    let sql_2 = `UPDATE tb_user_in_app SET user_nane_th = ? , user_surname_th = ? , user_nane_en = ? , user_surname_en = ? , 
+    user_email = ? , user_division = ? , user_job_title = ? , user_office_location = ? , user_cost_center = ? 
+    WHERE tb_user_in_app.user_emp_id = ?`
+
+    for( let i = 0 ; i < AllEmployeesData.length ; i++ ){
+      condb.query( sql_1 , [ AllEmployeesData[i].employee_code ] , function(err , result){
+        if(err){throw err}
+
+        if( result.length === 0 ){}else{
+          let input_2 = [
+            AllEmployeesData[i].first_name , 
+            AllEmployeesData[i].last_name , 
+            AllEmployeesData[i].first_name_2 , 
+            AllEmployeesData[i].last_name_2 , 
+            AllEmployeesData[i].email , 
+            AllEmployeesData[i].department , 
+            AllEmployeesData[i].work_position , 
+            AllEmployeesData[i].work_place , 
+            AllEmployeesData[i].cost_center , 
+            AllEmployeesData[i].employee_code , 
+          ]
+
+          condb.query( sql_2 , input_2 , function(err , result){
+            if(err){throw err}
+
+          } )
+        }
+      } )
+    }
+
+    return res.send("Success")
+  } catch (error) {
+    console.error("Error fetching employee data:", error);
+    throw error;
+  }
+} )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.get( "/Insert_New_Division_Form_Worklife" , async function(req , res){
+  try {
+    let response = await axios.get(
+      'https://apiservice.syntec.co.th/api/v1.0/EmployeeData/GetEmployeeData' , 
+      {
+        headers: {
+          Authorization: `Bearer -` , 
+          'Content-Type' : 'application/json' , 
+          'Token' : 'a64f4cb9-bef3-4620-9b7f-8eecc6579a6e'
+        }
+      }
+    )
+    const AllEmployeesData = response.data
+
+    const AllDivision_UQ = [...new Set(AllEmployeesData.map(item => item.department))]
+
+    let sql_3 = `SELECT * FROM tb_division WHERE tb_division.div_name = ?`
+    let sql_4 = `INSERT INTO tb_division (div_name , div_type) VALUES (? , ?)`
+
+    for( let i = 0 ; i < AllDivision_UQ.length ; i++ ){
+      condb.query( sql_3 , AllDivision_UQ[i] , function(err , resultDivision){
+        if(err){throw err} 
+
+        if( resultDivision.length === 0 ){
+          condb.query( sql_4 , [AllDivision_UQ[i] , (AllDivision_UQ[i]).startsWith("00") ? AllDivision_UQ[i] : "H/O" ] , function(err , result){
+            if(err){throw err} 
+          })
+        }else{}
+      } )
+    }
+
+    return res.send("Success")
+  } catch (error) {
+    console.error("Error fetching employee data:", error);
+    throw error;
+  }
+} )
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////// FUNCTION SENT EMAIL ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -7260,14 +9895,16 @@ const { resolve } = require('path');
 const { rejects } = require('assert');
 const { set } = require('local-storage');
 const { isError } = require('util');
+const e = require('express');
+const { resourceUsage, title } = require('process');
 
 const transporter = nodemailer.createTransport({
   host : "smtp.office365.com" , 
   post : 587 ,
   secure : false ,
   auth: {
-    user: 'tritasasp@synteccon.com',
-    pass: 'Tr@903882'
+    user: 'apps@synteccon.com',
+    pass: 'Welcome@2305'
   },
   tls: {
       ciphers:'SSLv3'
@@ -7277,8 +9914,8 @@ const transporter = nodemailer.createTransport({
 async function send_email( rec_email , rec_name , email_title , email_description_header , link_title , link_herf , email_description_footer ){
   try {
     const mailOptions = {
-      from: 'tritasasp@synteccon.com',
-      to: rec_email ,
+      from: 'apps@synteccon.com' ,
+      to: rec_email || 'tritasasp@synteccon.com' ,
       subject: `${email_title}` ,
       html: `
       <!doctype html>

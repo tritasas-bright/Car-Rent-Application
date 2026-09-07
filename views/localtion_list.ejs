@@ -1,0 +1,153 @@
+<%- include("1_header.ejs") %>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>รายการรถยนต์ทั้งหมด</h4>
+            </div>
+            <div class='card-body'>
+                <div class="row" style="margin-bottom: 1vh;">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 15px;">
+                        <button onclick="" data-bs-toggle="modal" data-bs-target="#modal_add_location" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-map-location-dot" style="margin-right: 0.2rem;"></i>
+                            เพิ่ม Location
+                        </button>
+                    </div>
+                    <% LocationData.forEach( function(e) { %>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="display: flex; margin-bottom: 0rem; justify-content: center;">
+                            <div class="row d-flex align-items-center" style="width: 100%;">
+                                <div class="col-sm-5 col-md-4 col-lg-3 col-xl-3">
+                                    <img class="img-radius img-fluid wid-80" src="<%= e.lct_img_path_show %>" style="padding:7px;margin-right:20px; width: 100%; height: auto; max-height: 25vh;"/>
+                                </div>
+                                <div class="col-sm-7 col-md-8 col-lg-9 col-xl-9" style="padding: 1rem 1rem 1rem 1rem;">
+                                    <span style="font-size: 18px; font-weight: 800;"><%= e.lct_local_name %></span>
+                                        <br>
+                                        <hr>
+                                    <div style="height: 30px; overflow: auto;" class="">
+                                        <span style="font-size: 15px;"><%= e.lct_local_description %></span>
+                                    </div>
+                                    <br>
+                                    <a href="<%= e.lct_local_link %>" target="_blank">
+                                        <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-primary">
+                                            <i class="fa-solid fa-street-view" style="margin-right: 0.2rem;"></i>
+                                            Google Map
+                                        </button>
+                                    </a>
+                                    <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-secondary">
+                                        <i class="fa-solid fa-gear" style="margin-right: 0.2rem;"></i>
+                                        Secondary
+                                    </button>
+                                    <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-success">
+                                        <i class="fa-solid fa-gear" style="margin-right: 0.2rem;"></i>
+                                        Success
+                                    </button>
+                                    <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-danger">
+                                        <i class="fa-solid fa-gear" style="margin-right: 0.2rem;"></i>
+                                        Danger
+                                    </button>
+                                </div>
+                                <div class="col-xl-12">
+                                    <hr>
+                                </div>
+                            </div>
+                        </div>
+                    <% } ) %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_add_location" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">ระบุข้อมูล Location</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="submitCreateLocation_Form(event)" >
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> ชื่อ Location</label>
+                            <input required id="Location_Form_name" value="" type="text" name="" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> อัพโหลดรูปภาพ</label>
+                            <input required id="Location_Form_file" value="" type="file" name="" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> รายละเอียด Location</label>
+                            <input id="Location_Form_description" value="" type="text" name="" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> Link Google Map</label>
+                            <input required id="Location_Form_link" value="" type="text" name="" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<script>
+
+function submitCreateLocation_Form(event){
+    event.preventDefault();
+    console.log(document.getElementById("Location_Form_file").files[0])
+
+    const formDataFileUpload = new FormData();
+    formDataFileUpload.append( "fileData" , document.getElementById("Location_Form_file").files[0] );
+    formDataFileUpload.append( "fileName" , document.getElementById("Location_Form_file").files[0].name );
+    formDataFileUpload.append( "LocationData" , JSON.stringify({
+        Location_Form_name : document.getElementById("Location_Form_name").value , 
+        Location_Form_description : document.getElementById("Location_Form_description").value , 
+        Location_Form_link : document.getElementById("Location_Form_link").value , 
+    }) );
+
+    $.ajax({
+        type: 'POST',
+        url: '/Location/UploadImg',
+        data: formDataFileUpload,
+        processData: false, // สำคัญ: ไม่แปลงข้อมูลเป็นสตริง
+        contentType: false, // สำคัญ: ตั้งค่าเป็น false เพื่อให้ส่งแบบ multipart/form-data
+        success: function (result) {
+
+        },
+        error: function (error) {
+            Swal.fire({
+                title: "error" ,
+                text: error ,
+                icon: "error" , 
+            });
+        }
+    });
+}
+
+function create_new_car(){
+    Swal.fire({
+        icon : "question",
+        title: "ต้องการเพิ่มรถยนต์ใหม่",
+        html: `
+            ยืนยันการเพิ่มรายการรถยนต์ใหม่หรือไม่ ? 
+        `,
+        showCancelButton: true,
+        confirmButtonColor: "#027E6F",
+        cancelButtonColor: "#00000040",
+        confirmButtonText: "ยืนยัน, เพิ่มรถยนต์" ,
+        cancelButtonText: "ปิด"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location = "/create_new_car"
+        }
+    });
+}
+
+</script>

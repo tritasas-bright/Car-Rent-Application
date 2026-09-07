@@ -44,19 +44,31 @@
                         <span class="form-control"><%= car_data[0].car_eazy_pass_code %></span>
                     </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 7px;">
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 7px;">
                         <label for="">เลข บัตรเติมน้ำมัน</label>
                         <span class="form-control"><%= car_data[0].car_fuel_card_code %></span>
                     </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 7px;">
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 7px;">
                         <label for=""> <span class="red">* แก้ไข</span> เลขไมล์ล่าสุด</label>
-                        <input id="new_last_miles" value="<%= car_data[0].car_last_miles %>" type="text" class="form-control">
+                        <input style="border-color: red;" id="new_last_miles" value="<%= car_data[0].car_last_miles %>" type="text" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 7px; display: flex; align-items: end;">
+                        <% if( sub_document_data[0].cds_status == "สำเร็จแล้ว" ){ %>
+
+                        <% }else{ %>
+                            <button onclick="confirm_return_car( '<%= car_data[0].car_last_miles %>' )" type="button" class="btn btn-success" style="width: 100%;">
+                                <i class="fa-solid fa-clipboard-check" style="margin-right: 5px;"></i> 
+                                ยืนยันการคืนรถ
+                            </button>
+                        <% } %>
                     </div>
                 </div>
             </div>
         </div>
-        <div class='card' style="margin-bottom: 2vh;">
+
+        <!-- <div class='card' style="margin-bottom: 2vh;"> // การ์ดประวัติการเติมน้ำมัน
             <div class='card-header'>
                 <h4>รายการการเติมน้้ำมัน</h4>
             </div>
@@ -113,9 +125,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
-        <div class='card'>
+        <!-- <div class='card'> // การ์ดประวัติการผ่านทางด่วน
             <div class='card-header'>
                 <h4>รายการการผ่านทางด่วน</h4>
             </div>
@@ -182,7 +194,7 @@
                     <% } %>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -321,7 +333,16 @@
         }
     }
 
-    function confirm_return_car(){
+    function confirm_return_car( OldLastMile ){
+        console.log(OldLastMile)
+        if( OldLastMile === document.getElementById("new_last_miles").value ){
+            return  Swal.fire({
+                        title: "ไม่สามารถบันทึกได้" ,
+                        text: "กรุณาอัพเดทเลขไมล์ล่าสุด" ,
+                        icon: "error" , 
+                    });
+        }
+
         Swal.fire({
             title: "ยืนยันการคืนรถ",
             html: "ยืนยันการคืนรถหรือไม่ ? <br><br> <span class='red'>*** หากคืนรถแล้ว จะไม่สามารถกลับมาแก้ไขประวัติการเติมน้ำมันได้</span>",

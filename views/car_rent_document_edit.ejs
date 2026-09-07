@@ -6,39 +6,63 @@
             <div class='card-header'>
                 <h4>เอกสารขออนุมัติเช่ารถยนต์ (แก้ไข)</h4>
                 <input hidden value="<%= document_data[0].cdm_id %>" type="text" name="" id="document_id" class="form-control">
-
             </div>
             <div class='card-body'>
                 <div class="row" style="overflow: auto; margin-bottom: 1vh;">
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for="">Document NO.</label>
+                        <input disabled value="<%= document_data[0].cdm_document_no %>" type="text" name="" id="" class="form-control">
+                    </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh; align-content: end;">
+                        <button data-bs-toggle="modal" data-bs-target="#modal_search_employee" onclick="search_employee()" style="color: white; font-weight: 700; width: 100%;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-regular fa-address-book" style="margin-right: 0.2rem;"></i>
+                            ค้นหาพนักงาน
+                        </button>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (TH)</label>
+                        <input disabled value="<%= document_data[0].user_nane_th + " " + document_data[0].user_surname_th || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (EN)</label>
+                        <input disabled value="<%= document_data[0].user_nane_en + " " + document_data[0].user_surname_en || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> อีเมล ผู้รับผิดชอบ</label>
+                        <input disabled value="<%= document_data[0].user_email || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> แผนก</label>
+                        <input disabled value="<%= document_data[0].user_division || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> Cost Center</label>
+                        <input disabled value="<%= document_data[0].user_cost_center || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> Activity Number</label>
+                        <input disabled value="<%= document_data[0].user_activity_number || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for="">ผู้อนุมัติ</label>
+                        <span disabled id="approver_show" class="form-control"><%= division_data || "*** ไม่มีผู้อนุมัติของแผนกนี้ โปรดติดต่อไอที" %></span>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <hr>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
                         <label for=""> <span class="red">*</span> มีความประสงค์ขอใช้รถไปยังสถานที่</label>
                         <input onchange="document_data_update( 'cdm_destination_location' , this.value )" value="<%= document_data[0].cdm_destination_location %>" type="text" name="" id="cdm_destination_location" class="form-control">
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ</label>
-                        <input onchange="document_data_update( 'cdm_for_person' , this.value )" value="<%= document_data[0].cdm_for_person %>" type="text" name="" id="cdm_for_person" class="form-control">
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for=""> <span class="red">*</span> อีเมล ผู้รับผิดชอบ</label>
-                        <input onchange="document_data_update( 'cdm_for_person_email' , this.value )" value="<%= document_data[0].cdm_for_person_email %>" type="text" name="" id="cdm_for_person_email" class="form-control">
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for=""> <span class="red">*</span> แผนก</label>
-                        <select onchange="document_data_update( 'cdm_for_person_division_id' , this.value )" id="cdm_for_person_division_id" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
-                            <option selected style="display: none;" value="<%= document_data[0].cdm_for_person_division_id %>"><%= document_data[0].cdm_for_person_division %></option>
-                            <% division_data.forEach( function(e) { %>
-                                <option value="<%= e.div_id %>"><%= e.div_name %></option>
-                            <% } ) %>
-                        </select>
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-8 col-xl-8" style="margin-bottom: 1.5vh;">
-                        <label for="">ผู้อนุมัติ</label>
-                        <span id="approver_show" class="form-control">-</span>
                     </div>
 
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
@@ -54,14 +78,6 @@
                             <option value="พนักงานขับรถ">พนักงานขับรถ</option>
                         </select>
                     </div>
-
-                    <!-- <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
-                        <label for=""><span class="red">*</span> ชื่อผู้ขับ</label>
-                        <select onchange="document_data_update( 'cdm_driver_id' , this.value )" id="cdm_driver_id" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
-                            <option selected style="display: none;" value="<%= document_data[0].cdm_driver_id %>"><%= document_data[0].cdm_driver_name %></option>
-                            
-                        </select>
-                    </div> -->
 
                     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
                         <label for=""><span class="red">*</span> ต้องการ Eazy Pass หรือไม่</label>
@@ -79,32 +95,6 @@
                             <option value="ต้องการ">ต้องการ</option>
                             <option value="ไม่ต้องการ">ไม่ต้องการ</option>
                         </select>
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for=""><span class="red">*</span> สถานที่ เริ่มต้น</label>
-                        <select onchange="" id="" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
-                            <option value="Location A">Location A</option>
-                            <option value="Location B">Location B</option>
-                            <option value="Location C">Location C</option>
-                        </select>
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for=""><span class="red">*</span> สถานที่ ปลายทาง</label>
-                        <select onchange="" id="" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
-                            <option value="Location A">Location A</option>
-                            <option value="Location B">Location B</option>
-                            <option value="Location C">Location C</option>
-                        </select>
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for="">ระยะทาง</label>
-                        <div class="input-group">
-                            <span id="" class="form-control">0</span>
-                            <span class="input-group-text">กม.</span>
-                        </div>
                     </div>
 
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
@@ -154,7 +144,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกรถยนต์ / คนขับ</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="max-height: 72vh; overflow: auto;">
@@ -178,7 +168,34 @@
             </div>
         </div>
     </div>
-  </div>
+</div>
+
+<div class="modal fade" id="modal_search_employee" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">ข้อมูลพนักงาน</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="SelectedEmployee(event)" >
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> แผนก</label>
+                            <select required onchange="" id="employee_select" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="submit" class="btn btn-primary">เลือก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <%- include("2_footer.ejs") %>
 
@@ -186,18 +203,72 @@
 <script>
 
 window.onload = function(){
-
     create_sub_row( "refresh" )
+}
 
+function updateSelectedEmployee(employee_id){
+    const data = {
+        employeeId : employee_id , 
+        documentId : document.getElementById("document_id").value
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/updateSelectedEmployee',
+        data: data,
+        success: function (values) {
+            window.location.reload()
+        },
+        error: function (error) {
+            Swal.fire({
+                title: "error",
+                text: "",
+                icon: "error"
+            });
+        }
+    });
+}
+
+function SelectedEmployee(event){
+    event.preventDefault();
+    let employee_id = document.getElementById("employee_select").value || ""
+    if( employee_id !== "" ){
+        updateSelectedEmployee(employee_id)
+    }
+}
+
+function search_employee(){
+    $.ajax({
+        type: 'GET',
+        url: '/EmployeeList',
+        data: {},
+        success: function (values) {
+            console.log(values.EmployeeList)
+            set_employee_option(values.EmployeeList)
+            employee_select_data = values.EmployeeList
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function set_employee_option( data ){
+    let text = ""
+    for( let i = 0 ; i < data.length ; i++ ){
+        text += `<option value="${data[i].user_id}">${data[i].user_emp_id} - ${data[i].user_nane_th} ${data[i].user_surname_th} (${data[i].user_nane_en} ${data[i].user_surname_en})</option>`
+
+        if( i === data.length - 1 ){
+            document.getElementById("employee_select").innerHTML = text
+            $('.selectpicker').selectpicker('refresh');
+        }
+    }
 }
 
 function check_value_and_check_status_driver(){
     if( document.getElementById("cdm_destination_location").value == "" ){
         return alert(" ระบุ มีความประสงค์ขอใช้รถไปยังสถานที่ ")
-    }else if( document.getElementById("cdm_for_person").value == "" ){
-        return alert(" ระบุ ขอให้กับ ")
-    }else if( document.getElementById("cdm_for_person_division_id").value == "" ){
-        return alert(" ระบุ แผนก ")
     }else if( document.getElementById("cdm_for_what").value == "" ){
         return alert(" ระบุ เพื่อ ")
     }else if( document.getElementById("cdm_driver_type").value == "" ){
@@ -331,7 +402,11 @@ function show_approver(value){
 
     let approver_division_string = approver_division_array_filter.map(item => item.dap_approver_name).join(', ')
 
-    document.getElementById("approver_show").innerText = approver_division_string
+    if( approver_division_string == "" ){
+        document.getElementById("approver_show").innerText = "*** ไม่มีผู้อนุมัติของแผนกนี้ โปรดติดต่อไอที"
+    }else{
+        document.getElementById("approver_show").innerText = approver_division_string
+    }
 }
 
 function update_remark( value ){
@@ -360,20 +435,16 @@ function submit_document(){
         return alert(" ระบุ มีความประสงค์ขอใช้รถไปยังสถานที่ ")
     }
 
-    if( document.getElementById("cdm_for_person").value == "" ){
-        return alert(" ระบุ ขอให้กับ ")
-    }
-
-    if( document.getElementById("cdm_for_person_division_id").value == "" ){
-        return alert(" ระบุ แผนก ")
-    }
-
     if( document.getElementById("cdm_for_what").value == "" ){
         return alert(" ระบุ เพื่อ ")
     }
 
     if( document.getElementById("cdm_driver_type").value == "" ){
         return alert(" ระบุ ประเภทการขับ ")
+    }
+
+    if( document.getElementById("cdm_driver_type").value == "พนักงานขับรถ" && document.getElementById("cdm_driver_id").value == ""){
+        return alert(" ระบุ พนักงานขับรถ ")
     }
 
     var checkedRadio = document.querySelector('input[name="car_list"]:checked');
@@ -467,6 +538,8 @@ $(function(){
     $('#end_date').attr('min', minDate);
 });
 
+let CarList = []
+let dropdownCarSiteLocation = ""
 function create_sub_row( type ){
 
     let start_date = new Date( document.getElementById("start_date").value )
@@ -492,12 +565,14 @@ function create_sub_row( type ){
             type: 'POST',
             url: '/create_sub_row',
             data: data,
-            success: function ( data ) {
+            success: async function ( data ) {
                 console.log("data")
                 console.log(data)
                 // window.location = nextPage;
 
                 set_table(data[0])
+                CarList = data[1]
+                dropdownCarSiteLocation = await createDropdownCarSiteLocation() 
                 set_table_car(data[1])
                 // closeModalReloading()
 
@@ -512,7 +587,7 @@ function create_sub_row( type ){
 
 }
 
-function set_table_car(data){
+async function set_table_car(data){
 
     let text = "" 
 
@@ -522,16 +597,29 @@ function set_table_car(data){
         for( let i = 0 ; i < data.length ; i++ ){
             let option_1 = ''
             let option_2 = ''
-            if( data[i].car_status_time == "not free" ){
+            let option_3 = ''
+            if( data[i].car_status_time == "not free" || data[i].car_disable_status == "disable" ){
                 option_1 = `
                 <input disabled class="form-check-input" type="radio" name="car_list" id="car_${data[i].car_id}">`
-                option_2 = `
-                    <a onclick="show_busy_date('${data[i].car_busy_time}')" class="btn btn-danger" style="color: white;"><i class="fa-solid fa-eye" style="margin-right: 0.2rem;"></i> เช็ควันที่ไม่ว่าง</a>
+
+                if( data[i].car_status_time == "not free" ){
+                    option_3 += "ไม่ว่าง "
+                    option_2 = `
+                        <a onclick="show_busy_date('${data[i].car_busy_time}')" class="btn btn-danger" style="color: white;"><i class="fa-solid fa-eye" style="margin-right: 0.2rem;"></i> เช็ควันที่ไม่ว่าง</a>
+                        </div>
                     </div>
-                </div>
-                <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
-                    <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>`
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                }else{
+                    option_3 += "ไม่พร้อมใช้งาน "
+                    option_2 = `
+                        </div>
+                    </div>
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                }
             }else{
                 option_1 = `
                 <input class="form-check-input" type="radio" name="car_list" id="car_${data[i].car_id}">`
@@ -560,7 +648,9 @@ function set_table_car(data){
                                     <br>
                                     <hr>
                                     <div style="height: 30px; overflow: auto;" class="">
-                                        <span style="font-size: 15px;">${data[i].car_detail}</span>
+                                        <span style="font-size: 15px;">${data[i].car_registration_code}</span>
+                                        <span style="font-size: 15px;">ราคาเช่าต่อครึ่งวัน : ${(data[i].car_rent_price_per_halfday || "-").toLocaleString("th-TH")} บาท</span>
+                                        <span class="red" style="font-size: 15px;">${option_3}</span>
                                     </div>
                                     <br>
                                     ${option_2}
@@ -570,10 +660,42 @@ function set_table_car(data){
             </div>
             `
             if( i == data.length - 1 ){
-                document.getElementById("div_car_list").innerHTML = text
+                document.getElementById("div_car_list").innerHTML = dropdownCarSiteLocation + text
+                $('.selectpicker').selectpicker('refresh');
             }
         }
     }
+}
+
+function createDropdownCarSiteLocation(  ){
+    return new Promise( (resolve , reject) => {
+        let CarListSiteLocation = [...new Set(CarList.map(item => item.car_site_location))]
+        let optionSiteLocation = ""
+        if( CarListSiteLocation.length === 0 ){
+
+        }else{
+            for( let i = 0 ; i < CarListSiteLocation.length ; i++ ){
+                optionSiteLocation += `<option value="${CarListSiteLocation[i]}">${CarListSiteLocation[i]}</option>`
+            }
+        }
+
+        resolve(`<div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5rem;">
+            <label for="" class="form-label">ที่อยู่รถ</label>
+            <select id="" onchange="changeDropdownCarSiteLocation( this.value )" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                ${optionSiteLocation}
+            </select>
+        </div>`)
+    } )
+}
+
+function changeDropdownCarSiteLocation( CarSiteLocation ){
+    console.log(CarSiteLocation)
+
+    const CarListFilter = CarList.filter( function(e){
+        return  e.car_site_location == CarSiteLocation
+    } )
+
+    set_table_car(CarListFilter)
 }
 
 function show_busy_date( string_date ){
@@ -590,10 +712,14 @@ function show_busy_date( string_date ){
         let text = ""
         for( let i = 0 ; i < array_date.length ; i++ ){
             let index = i + 1
+
+            let busy_date = array_date[i].split("///")
+
             text += `
             <tr>
                 <td>${index}</td>
-                <td>${set_date_templece(array_date[i] , "/" , "en_short")}</td>
+                <td>${set_date_templece(busy_date[0] , "/" , "en_short")}</td>
+                <td>${busy_date[1]}</td>
             </tr>
             `
         }
@@ -607,6 +733,7 @@ function show_busy_date( string_date ){
                     <tr>
                         <th>#</th>
                         <th>วัน/เดือน/ปี</th>
+                        <th>ช่วง</th>
                     </tr>
                 </thead>
                 <tbody>

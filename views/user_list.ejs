@@ -21,6 +21,16 @@
             <div class='card-body'>
                 <div class="row">
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px;">
+                        <button onclick="RefreshActivityNumber()" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-envelopes-bulk" style="margin-right: 0.2rem;"></i>
+                            อัพเดพข้อมูล Activity Number 
+                        </button>
+                        <button onclick="RefreshCostCenter()" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-money-bills" style="margin-right: 0.2rem;"></i>
+                            อัพเดพข้อมูล Cost Center
+                        </button>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px; text-align: center;" id="main_contain">
                         <table id="main_table" class="table table-hover table-bordered" style="width: 100%;">
                             <thead>
                                 <tr>
@@ -29,6 +39,8 @@
                                     <th>อีเมล</th>
                                     <th>แผนก</th>
                                     <th>ตำแหน่งงาน</th>
+                                    <th>Cost Center</th>
+                                    <th>Activity Number</th>
                                     <th>ตำแหน่งออฟฟิศ</th>
                                     <th>ใช้งาน</th>
                                     <th>แอดมิน</th>
@@ -45,6 +57,8 @@
                                         <td><%= e.user_email %></td>
                                         <td><%= e.user_division %></td>
                                         <td><%= e.user_job_title %></td>
+                                        <td><%= e.user_cost_center %></td>
+                                        <td><%= e.user_activity_number %></td>
                                         <td><%= e.user_office_location %></td>
                                         <td>
                                             <% if( e.user_enable == "ใช้งาน"){ %>
@@ -184,6 +198,91 @@
 <%- include("2_footer.ejs") %>
 
 <script>
+
+    async function RefreshCostCenter(){
+        Swal.fire({
+            title: "Refresh Cost Center",
+            html: `ยืนยันการ Refresh Cost Center หรือไม่`,
+            icon: "question",
+
+            showCancelButton: true,
+            confirmButtonColor: "#13a787",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonColor: "#6c757d",
+            cancelButtonText: "ปิด",
+
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/RefreshCostCenter',
+                    data: {},
+                    success: function (result) {
+                        Swal.fire({
+                            title: "สำเร็จ",
+                            text: "Refresh สำเร็จแล้ว",
+                            icon: "success"
+                        });
+                        setTimeout( () => {
+                            window.location.reload()
+                        } , 800 )
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            title: "ไม่สำเร็จ",
+                            text: "Refresh ไม่สำเร็จแล้ว",
+                            icon: "error"
+                        });
+                    }
+                });
+            } 
+        })
+    }
+
+    async function RefreshActivityNumber(){
+        Swal.fire({
+            title: "Refresh Activity Number",
+            html: `ยืนยันการ Refresh Activity Number หรือไม่`,
+            icon: "question",
+
+            showCancelButton: true,
+            confirmButtonColor: "#13a787",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonColor: "#6c757d",
+            cancelButtonText: "ปิด",
+
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                document.getElementById("main_contain").innerHTML = `
+                <div style="width: 5rem; height: 5rem;" class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>`
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/RefreshActivityNumber',
+                    data: {},
+                    success: function (result) {
+                        Swal.fire({
+                            title: "สำเร็จ",
+                            text: "Refresh สำเร็จแล้ว",
+                            icon: "success"
+                        });
+                        setTimeout( () => {
+                            window.location.reload()
+                        } , 800 )
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            title: "ไม่สำเร็จ",
+                            text: "Refresh ไม่สำเร็จแล้ว",
+                            icon: "error"
+                        });
+                    }
+                });
+            } 
+        })
+    }
 
     function update_user_system_admin( value , user_id ){
         console.log("value")

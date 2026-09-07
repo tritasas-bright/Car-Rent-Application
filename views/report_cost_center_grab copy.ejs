@@ -1,0 +1,685 @@
+<%- include("1_header.ejs") %>
+
+<style>
+    .inner{
+        max-height: 300px !important;
+        z-index: 100;
+    }
+</style>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>Grab Report By Cost Center</h4>
+            </div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 10px;">
+                        <button data-bs-toggle="modal" data-bs-target="#modal_uploads_report_grab_car" onclick="" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-car-side" style="margin-right: 0.2rem;"></i>
+                            เพิ่ม Grab (การเดินทางเท่านั้น)
+                        </button>
+                        <button data-bs-toggle="modal" data-bs-target="#modal_uploads_report_grab_food" onclick="" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-pizza-slice" style="margin-right: 0.2rem;"></i>
+                            เพิ่ม Grab (การสั่งอาหารเท่านั้น)
+                        </button>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">เลข Cost Center</label>
+                        <select id="filterBy_costCenter" onchange="filterMain()" class="selectpicker form-control" title="ทั้งหมด" data-show-subtext="true" data-live-search="true">
+                            <option selected value="ทั้งหมด">ทั้งหมด</option>
+                            <% CostCenterList.sort().forEach( function(e) { %>
+                                <option value="<%= e %>"><%= e %></option>
+                            <% } ) %>
+                        </select>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">เริ่มต้น</label>
+                        <input onchange="filterMain()" value="2024-01-01" type="date"  class="form-control" id="startFilterDate">
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">จนถึง</label>
+                        <input onchange="filterMain()" value="2024-01-01" type="date" class="form-control" id="endFilterDate">
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 0px;">
+                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
+                                    <i class="fa-solid fa-car-side" style="margin-right: 0.2rem;"></i>
+                                    Report Grab Car (การเดินทาง)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">
+                                    <i class="fa-solid fa-pizza-slice" style="margin-right: 0.2rem;"></i>
+                                    Report Grab Food (การสั่งอาหาร)
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                            <div class="" id="mainDataDiv">
+                        
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                            <div class="" id="mainDataDivGrabFood">
+                                <div class="row">
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <div class="alert alert-primary" role="alert">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    📑 จำนวนเอกสาร
+                                                </div>
+                                                <div style="text-align: center;" class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <h2>08</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <div class="alert alert-danger" role="alert">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    💰 ราคารวม
+                                                </div>
+                                                <div style="text-align: center;" class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <h2>80,000</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal_excel_1_all" style="margin-bottom: 10px;" type="button">
+                                            <i class="fa-solid fa-oil-well"></i> ดาวน์โหลด Excel
+                                        </button>
+                                    </div>
+
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <table id="main_table_2" class="table table-hover table-bordered" style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th style="min-width: 150px;">เครื่องมือ</th>
+                                                    <th>วันที่ยืม</th>
+                                                    <th>Doc. NO.</th>
+                                                    <th>ผู้ยืมชื่อ-นามสกุล (แผนก)</th>
+                                                    <th>ผู้ขับ</th>
+                                                    <th>Eazy Pass</th>
+                                                    <th>บัตรเติมน้ำมัน</th>
+                                                    <th>ทะเบียนรถที่ยืม</th>
+                                                    <th>ชื่อรถที่ยืม</th>
+                                                    <th>เพื่อ</th>
+                                                    <th>ผู้สร้างชื่อ-นามสกุล (แผนก)</th>
+                                                    <th>สร้างเมื่อ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                    <td>xxxxx</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<div class="modal fade" id="modal_uploads_report_grab_car" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกไฟล์อัพโหลด Grab Car</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form" action="/uploads_report_grab_car" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <input type="file" class="form-control" id="fileupload" name="fileupload" required accept=".xlsx, .xls, .csv" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">อัพโหลด</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_uploads_report_grab_food" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกไฟล์อัพโหลด Grab Food</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form" action="/uploads_report_grab_food" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <input type="file" class="form-control" id="fileupload" name="fileupload" required accept=".xlsx, .xls, .csv" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">อัพโหลด</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+
+<script>
+
+    const endFilterDate = document.getElementById('endFilterDate');
+    const startFilterDate = document.getElementById('startFilterDate');
+    const today = new Date().toISOString().split('T')[0];
+
+    // ตั้งค่าค่าเริ่มต้น
+    endFilterDate.value = today;
+
+    // ตรวจสอบเมื่อค่าถูกเปลี่ยน
+    endFilterDate.addEventListener('input', () => {
+        if (!endFilterDate.value) {
+            endFilterDate.value = today; // ตั้งค่ากลับเป็นค่าเริ่มต้น
+        }
+    });
+
+    startFilterDate.addEventListener('input', () => {
+        if (!startFilterDate.value) {
+            startFilterDate.value = "2024-01-01"; // ตั้งค่ากลับเป็นค่าเริ่มต้น
+        }
+    });
+
+    let mainData = []
+
+    window.onload = () => {
+        data_no_syntex = '<%= JSON.stringify(GrabReportData) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainData = data_to_obj
+
+        generateDataCard(mainData)
+
+    }
+
+    async function filterMain(){
+        data_no_syntex = '<%= JSON.stringify(GrabReportData) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainData = data_to_obj
+
+        let filter_1_data = await filter_1( mainData )
+        console.log("filter_1_data")
+        console.log(filter_1_data)
+        let filter_2_data = await filter_2( filter_1_data )
+        let filter_3_data = await filter_3( filter_2_data )
+
+        generateDataCard(filter_3_data)
+
+    }
+
+    function filter_1( mainData_clone ){
+        return new Promise( (resolve , reject) => {
+            let filterCostCenter = document.getElementById( "filterBy_costCenter" ).value
+            
+            if( filterCostCenter === "ทั้งหมด" ){
+                console.log("mainData_clone")
+                console.log(mainData_clone)
+                resolve(mainData_clone)
+            }else{
+                mainData_clone = mainData.filter( function(e){
+                    return  e.CostCenter == filterCostCenter
+                } )
+                resolve(mainData_clone)
+            }
+        } )
+    }
+
+    function filter_2( mainData_clone_1 ){
+        return new Promise( (resolve , reject) => {
+            let startFilterDate = new Date(document.getElementById( "startFilterDate" ).value).getTime() || 0
+            let mainData_clone_2 = mainData_clone_1
+            
+            if( mainData_clone_2.length === 0 ){
+                resolve([])
+            }else{
+                let output = []
+                for( let i = 0 ; i < mainData_clone_2.length ; i++ ){
+                    let dataSub = mainData_clone_2[i].data
+                    console.log("filter Date " + (+startFilterDate - 25200000))
+                    dataSubFilter = dataSub.filter( function(e){
+                        console.log("This Date " + new Date(e.tds_want_date).getTime())
+                        return  new Date(e.tds_want_date).getTime() >= (startFilterDate - 25200000)
+                    } )
+
+                    mainData_clone_2[i].data = dataSubFilter
+                    console.log("dataSub")
+                    console.log(dataSub)
+                    console.log("dataSubFilter")
+                    console.log(dataSubFilter)
+
+                    if( i === mainData_clone_2.length - 1 ){
+                        resolve( mainData_clone_2 )
+                    }
+                }
+            }
+        } )
+    }
+
+    function filter_3( mainData_clone_2 ){
+        return new Promise( (resolve , reject) => {
+            let endFilterDate = new Date(document.getElementById( "endFilterDate" ).value).getTime() || 0
+            let mainData_clone_3 = mainData_clone_2
+            
+            if( mainData_clone_3.length === 0 ){
+                resolve([])
+            }else{
+                let output = []
+                for( let i = 0 ; i < mainData_clone_3.length ; i++ ){
+                    let dataSub = mainData_clone_3[i].data
+                    console.log("filter Date " + (+endFilterDate))
+                    dataSubFilter = dataSub.filter( function(e){
+                        console.log("This Date " + new Date(e.tds_want_date).getTime())
+                        return  new Date(e.tds_want_date).getTime() < endFilterDate
+                    } )
+
+                    mainData_clone_3[i].data = dataSubFilter
+                    console.log("dataSub")
+                    console.log(dataSub)
+                    console.log("dataSubFilter")
+                    console.log(dataSubFilter)
+
+                    if( i === mainData_clone_3.length - 1 ){
+                        resolve( mainData_clone_3 )
+                    }
+                }
+            }
+        } )
+    }
+
+    function filterSub( element , division , costCenter ){
+        const data = JSON.parse(element.dataset.document);
+
+        console.log("data")
+        console.log(data)
+
+        let mainData_clone = data.filter( function(e){
+            return  e.CostCenter == costCenter
+        } )
+
+        let data_in_this_costCenter = data
+        let data_in_this_costCenter_clone
+
+        if( division === "ทั้งหมด" ){
+            data_in_this_costCenter_clone = data_in_this_costCenter
+        }else{
+            data_in_this_costCenter_clone = data_in_this_costCenter.filter( function(e){
+                return  e.user_division == division
+            } )
+        }
+
+        let titalPrice = data_in_this_costCenter_clone.length === 0 ? 0 : data_in_this_costCenter_clone.reduce((total, item) => total + Number(item.tdfg_total), 0)
+
+        console.log("titalPrice")
+        console.log(titalPrice)
+
+        document.getElementById( "totalPrice_" + costCenter ).innerText = ((+titalPrice).toLocaleString("th-TH")) + " บาท"
+        document.getElementById( "footer_" + costCenter ).innerHTML = `
+        <div class="row" style="width: 100%;">
+            <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <div class="dash-metrics">
+                    <div class="dash-metric">📝 ${ data_in_this_costCenter_clone.length } รายการ</div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="text-align: end; padding: 0;">
+                <button data-bs-toggle="modal" data-bs-target="#modal_detail" onclick="ViewDocument(this)" data-document='${JSON.stringify(data_in_this_costCenter_clone).replace(/'/g, "\\'")}'  type="button" class="dash-badge btn btn-warning">
+                    <i class="fa-solid fa-rectangle-list"></i>
+                    ตรวจสอบข้อมูล​
+                </button>
+                <button onclick="DownloadExcel(this)" data-costcenter='${costCenter}' data-document='${JSON.stringify(data_in_this_costCenter_clone).replace(/'/g, "\\'")}' onclick='' type="button" class="dash-badge btn btn-warning">
+                    <i class="fa-solid fa-download"></i>
+                    download excel
+                </button>
+            </div>`
+
+    }
+
+    function generateDataCard(data){
+        console.log("generateDataCard")
+        console.log(data)
+        let text = ""
+        for( let i = 0 ; i < data.length ; i++ ){
+
+            let divisionOption = '<option value="ทั้งหมด">ทั้งหมด</option>'
+            data[i].division.map( item => divisionOption += `<option value="${item}">${item}</option>` )
+
+            text += `
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="display: flex; margin-bottom: 1rem; justify-content: center; margin-top: 10px;" id="">
+                <div class="dash-grid" style="width: 100%; padding: 0;">
+                    <div class="dash-panel" style="width: 100%; margin-bottom: 10px;">
+                        <div class="row" style="margin-bottom: 10px;">
+                            <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div style="width: 100%; background-color: #02274c; font-size: 1.2rem;" class="dash-circle-number">
+                                    ${data[i].CostCenter}
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="">
+                                <select id="division_${data[i].CostCenter}" onchange="filterSub( this , this.value , ${data[i].CostCenter} )" data-document='${JSON.stringify(data[i].data).replace(/'/g, "\\'")}' class="selectpicker form-control" title="ทั้งหมด" data-show-subtext="true" data-live-search="true">
+                                    ${divisionOption}
+                                </select>
+                            </div>
+                        </div>
+                        <h2 id="totalPrice_${data[i].CostCenter}" style="color: rgb(220, 0, 0); text-align: center; font-size: 1.5rem;" class="dash-panel-heading">
+                            ${(+(data[i].data).reduce((total, item) => total + Number(item.tdfg_total), 0)).toLocaleString("th-TH")} บาท
+                        </h2>
+                        <div id="footer_${data[i].CostCenter}" class="dash-panel-bottom">
+                            <div class="row" style="width: 100%;">
+                                <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                    <div class="dash-metrics">
+                                        <div class="dash-metric">📝 ${ data[i].data.length } รายการ</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="text-align: end; padding: 0;">
+                                    <button data-bs-toggle="modal" data-bs-target="#modal_detail" onclick="ViewDocument(this)" data-document='${JSON.stringify(data[i].data).replace(/\n|\t|\r/g, " ")}'  type="button" class="dash-badge btn btn-warning">
+                                        <i class="fa-solid fa-rectangle-list"></i>
+                                        ตรวจสอบข้อมูล​
+                                    </button>
+                                    <button onclick="DownloadExcel(this)" data-costcenter='${data[i].CostCenter}' data-document='${JSON.stringify(data[i].data).replace(/'/g, "\\'")}' onclick='' type="button" class="dash-badge btn btn-warning">
+                                        <i class="fa-solid fa-download"></i>
+                                        download excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+
+            if( i === data.length - 1 ){
+                document.getElementById("mainDataDiv").innerHTML = text
+                $('.selectpicker').selectpicker('refresh');
+            }
+        }
+    }
+
+    async function DownloadExcel( element ){
+        const data = JSON.parse(element.dataset.document);
+        const costCenter = element.dataset.costcenter;
+        let dataOut = []
+        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        // เพิ่ม Header (กำหนดชื่อซ้ำกันได้)
+        worksheet.addRow([
+            "Expense report number" , 
+            "Description" ,
+            "Project ID" , 
+            "Purpose" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Transaction date" , 
+            "Expense category" , 
+            "Transaction amount" , 
+            "Exchange rate" , 
+            "Project ID" , 
+            "Billable" , 
+            "Activity number" , 
+            "Contra charge" , 
+            "Subcontractor", 
+            "Work order" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Receipt number" , 
+            "Sales tax group" , 
+            "Item sales tax group" , 
+            "Additional information" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Ref. Image" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Address" , 
+            "Withholding tax group" , 
+            "Withholding tax code" , 
+            "Withhold %" , 
+            "Withholding tax base" , 
+            "Withholding tax amount" , 
+            "ผู้จ่ายเงิน" , 
+            "TaxWithhold Doc No." , 
+            "Date" 
+        ]);
+        worksheet.getRow(1).font = { bold: true };
+
+        const data_1 = await prepareData( data )
+        
+        data_1.map( (item , index) => (
+            worksheet.addRow(item)
+        ) )
+        worksheet.getColumn(12).numFmt = "d/m/yyyy"; // ตัวเลข
+        worksheet.getColumn(14).numFmt = "0"; // ตัวเลข
+        worksheet.getColumn(15).numFmt = "0"; // วันที่
+
+        // DownloadExcel( FileName , DataJson )
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `GrabReport_${set_date_templece(new Date() , "-" , "en_short" , false)}_${new Date().getTime()}.xlsx`;
+        link.click();
+    }
+
+    function prepareData( data ){
+        return new Promise( (resolve , reject) => {
+            let dataOut = []
+            console.log(data)
+            if( data.length > 0 ){
+                for( let i = 0 ; i < data.length ; i++ ){
+                    let division = (data[i].user_division).split("-")
+                    let site = ""
+                    let index = i + 1
+                    if( division[0].startsWith("00") ){
+                        site = division[0]
+                    }
+                    let ActivityNumber = data[i].user_activity_number === "ไม่พบ Activity Number" ? "" : data[i].user_activity_number
+                    dataOut.push( [
+                        "" , 
+                        "ADMIN Change ค่าเรียกรถผ่าน Grab : " + set_date_templece(startFilterDate.value , "/" , "en_short" , false) + "-" + set_date_templece(endFilterDate.value , "/" , "en_short" , false) ,
+                        "" , 
+                        "Internal Charge-ADM" , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        "86000" , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        "NONE" , 
+                        set_date_templece(endFilterDate.value , "/" , "for_erp" , false) , 
+                        "AMD-GRAB >> ค่าเรียกรถผ่าน Grab" , 
+                        (+data[i].tdfg_total).toFixed(2) , 
+                        "1.00" , 
+                        site , 
+                        "BILLABLE" , 
+                        ActivityNumber , 
+                        "No" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "RC-" + index.toString().padStart(2, '0') , 
+                        "" , 
+                        "" , 
+                        "ADMIN Change ค่าเรียกรถผ่าน Grab : " + data[i].tds_want_remark , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        data[i].user_cost_center , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        site === "" ? "NONE" : site , 
+                        "" , 
+                        "V03325" , 
+                        "บริษัท ธนาคารกสิกรไทย จำกัด (มหาชน)" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "หักภาษี ณ ที่จ่าย" , 
+                        "" , 
+                        "" , 
+                    ] )
+
+                    if( i === data.length - 1){
+                        console.log(dataOut)
+                        resolve(dataOut)
+                    }
+                }
+            }else{
+                resolve(dataOut)
+            }
+        } )
+    }
+
+    function ViewDocument( element ){
+        console.log(element.dataset.document)
+        const data = JSON.parse(element.dataset.document);
+        console.log(data)
+
+        let tableText = ""
+        if( data.length === 0 ){
+            SetDocumentModal(tableText)
+        }else{
+            for( let i = 0 ; i < data.length ; i++ ){
+                let index = i + 1
+                tableText += `
+                <tr>
+                    <td>
+                        <a href="/ticket_requset_document_view/${btoa(data[i].tds_join_jdm_id)}" target="_blank">
+                            ${index} 
+                        </a>
+                    </td>
+                    <td>${set_date_templece(data[i].tds_want_date , "" , "th_long" , false)}</td>
+
+                    <td>${data[i].tds_create_by_name}</td>
+                    <td>${data[i].tds_create_by_email}</td>
+                    <td>${data[i].tds_create_by_division}</td>
+
+                    <td>${data[i].tds_want_brand}</td>
+                    
+                    <td>${data[i].tds_ticket_code_generated}</td>
+                    <td>${data[i].tdfg_service_type}</td>
+                    <td>${data[i].tds_want_remark}</td>
+                    <td>${data[i].tdfg_order_description}</td>
+                    <td style="text-align: end;" >${((+data[i].tdfg_total)||"").toLocaleString("th-TH") || ""} บาท</td>
+                </tr>`
+
+                if( i === data.length - 1 ){
+                    SetDocumentModal(tableText)
+                }
+            }
+        }
+    }
+
+    function SetDocumentModal(tableText){
+        document.getElementById("modal_detail_content").innerHTML = `
+        <table id="main_table" class="table table-hover table-bordered" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="5%">#</th>
+                    <th colspan="1" >วันที่ทำรายการ</th>
+                    <th colspan="3" >ข้อมูลพนักงาน</th>
+                    <th colspan="6" >ข้อมูลการทำรายการ</th>
+                </tr>
+                <tr>
+                    <th width="5%">#</th>
+                    <th>วันที่จ่าย</th>
+
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>อีเมล</th>
+                    <th>แผนก</th>
+
+                    <th>แอพพลิเคชั่น</th>
+                    <th>โค้ดที่ใช้</th>
+                    <th>ประเภทการใช้</th>
+                    <th>หมายเหตุเอกสาร</th>
+                    <th>หมายเหตุการสั่ง</th>
+                    <th>ราคา</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableText}
+            </tbody>
+        </table>`
+
+        setTimeout( () => {
+            $('#main_table').DataTable({
+                "destroy": true,
+                "retrieve":true,
+                "stateSave": true,
+                fixedColumns:   {
+                    left: 0 ,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true, 
+                "lengthChange": true, 
+                "searching": true,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "57.7vh" 
+            })
+        } , 350 )
+    }
+
+</script>

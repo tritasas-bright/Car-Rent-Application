@@ -14,8 +14,9 @@
                                 <tr>
                                     <th width="10%">#</th>
                                     <th>#</th>
-                                    <th>ผู้สร้างชื่อ-นามสกุล (แผนก)</th>
-                                    <th>สร้างให้กับชื่อ-นามสกุล (แผนก)</th>
+                                    <th>Doc. NO.</th>
+                                    <th>ผู้สร้าง</th>
+                                    <th>ผู้ใช้</th>
                                     <th>สร้างเมื่อ</th>
                                     <th>ผู้ขับ</th>
                                     <th>Eazy Pass</th>
@@ -36,8 +37,9 @@
                                                 </button>
                                             </a>
                                         </td>
-                                        <td><%= e.cdm_create_by_name %> (<%= e.cdm_create_by_division %>)</td>
-                                        <td><%= e.cdm_for_person %> (<%= e.cdm_for_person_division %>)</td>
+                                        <td><%= e.cdm_document_no %></td>
+                                        <td><%= e.cdm_create_by_name %></td>
+                                        <td><%= e.user_nane_en + " " + e.user_surname_en %> (<%= e.user_division %>)</td>
                                         <td><%= dayjs(e.cdm_create_date).format("DD/MM/YYYY") %></td>
                                         <td><%= e.cdm_driver_type %></td>
                                         <td><%= e.cdm_eazy_pass %></td>
@@ -65,8 +67,9 @@
                                 <tr>
                                     <th width="5%">#</th>
                                     <th width="10%">#</th>
-                                    <th>ผู้สร้างชื่อ-นามสกุล (แผนก)</th>
-                                    <th>สร้างให้กับชื่อ-นามสกุล (แผนก)</th>
+                                    <th>Doc. NO.</th>
+                                    <th>ผู้สร้างเอกสาร</th>
+                                    <th>สร้างให้กับ</th>
                                     <th>สร้างเมื่อ</th>
                                     <th>จุดประสงค์การขอ</th>
                                 </tr>
@@ -83,8 +86,9 @@
                                                 </button>
                                             </a>
                                         </td>
-                                        <td><%= e.tdm_create_by_name %> (<%= e.tdm_create_by_division %>)</td>
-                                        <td><%= e.tdm_user_name %> (<%= e.tdm_user_division_name %>)</td>
+                                        <td><%= e.tdm_document_number %></td>
+                                        <td><%= e.tdm_create_by_name %></td>
+                                        <td><%= e.user_nane_en || "" %> <%= e.user_surname_en || "" %></td>
                                         <td><%= dayjs(e.tdm_create_date).format("DD/MM/YYYY") %></td>
                                         <td style="max-width: 30vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                             <%= e.tdm_for_what %>

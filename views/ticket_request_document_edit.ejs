@@ -10,23 +10,57 @@
             <div class='card-body'>
                 <form onsubmit="submit_11111(event , '<%= ticket_document_sub.length %>')">
                     <div class="row">
-                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4" style="margin-bottom: 2vh;">
-                            <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้ใช้</label>
-                            <input required id="tdm_user_name" onchange="" value="<%= ticket_document_main[0].tdm_user_name %>" type="text" name="" class="form-control">
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <label for="">Document NO.</label>
+                            <input disabled value="<%= ticket_document_main[0].tdm_document_number %>" type="text" name="" id="" class="form-control">
                         </div>
-                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4" style="margin-bottom: 2vh;">
-                            <label for=""> <span class="red">*</span> อีเมล ผู้ใช้</label>
-                            <input required id="tdm_user_email" onchange="" value="<%= ticket_document_main[0].tdm_user_email %>" type="text" name="" class="form-control">
+    
+                        <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh; align-content: end;">
+                            <button data-bs-toggle="modal" data-bs-target="#modal_search_employee" onclick="search_employee()" style="color: white; font-weight: 700; width: 100%;" type="button" class="btn btn-info btn-function">
+                                <i class="fa-regular fa-address-book" style="margin-right: 0.2rem;"></i>
+                                ค้นหาพนักงาน
+                            </button>
                         </div>
-                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4" style="margin-bottom: 2vh;">
-                            <label for=""> <span class="red">*</span> แผนก ผู้ใช้</label>
-                            <select required id="tdm_user_division_id" onchange="" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
-                                <option selected style="display: none;" value="<%= ticket_document_main[0].tdm_user_division_id %>"><%= ticket_document_main[0].tdm_user_division_name %></option>
-                                <% division_data.forEach( function(e) { %>
-                                    <option value="<%= e.div_id %>"><%= e.div_name %></option>
-                                <% } ) %>
-                            </select>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (TH)</label>
+                            <input disabled value="<%= ticket_document_main[0].user_nane_th + " " + ticket_document_main[0].user_surname_th || "" %>" type="text" name="" class="form-control">
                         </div>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (EN)</label>
+                            <input disabled value="<%= ticket_document_main[0].user_nane_en + " " + ticket_document_main[0].user_surname_en || "" %>" type="text" name="" class="form-control">
+                        </div>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> อีเมล ผู้รับผิดชอบ</label>
+                            <input disabled value="<%= ticket_document_main[0].user_email || "" %>" type="text" name="" class="form-control">
+                        </div>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> แผนก</label>
+                            <input disabled value="<%= ticket_document_main[0].user_division || "" %>" type="text" name="" class="form-control">
+                        </div>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> Cost Center</label>
+                            <input disabled value="<%= ticket_document_main[0].user_cost_center || "" %>" type="text" name="" class="form-control">
+                        </div>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> Activity Number</label>
+                            <input disabled value="<%= ticket_document_main[0].user_activity_number || "" %>" type="text" name="" class="form-control">
+                        </div>
+    
+                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <label for="">ผู้อนุมัติ</label>
+                            <span disabled id="approver_show" class="form-control"><%= division_data || "*** ไม่มีผู้อนุมัติของแผนกนี้ โปรดติดต่อไอที" %></span>
+                        </div>
+    
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <hr>
+                        </div>
+                        
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 2vh;">
                             <label for=""> <span class="red">*</span> เพื่อ</label>
                             <textarea required id="tdm_for_what" onchange="" class="form-control" rows="5"><%= ticket_document_main[0].tdm_for_what %></textarea>
@@ -103,12 +137,16 @@
                             <label for=""> <span class="red">*</span> แอพที่เรียก</label>
                             <select required id="tds_want_brand" onchange="" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
                                 <option disabled value="Bolt">Bolt (ยังไม่พร้อมใช้งาน)</option>
-                                <option value="Grab">Grab</option>
+                                <option selected value="Grab">Grab</option>
                             </select>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
-                            <label for=""> <span class="red">*</span> หมายเหตุ</label>
-                            <textarea required id="tds_want_remark" onchange="" class="form-control" rows="5"></textarea>
+                            <label for=""> <span class="red">*</span> สถานที่ปลายทาง</label>
+                            <textarea required id="Location" onchange="" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> วัตถุประสงค์ในการเดินทาง</label>
+                            <textarea required id="Objective" onchange="" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -121,7 +159,94 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal_search_employee" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">ข้อมูลพนักงาน</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="SelectedEmployee(event)" >
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> แผนก</label>
+                            <select required onchange="" id="employee_select" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="submit" class="btn btn-primary">เลือก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+
+    function updateSelectedEmployee(employee_id){
+        const data = {
+            employeeId : employee_id , 
+            documentId : document.getElementById("tdm_id").value
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/updateSelectedEmployeeTKD',
+            data: data,
+            success: function (values) {
+                window.location.reload()
+            },
+            error: function (error) {
+                Swal.fire({
+                    title: "error",
+                    text: "",
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    function SelectedEmployee(event){
+        event.preventDefault();
+        let employee_id = document.getElementById("employee_select").value || ""
+        if( employee_id !== "" ){
+            updateSelectedEmployee(employee_id)
+        }
+    }
+
+    function search_employee(){
+        $.ajax({
+            type: 'GET',
+            url: '/EmployeeList',
+            data: {},
+            success: function (values) {
+                console.log(values.EmployeeList)
+                set_employee_option(values.EmployeeList)
+                employee_select_data = values.EmployeeList
+            },
+            error: function (error) {
+                console.log("error with Ajax");
+                console.log(error);
+            }
+        });
+    }
+
+    function set_employee_option( data ){
+        let text = ""
+        for( let i = 0 ; i < data.length ; i++ ){
+            text += `<option value="${data[i].user_id}">${data[i].user_emp_id} - ${data[i].user_nane_th} ${data[i].user_surname_th} (${data[i].user_nane_en} ${data[i].user_surname_en})</option>`
+
+            if( i === data.length - 1 ){
+                document.getElementById("employee_select").innerHTML = text
+                $('.selectpicker').selectpicker('refresh');
+            }
+        }
+    }
 
     async function submit_11111(event , sub_row_length){
         event.preventDefault();
@@ -201,7 +326,7 @@
         let data = {
             tds_want_date : document.getElementById("tds_want_date").value , 
             tds_want_brand : document.getElementById("tds_want_brand").value , 
-            tds_want_remark : document.getElementById("tds_want_remark").value , 
+            tds_want_remark : document.getElementById("Location").value + " " + document.getElementById("Objective").value , 
             tdm_id : document.getElementById("tdm_id").value , 
         }
 
@@ -225,10 +350,7 @@
     function end_function( status ){
         return new Promise( (resolve, reject) => {
             let data = {
-                tdm_id : document.getElementById("tdm_id").value , 
-                tdm_user_name : document.getElementById("tdm_user_name").value , 
-                tdm_user_email : document.getElementById("tdm_user_email").value , 
-                tdm_user_division_id : document.getElementById("tdm_user_division_id").value , 
+                tdm_id : document.getElementById("tdm_id").value ,
                 tdm_for_what : document.getElementById("tdm_for_what").value , 
                 status : status
             }

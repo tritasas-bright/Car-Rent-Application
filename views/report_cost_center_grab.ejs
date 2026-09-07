@@ -1,0 +1,878 @@
+<%- include("1_header.ejs") %>
+
+<style>
+    .inner{
+        max-height: 300px !important;
+        z-index: 100;
+    }
+</style>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>Grab Report By Cost Center</h4>
+            </div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 10px;">
+                        <button data-bs-toggle="modal" data-bs-target="#modal_uploads_report_grab_car" onclick="" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-car-side" style="margin-right: 0.2rem;"></i>
+                            เพิ่ม Grab (การเดินทางเท่านั้น)
+                        </button>
+                        <button data-bs-toggle="modal" data-bs-target="#modal_uploads_report_grab_food" onclick="" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-pizza-slice" style="margin-right: 0.2rem;"></i>
+                            เพิ่ม Grab (การสั่งอาหารเท่านั้น)
+                        </button>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">Cost Center</label>
+                        <select id="filterBy_costCenter" onchange="filterMain()" class="selectpicker form-control" title="ทั้งหมด" data-show-subtext="true" data-live-search="true">
+                            <option selected value="ทั้งหมด">ทั้งหมด</option>
+                            <% CostCenterListFilter.sort().forEach( function(e) { %>
+                                <% if(e === ""){ %>
+                                    <option value="<%= e %>">#ว่าง</option>
+                                <% }else{ %>
+                                    <option value="<%= e %>"><%= e %></option>
+                                <% } %>
+                            <% } ) %>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">แผนก</label>
+                        <select id="filterBy_division" onchange="filterMain()" class="selectpicker form-control" title="ทั้งหมด" data-show-subtext="true" data-live-search="true">
+                            <option selected value="ทั้งหมด">ทั้งหมด</option>
+                            <% DivisionListFilter.sort().forEach( function(e) { %>
+                                <% if(e === ""){ %>
+                                    <option value="<%= e %>">#ว่าง</option>
+                                <% }else{ %>
+                                    <option value="<%= e %>"><%= e %></option>
+                                <% } %>
+                            <% } ) %>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">เริ่มต้น</label>
+                        <input onchange="filterMain()" value="2024-01-01" type="date"  class="form-control" id="startFilterDate">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 10px;">
+                        <label for="" class="form-label">จนถึง</label>
+                        <input onchange="filterMain()" value="2024-01-01" type="date" class="form-control" id="endFilterDate">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 0px;">
+                        <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button onclick="setTimeout_set_table_grab( 'GrabCarTable' , 1000 )" class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
+                                    <i class="fa-solid fa-car-side" style="margin-right: 0.2rem;"></i>
+                                    Report Grab Car (การเดินทาง)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button onclick="setTimeout_set_table_grab( 'GrabFoodTable' , 300 )" class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">
+                                    <i class="fa-solid fa-pizza-slice" style="margin-right: 0.2rem;"></i>
+                                    Report Grab Food (การสั่งอาหาร)
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                            <div class="" id="mainDataDivGrabCar">
+                                <div class="row">
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <div class="alert alert-primary" role="alert">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    📑 จำนวนเอกสาร
+                                                </div>
+                                                <div style="text-align: center;" class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <h2 style="font-weight: 700;" id="totalDocumentGrabCar">08</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <div class="alert alert-danger" role="alert">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    💰 ราคารวม
+                                                </div>
+                                                <div style="text-align: center;" class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <h2 style="font-weight: 700;" id="totalPriceGrabCar">80,000</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <button class="btn btn-outline-success" onclick="exportExcelGrabCar()" style="margin-bottom: 10px;" type="button">
+                                            <i class="fa-solid fa-car-side" style="margin-right: 0.2rem;"></i> ดาวน์โหลด Excel
+                                        </button>
+                                    </div>
+    
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="GrabCarDivTable">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                            <div class="" id="mainDataDivGrabFood">
+                                <div class="row">
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <div class="alert alert-primary" role="alert">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    📑 จำนวนเอกสาร
+                                                </div>
+                                                <div style="text-align: center;" class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <h2 style="font-weight: 700;" id="totalDocument">08</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <div class="alert alert-danger" role="alert">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    💰 ราคารวม
+                                                </div>
+                                                <div style="text-align: center;" class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <h2 style="font-weight: 700;" id="totalPrice">80,000</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                                        <button class="btn btn-outline-success" onclick="exportExcelGrabFood()" style="margin-bottom: 10px;" type="button">
+                                            <i class="fa-solid fa-pizza-slice" style="margin-right: 0.2rem;"></i> ดาวน์โหลด Excel
+                                        </button>
+                                    </div>
+
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" id="GrabFoodDivTable">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<div class="modal fade" id="modal_uploads_report_grab_car" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกไฟล์อัพโหลด Grab Car</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form" action="/uploads_report_grab_car" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <input type="file" class="form-control" id="fileupload" name="fileupload" required accept=".xlsx, .xls, .csv" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">อัพโหลด</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_uploads_report_grab_food" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกไฟล์อัพโหลด Grab Food</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form" action="/uploads_report_grab_food" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <input type="file" class="form-control" id="fileupload" name="fileupload" required accept=".xlsx, .xls, .csv" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">อัพโหลด</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+
+<script>
+
+    const endFilterDate = document.getElementById('endFilterDate');
+    const startFilterDate = document.getElementById('startFilterDate');
+    const today = new Date().toISOString().split('T')[0];
+
+    // ตั้งค่าค่าเริ่มต้น
+    endFilterDate.value = today;
+
+    // ตรวจสอบเมื่อค่าถูกเปลี่ยน
+    endFilterDate.addEventListener('input', () => {
+        if (!endFilterDate.value) {
+            endFilterDate.value = today; // ตั้งค่ากลับเป็นค่าเริ่มต้น
+        }
+    });
+
+    startFilterDate.addEventListener('input', () => {
+        if (!startFilterDate.value) {
+            startFilterDate.value = "2024-01-01"; // ตั้งค่ากลับเป็นค่าเริ่มต้น
+        }
+    });
+
+    let mainData = []
+    let mainDataGrabCar = []
+
+    window.onload = () => {
+        // generateDataCard(mainData)
+        generateDataTableGrabFood()
+        generateDataTableGrabCar()
+
+        setTimeout_set_table_grab( 'GrabCarTable' , 500 )
+    }
+
+    let mainDataGrabFood = []
+
+    function generateDataTableGrabFood(){
+        data_no_syntex = '<%= JSON.stringify(ReportGrabFood) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainDataGrabFood = data_to_obj
+
+        draftTableGrabFood(mainDataGrabFood)
+    }
+
+    function draftTableGrabFood(mainDataGrabFood){
+        let trHtml = ""
+        let totalDocument = 0
+        let totalPrice = 0
+        if(mainDataGrabFood.length === 0){
+            createTableGrabFood(trHtml , totalDocument , totalPrice)
+        }else{
+            for(let i = 0 ; i < mainDataGrabFood.length ; i++){
+                totalDocument = mainDataGrabFood.length
+                totalPrice += (+mainDataGrabFood[i].tdfgc_total)
+                let index = i + 1
+                trHtml += `
+                    <tr>
+                        <td>${ index.toString().padStart(2,"0") }</td>
+                        <td>${ mainDataGrabFood[i].tdfgc_fk_tds_id === "0" ? "" : `<button onClick="window.open('/ticket_requset_document_view/${btoa(mainDataGrabFood[i].tdm_id)}')" style="padding: 2px 8px;" type="button" class="btn btn-outline-primary"><i class="fa-regular fa-eye"></i></button>` }</td>
+
+                        <td>${ set_date_templece(mainDataGrabFood[i].tdfgc_datetime_using , "" , "th_long" , true) }</td>
+                        <td style="background-color: #ffc2c25e;">${ mainDataGrabFood[i].tdfgc_change_cost }</td>
+
+                        <td>${ mainDataGrabFood[i].tdfgc_use_by_emp_id }</td>
+                        <td>${ mainDataGrabFood[i].tdfgc_use_by_name }</td>
+                        <td>${ mainDataGrabFood[i].tdfgc_use_by_email }</td>
+                        <td>${ mainDataGrabFood[i].tdfgc_use_by_group }</td>
+
+                        <td>${ mainDataGrabFood[i].user_emp_id }</td>
+                        <td>${ mainDataGrabFood[i].user_nane_en } ${ mainDataGrabFood[i].user_surname_en }</td>
+                        <td>${ mainDataGrabFood[i].user_email }</td>
+                        <td>${ mainDataGrabFood[i].user_division }</td>
+
+                        <td>${ mainDataGrabFood[i].tds_ticket_code_generated }</td>
+                        <td>${ mainDataGrabFood[i].tdm_for_what } ${ mainDataGrabFood[i].tds_want_remark }</td>
+                        <td style="background-color: #ffc2c25e;">${ mainDataGrabFood[i].tdfgc_total.toLocaleString('th-TH') + " บาท" }</td>
+                    </tr>
+                `
+                if( i === mainDataGrabFood.length - 1 ){
+                    createTableGrabFood(trHtml , totalDocument , totalPrice)
+                }
+            }
+        }
+    }
+
+    function createTableGrabFood( trHtml , totalDocument , totalPrice ){
+        document.getElementById("totalDocument").innerText = (totalDocument.toString().padStart(3,"0"))
+        document.getElementById("totalPrice").innerText = totalPrice.toLocaleString('th-TH') + " บาท"
+        document.getElementById("GrabFoodDivTable").innerHTML = `
+            <table id="GrabFoodTable" class="table table-hover table-bordered" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th colspan="2">#</th>
+                        <th style="min-width: 150px;">วันเวลาที่ได้รับตั๋ว</th>
+                        <th colspan="5">ผู้ที่ใช้งาน</th>
+                        <th colspan="4">ผู้ที่ทำเอกสารขอ</th>
+                        <th colspan="3">การใช้งาน</th>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>#</th>
+                        <th style="min-width: 150px;">วันเวลาที่ได้รับตั๋ว</th>
+                        <th>Cost Center</th>
+                        <th>รหัสพนักงาน</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>อีเมล</th>
+                        <th>กลุ่ม/แผนก</th>
+                        <th>รหัสพนักงาน</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>อีเมล</th>
+                        <th>แผนก</th>
+                        <th>รหัสตั๋ว</th>
+                        <th>วัตถุประสงค์</th>
+                        <th>ราคา</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${trHtml}
+                </tbody>
+            </table>
+        `
+    }
+
+    function generateDataTableGrabCar(){
+        data_no_syntex = '<%= JSON.stringify(ReportGrabCar) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainDataGrabCar = data_to_obj
+
+        draftTableGrabCar(mainDataGrabCar)
+    }
+
+    function draftTableGrabCar(mainDataGrabCar){
+        let trHtml = ""
+        let totalDocument = 0
+        let totalPrice = 0
+        console.log("mainDataGrabCar")
+        console.log(mainDataGrabCar)
+        if(mainDataGrabCar.length === 0){
+            createTableGrabCar(trHtml , totalDocument , totalPrice)
+        }else{
+            for(let i = 0 ; i < mainDataGrabCar.length ; i++){
+                totalDocument = mainDataGrabCar.length
+                totalPrice += (+mainDataGrabCar[i].tdfg_total)
+                let index = i + 1
+                trHtml += `
+                    <tr>
+                        <td>${ index.toString().padStart(2,"0") }</td>
+                        <td>${mainDataGrabCar[i].tdfg_fk_tds_id === "0" ? "" : `<button onClick="window.open('/ticket_requset_document_view/${btoa(mainDataGrabCar[i].tdm_id)}')" style="padding: 2px 8px;" type="button" class="btn btn-outline-primary"><i class="fa-regular fa-eye"></i></button>`}</td>
+
+                        <td>${ set_date_templece(mainDataGrabCar[i].tdfg_datetime_using , "" , "th_long" , true) }</td>
+                        <td style="background-color: #ffc2c25e;">${ mainDataGrabCar[i].user_cost_center }</td>
+
+                        <td>${ mainDataGrabCar[i].tdfg_use_by_emp_id }</td>
+                        <td>${ mainDataGrabCar[i].tdfg_use_by_name }</td>
+                        <td>${ mainDataGrabCar[i].tdfg_use_by_email }</td>
+                        <td>${ mainDataGrabCar[i].tdfg_use_by_group }</td>
+
+                        <td>${ mainDataGrabCar[i].user_emp_id }</td>
+                        <td>${ mainDataGrabCar[i].user_nane_en } ${ mainDataGrabCar[i].user_surname_en }</td>
+                        <td>${ mainDataGrabCar[i].user_email }</td>
+                        <td>${ mainDataGrabCar[i].user_division }</td>
+
+                        <td>${ mainDataGrabCar[i].tdfg_grab_code }</td>
+                        <td class="long-text" onClick="alert('${ mainDataGrabCar[i].tdm_for_what } ${ mainDataGrabCar[i].tds_want_remark }')">${ mainDataGrabCar[i].tdm_for_what } ${ mainDataGrabCar[i].tds_want_remark }</td>
+                        <td style="background-color: #ffc2c25e;">${ mainDataGrabCar[i].tdfg_total.toLocaleString('th-TH') + " บาท" }</td>
+                    </tr>
+                `
+                if( i === mainDataGrabCar.length - 1 ){
+                    createTableGrabCar(trHtml , totalDocument , totalPrice)
+                }
+            }
+        }
+    }
+
+    function createTableGrabCar( trHtml , totalDocument , totalPrice ){
+        document.getElementById("totalDocumentGrabCar").innerText = (totalDocument.toString().padStart(3,"0"))
+        document.getElementById("totalPriceGrabCar").innerText = totalPrice.toLocaleString('th-TH') + " บาท"
+        document.getElementById("GrabCarDivTable").innerHTML = `
+            <table id="GrabCarTable" class="table table-hover table-bordered" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th colspan="2">#</th>
+                        <th style="min-width: 150px;">วันเวลาที่ได้รับตั๋ว</th>
+                        <th colspan="5">ผู้ที่ใช้งาน</th>
+                        <th colspan="4">ผู้ที่ทำเอกสารขอ</th>
+                        <th colspan="3">การใช้งาน</th>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>#</th>
+                        <th style="min-width: 150px;">วันเวลาที่ได้รับตั๋ว</th>
+                        <th>Cost Center</th>
+                        <th>รหัสพนักงาน</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>อีเมล</th>
+                        <th>กลุ่ม/แผนก</th>
+                        <th>รหัสพนักงาน</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>อีเมล</th>
+                        <th>แผนก</th>
+                        <th>รหัสตั๋ว</th>
+                        <th>วัตถุประสงค์</th>
+                        <th>ราคา</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${trHtml}
+                </tbody>
+            </table>
+        `
+
+        // setTimeout_set_table_grab( 'GrabCarTable' , 300 )
+    }
+
+    async function filterMain(){
+        data_no_syntex = '<%= JSON.stringify(ReportGrabFood) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainDataGrabFood = data_to_obj
+
+        let filter_1_data = await filter_1( mainDataGrabFood )
+        let filter_2_data = await filter_2( filter_1_data )
+        let filter_3_data = await filter_3( filter_2_data )
+        let filter_4_data = await filter_4( filter_3_data )
+
+        mainDataGrabFood = filter_4_data
+        draftTableGrabFood(filter_4_data)
+
+        // **************************************************************
+
+        data_no_syntex = '<%= JSON.stringify(ReportGrabCar) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainDataGrabCar = data_to_obj
+
+        let filter_1_data_GrabCar = await filter_1_GrabCar( mainDataGrabCar )
+        let filter_2_data_GrabCar = await filter_2_GrabCar( filter_1_data_GrabCar )
+        let filter_3_data_GrabCar = await filter_3_GrabCar( filter_2_data_GrabCar )
+        let filter_4_data_GrabCar = await filter_4_GrabCar( filter_3_data_GrabCar )
+
+        mainDataGrabCar = filter_4_data_GrabCar
+        draftTableGrabCar(filter_4_data_GrabCar)
+
+        setTimeout_set_table_grab( 'GrabCarTable' , 500 )
+        setTimeout_set_table_grab( 'GrabFoodTable' , 500 )
+    }
+
+    function filter_1( mainDataGrabFood ){
+        return new Promise( (resolve , reject) => {
+            let filterCostCenter = document.getElementById( "filterBy_costCenter" ).value
+            
+            if( filterCostCenter === "ทั้งหมด" ){
+                resolve(mainDataGrabFood)
+            }else{
+                result_filter_1 = mainDataGrabFood.filter( function(e){
+                    return  e.tdfgc_change_cost == filterCostCenter
+                } )
+                resolve(result_filter_1)
+            }
+        } )
+    }
+
+    function filter_2( filter_1_data ){
+        return new Promise( (resolve , reject) => {
+            let filterDivision = document.getElementById( "filterBy_division" ).value
+            
+            if( filterDivision === "ทั้งหมด" ){
+                resolve(filter_1_data)
+            }else{
+                result_filter_2 = filter_1_data.filter( function(e){
+                    return  e.user_division == filterDivision.replace(/&/g, "&amp;")
+                } )
+                resolve(result_filter_2)
+            }
+        } )
+    }
+
+    function filter_3( filter_2_data ){
+        return new Promise( (resolve , reject) => {
+            let startFilterDate = new Date(document.getElementById( "startFilterDate" ).value).getTime() || 0
+            console.log(new Date(document.getElementById( "startFilterDate" ).value))
+            console.log(startFilterDate)
+            let mainData_clone_2 = filter_2_data
+            
+            if( mainData_clone_2.length === 0 ){
+                resolve([])
+            }else{
+                let output = []
+                console.log(filter_2_data)
+                for( let i = 0 ; i < mainData_clone_2.length ; i++ ){
+                    let dataSub = mainData_clone_2[i]
+
+                    if( new Date(dataSub.tdfgc_datetime_using).getTime() >= (startFilterDate) ){
+                        output.push(dataSub)
+                    }
+
+                    if( i === mainData_clone_2.length - 1 ){
+                        resolve( output )
+                    }
+                }
+            }
+        } )
+    }
+
+    function filter_4( filter_3_data ){
+        return new Promise( (resolve , reject) => {
+            let endFilterDate = new Date(document.getElementById( "endFilterDate" ).value).getTime() || 0
+            let mainData_clone_3 = filter_3_data
+            
+            if( mainData_clone_3.length === 0 ){
+                resolve([])
+            }else{
+                let output = []
+                for( let i = 0 ; i < mainData_clone_3.length ; i++ ){
+                    let dataSub = mainData_clone_3[i]
+                    if( new Date(dataSub.tdfgc_datetime_using).getTime() <= (endFilterDate + 47000000) ){
+                        output.push(dataSub)
+                    }
+
+                    if( i === mainData_clone_3.length - 1 ){
+                        resolve( output )
+                    }
+                }
+            }
+        } )
+    }
+
+    function filter_1_GrabCar( mainDataGrabCar ){
+        return new Promise( (resolve , reject) => {
+            let filterCostCenter = document.getElementById( "filterBy_costCenter" ).value
+            
+            if( filterCostCenter === "ทั้งหมด" ){
+                resolve(mainDataGrabCar)
+            }else{
+                result_filter_1 = mainDataGrabCar.filter( function(e){
+                    return  e.user_cost_center == filterCostCenter
+                } )
+                resolve(result_filter_1)
+            }
+        } )
+    }
+
+    function filter_2_GrabCar( filter_1_data_GrabCar ){
+        return new Promise( (resolve , reject) => {
+            let filterDivision = document.getElementById( "filterBy_division" ).value
+            
+            if( filterDivision === "ทั้งหมด" ){
+                resolve(filter_1_data_GrabCar)
+            }else{
+                result_filter_2 = filter_1_data_GrabCar.filter( function(e){
+                    return  e.user_division == filterDivision.replace(/&/g, "&amp;")
+                } )
+                resolve(result_filter_2)
+            }
+        } )
+    }
+
+    function filter_3_GrabCar( filter_2_data_GrabCar ){
+        return new Promise( (resolve , reject) => {
+            let startFilterDate = new Date(document.getElementById( "startFilterDate" ).value).getTime() || 0
+            let mainData_clone_2 = filter_2_data_GrabCar
+            
+            if( mainData_clone_2.length === 0 ){
+                resolve([])
+            }else{
+                let output = []
+                for( let i = 0 ; i < mainData_clone_2.length ; i++ ){
+                    let dataSub = mainData_clone_2[i]
+                    if( new Date(dataSub.tdfg_datetime_using).getTime() >= (startFilterDate) ){
+                        output.push(dataSub)
+                    }
+
+                    if( i === mainData_clone_2.length - 1 ){
+                        resolve( output )
+                    }
+                }
+            }
+        } )
+    }
+
+    function filter_4_GrabCar( filter_3_data_GrabCar ){
+        return new Promise( (resolve , reject) => {
+            let endFilterDate = new Date(document.getElementById( "endFilterDate" ).value).getTime() || 0
+            let mainData_clone_3 = filter_3_data_GrabCar
+            
+            if( mainData_clone_3.length === 0 ){
+                resolve([])
+            }else{
+                let output = []
+                for( let i = 0 ; i < mainData_clone_3.length ; i++ ){
+                    let dataSub = mainData_clone_3[i]
+                    if( new Date(dataSub.tdfg_datetime_using).getTime() <= (+endFilterDate + 47000000) ){
+                        output.push(dataSub)
+                    }
+
+                    if( i === mainData_clone_3.length - 1 ){
+                        resolve( output )
+                    }
+                }
+            }
+        } )
+    }
+
+    function exportExcelGrabFood(){
+        if( mainDataGrabFood.length === 0 ){
+            alert( "ไม่พบข้อมูล" )
+        }else{
+            let output = []
+
+            for( let R = 0 ; R < mainDataGrabFood.length ; R++ ){
+                let division = (mainDataGrabFood[R].user_division).split("-")
+                let site = ""
+                let index = R + 1
+                if( division[0].startsWith("00") ){
+                    site = division[0]
+                }
+                let ActivityNumber = mainDataGrabFood[R].user_activity_number === "ไม่พบ Activity Number" ? "" : mainDataGrabFood[R].user_activity_number
+                
+                output.push( [
+                "" , 
+                "Grab Food : " + set_date_templece(startFilterDate.value , "/" , "en_short" , false) + "-" + set_date_templece(endFilterDate.value , "/" , "en_short" , false) ,
+                "" , 
+                "Grab Center" , 
+                "SYNT" , 
+                "SYNTEC" , 
+                "80000" , 
+                "" , 
+                "CFO" , 
+                "" , 
+                "NONE" , 
+                set_date_templece(mainDataGrabFood[R].tdfgc_datetime_using , "/" , "for_erp" , false) , 
+                "Center-Grab Food" , 
+                (mainDataGrabFood[R].tdfgc_total).toFixed(2) , 
+                "1.00" , 
+                site , 
+                "BILLABLE" , 
+                ActivityNumber , 
+                "No" , 
+                "" , 
+                "" , 
+                "V03325" , 
+                "บริษัท ธนาคารกสิกรไทย จำกัด (มหาชน)" , 
+                "" , 
+                "RC-" + index.toString().padStart(2, '0') , 
+                "" , 
+                "" , 
+                "Grab Food -" + mainDataGrabFood[R].tdfgc_change_cost + "-" + mainDataGrabFood[R].tds_want_remark , 
+                "SYNT" , 
+                "SYNTEC" , 
+                mainDataGrabFood[R].tdfgc_change_cost , 
+                "" , 
+                "CFO" , 
+                "" , 
+                site === "" ? "NONE" : site , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "" , 
+                "หักภาษี ณ ที่จ่าย" , 
+                "" , 
+                "" , 
+                ] )
+
+                if( R === mainDataGrabFood.length - 1 ){
+                    console.log("output")
+                    console.log(output)
+                    DownloadExportExcelGrabFood( output , "ERP_GrabFood" )
+                }
+            }
+        }
+    }
+
+    async function DownloadExportExcelGrabFood( reportData , fileNameTitle ){
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        worksheet.addRow([
+            "Expense report number" , 
+            "Description" ,
+            "Project ID" , 
+            "Purpose" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Transaction date" , 
+            "Expense category" , 
+            "Transaction amount" , 
+            "Exchange rate" , 
+            "Project ID" , 
+            "Billable" , 
+            "Activity number" , 
+            "Contra charge" , 
+            "Subcontractor", 
+            "Work order" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Receipt number" , 
+            "Sales tax group" , 
+            "Item sales tax group" , 
+            "Additional information" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Ref. Image" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Address" , 
+            "Withholding tax group" , 
+            "Withholding tax code" , 
+            "Withhold %" , 
+            "Withholding tax base" , 
+            "Withholding tax amount" , 
+            "ผู้จ่ายเงิน" , 
+            "TaxWithhold Doc No." , 
+            "Date" 
+        ]);
+        worksheet.getRow(1).font = { bold: true };
+
+        reportData.map( (item , index) => (
+            worksheet.addRow(item)
+        ) )
+        worksheet.getColumn(12).numFmt = "d/m/yyyy"; // ตัวเลข
+        worksheet.getColumn(14).numFmt = "0"; // ตัวเลข
+        worksheet.getColumn(15).numFmt = "0"; // วันที่
+
+        // DownloadExcel( FileName , DataJson )
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${fileNameTitle}_${set_date_templece(new Date() , "-" , "en_short" , false)}_${new Date().getTime()}.xlsx`;
+        link.click();
+    }
+
+    function setTimeout_set_table_grab( table_id , time_delay ){
+        console.log("setTimeout_set_table")
+        setTimeout( function(){
+            $(`#${table_id}`).DataTable({
+                "destroy": true,
+                "retrieve":true,
+                "stateSave": true,
+                fixedColumns:   {
+                    left: 0 ,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true, 
+                "lengthChange": true, 
+                "searching": false,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "45vh" 
+            })
+        } , time_delay)
+    }
+
+    function exportExcelGrabCar(){
+        if( mainDataGrabCar.length === 0 ){
+            alert( "ไม่พบข้อมูล" )
+        }else{
+            let output = []
+
+            for( let R = 0 ; R < mainDataGrabCar.length ; R++ ){
+                let division = (mainDataGrabCar[R].user_division).split("-")
+                let site = ""
+                let index = R + 1
+                if( division[0].startsWith("00") ){
+                    site = division[0]
+                }
+                let ActivityNumber = mainDataGrabCar[R].user_activity_number === "ไม่พบ Activity Number" ? "" : mainDataGrabCar[R].user_activity_number
+                console.log(mainDataGrabCar[R])
+                output.push( [
+                    "" , 
+                    "Grab Car : " + set_date_templece(startFilterDate.value , "/" , "en_short" , false) + "-" + set_date_templece(endFilterDate.value , "/" , "en_short" , false) ,
+                    "" , 
+                    "Grab Center" , 
+                    "SYNT" , 
+                    "SYNTEC" , 
+                    "80000" , 
+                    "" , 
+                    "CFO" , 
+                    "" , 
+                    "NONE" , 
+                    set_date_templece(mainDataGrabCar[R].tdfg_datetime_using , "/" , "for_erp" , false) , 
+                    "Center-Grab Car" , 
+                    (+mainDataGrabCar[R].tdfg_total).toFixed(2) , 
+                    "1.00" , 
+                    site , 
+                    "BILLABLE" , 
+                    ActivityNumber , 
+                    "No" , 
+                    "" , 
+                    "" , 
+                    "V03325" , 
+                    "บริษัท ธนาคารกสิกรไทย จำกัด (มหาชน)" , 
+                    "" , 
+                    "RC-" + index.toString().padStart(2, '0') , 
+                    "" , 
+                    "" , 
+                    "Grab Car -" + mainDataGrabCar[R].user_cost_center + "-" + mainDataGrabCar[R].tds_want_remark , 
+                    "SYNT" , 
+                    "SYNTEC" , 
+                    mainDataGrabCar[R].user_cost_center , 
+                    "" , 
+                    "CFO" , 
+                    "" , 
+                    site === "" ? "NONE" : site , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "" , 
+                    "หักภาษี ณ ที่จ่าย" , 
+                    "" , 
+                    "" , 
+                ] )
+
+                if( R === mainDataGrabCar.length - 1 ){
+                    console.log("output")
+                    console.log(output)
+                    DownloadExportExcelGrabFood( output , "ERP_GrabCar" )
+                }
+            }
+        }
+    }
+
+</script>

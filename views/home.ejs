@@ -8,7 +8,7 @@
                     <div class="alert alert-danger" role="alert" style="background-color: #fff4f5;">
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                <h5>(คลิกเพื่อรับมอบรถยนต์) * วันนี้คุณได้ทำเรื่องขอยืมรถต์เอาไว้ และแอดมินได้ส่งรถมาให้คุณแล้ว</h5>
+                                <h5>(คลิกเพื่อรับมอบรถยนต์) * วันนี้คุณได้ทำเรื่องขอยืมรถยนต์เอาไว้ และแอดมินได้ส่งรถมาให้คุณแล้ว</h5>
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
                                 รถทะเบียน : <%= document_waiting_data[0].car_registration_code %> | 
@@ -27,7 +27,7 @@
                     <div class="alert alert-warning" role="alert" style="background-color: #fffae9;">
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                <h5>(คลิกเพื่อส่งคืนรถยนต์) * วันนี้คุณได้ทำเรื่องขอยืมรถต์เอาไว้ และแอดมินได้ส่งรถมาให้คุณแล้ว</h5>
+                                <h5>(คลิกเพื่อส่งคืนรถยนต์) * วันนี้คุณได้ทำเรื่องขอยืมรถยนต์เอาไว้ และแอดมินได้ส่งรถมาให้คุณแล้ว</h5>
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
                                 รถทะเบียน : <%= document_waiting_data[0].car_registration_code %> | 
@@ -114,10 +114,6 @@
                                         <a href="/car_rent_document_approve_list" class="btn btn-warning position-relative" style="cursor: pointer; width: 100%; color: white;" >
                                             <i class="fa-solid fa-file-circle-check" style="margin-right: 0.2rem;"></i> 
                                             รายการที่ต้องอนุมัติ
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                                <%= document_approve_data.length %>
-                                                <span class="visually-hidden">unread messages</span>
-                                            </span>
                                         </a>
                                     </div>
                                 </div>
@@ -139,7 +135,7 @@
                                         <span style="font-size: 18px; font-weight: 800;">รายการรถยนต์</span>
                                         <br>
                                         <hr>
-                                        <span style="font-size: 15px;">ขออนุมัติเช่ารถยนต์ของบริษัท XXXXXXXXXXXXXXXXXXXXXX</span>
+                                        <span style="font-size: 15px;">รายการรถยนต์ทั้งหมด และรายการขอยืมของรถยนต์นั้น ๆ</span>
                                         <br>
                                         <br>
                                         <a href="/car_list" class="btn btn-success" style="cursor: pointer; width: 100%;" ><i class="fa-solid fa-car-side" style="margin-right: 0.2rem;"></i> ดูรายการรถ</a>
@@ -173,7 +169,7 @@
                                             <span style="font-size: 18px; font-weight: 800;">รายการยืมรถวันนี้</span>
                                             <br>
                                             <hr>
-                                            <span style="font-size: 15px;">รายการยืมรถวันนี้ XXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXX</span>
+                                            <span style="font-size: 15px;">รายการขอยืมรถวันนี้</span>
                                             <br>
                                             <br>
                                             <a href="/admin_job_schedule_today" style="cursor: pointer; cursor: pointer; width: 100%; color: white;" class="btn btn-warning position-relative">
@@ -204,7 +200,7 @@
                                             <span style="font-size: 18px; font-weight: 800;">รายการยืมรถทั้งหมด</span>
                                             <br>
                                             <hr>
-                                            <span style="font-size: 15px;">รายการยืมรถทั้งหมด XXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXX</span>
+                                            <span style="font-size: 15px;">รายการยืมรถทั้งหมด</span>
                                             <br>
                                             <br>
                                             <a href="/admin_job_schedule_alltime" style="cursor: pointer; cursor: pointer; width: 100%;" class="btn btn-success"><i class="fa-solid fa-table-cells" style="margin-right: 0.2rem;"></i> ดูรายการยืมรถทั้งหมด</a>
@@ -228,7 +224,7 @@
                                             <span style="font-size: 18px; font-weight: 800;">รายงานการเติมน้ำมัน</span>
                                             <br>
                                             <hr>
-                                            <span style="font-size: 15px;">รายงานการเติมน้ำมัน XXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXX</span>
+                                            <span style="font-size: 15px;">รายงานประวัติการเติมน้ำมันทั้งหมด</span>
                                             <br>
                                             <br>
                                             <a href="/report_refueling_per_month" style="cursor: pointer; cursor: pointer; width: 100%;" class="btn btn-info"><i class="fa-solid fa-table-cells" style="margin-right: 0.2rem;"></i> ดูรายงาน</a>
@@ -252,10 +248,58 @@
                                             <span style="font-size: 18px; font-weight: 800;">รายงานการใช้ Easy Pass</span>
                                             <br>
                                             <hr>
-                                            <span style="font-size: 15px;">รายงานการใช้ Easy Pass XXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXX</span>
+                                            <span style="font-size: 15px;">รายงานการใช้ Easy Pass ทั้งหมด</span>
                                             <br>
                                             <br>
-                                            <a href="/report_expressway" style="cursor: pointer; cursor: pointer; width: 100%;" class="btn btn-info"><i class="fa-solid fa-table-cells" style="margin-right: 0.2rem;"></i> ดูรายงาน</a>
+                                            <a href="/report_expressway_per_month" style="cursor: pointer; cursor: pointer; width: 100%;" class="btn btn-info"><i class="fa-solid fa-table-cells" style="margin-right: 0.2rem;"></i> ดูรายงาน</a>
+                                        </div>
+                                    </div>
+                                    <div class="progress" style="height: 0.5rem;">
+                                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="display: flex; margin-bottom: 1.5rem; justify-content: center;">
+                            <div class="card daily-sales" style="width: 100%;">
+                                <div class="card-block">
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-4">
+                                            <img class="img-radius img-fluid wid-80" src="./assets/images/reduction.png" style="padding:10px;margin-right:20px; width: 100%; height: auto; "/>
+                                        </div>
+                                        <div class="col-8" style="padding: 1rem 1.5rem;">
+                                            <span style="font-size: 18px; font-weight: 800;">Report Total Cost For Car Rent</span>
+                                            <br>
+                                            <hr>
+                                            <span style="font-size: 15px;">รายงานค่าใช้จ่ายทั้งหมดในการขอยืมใช้รถยนต์ตาม Cost Center</span>
+                                            <br>
+                                            <br>
+                                            <a href="/reportCostCenter/-/-" style="cursor: pointer; cursor: pointer; width: 100%;" class="btn btn-info"><i class="fa-solid fa-table-cells" style="margin-right: 0.2rem;"></i> ดูรายงาน</a>
+                                        </div>
+                                    </div>
+                                    <div class="progress" style="height: 0.5rem;">
+                                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="display: flex; margin-bottom: 1.5rem; justify-content: center;">
+                            <div class="card daily-sales" style="width: 100%;">
+                                <div class="card-block">
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-4">
+                                            <img class="img-radius img-fluid wid-80" src="./assets/images/reduction.png" style="padding:10px;margin-right:20px; width: 100%; height: auto; "/>
+                                        </div>
+                                        <div class="col-8" style="padding: 1rem 1.5rem;">
+                                            <span style="font-size: 18px; font-weight: 800;">Report Total Cost For Grab</span>
+                                            <br>
+                                            <hr>
+                                            <span style="font-size: 15px;">รายงานค่าใช้จ่ายทั้งหมดในการขอใช้ Grab ตาม Cost Center</span>
+                                            <br>
+                                            <br>
+                                            <a href="/reportGrab" style="cursor: pointer; cursor: pointer; width: 100%;" class="btn btn-info"><i class="fa-solid fa-table-cells" style="margin-right: 0.2rem;"></i> ดูรายงาน</a>
                                         </div>
                                     </div>
                                     <div class="progress" style="height: 0.5rem;">

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>SYNTECCON-CAR RENT</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel='stylesheet'
+        href='https://cdn-uicons.flaticon.com/2.4.2/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+    <link rel='stylesheet'
+        href='https://cdn-uicons.flaticon.com/2.4.2/uicons-solid-straight/css/uicons-solid-straight.css'>
+
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="/assets/images/Syntec Logo PNG.png" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/fonts/fontawesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/assets/plugins/animation/css/animate.min.css">
+    <link rel="stylesheet" href="/assets/plugins/datatables/css/datatables.css">
+
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <link rel="stylesheet" href="/assets/css/all.min.css">
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" 
+        integrity="sha512-ARJR74swou2y0Q2V9k0GbzQ/5vJ2RBSoCWokg4zkfM29Fb3vZEQyv0iWBMW/yvKgyHSR/7D64pFMmU8nYmbRkg==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <link rel="stylesheet" href="/assets/css/bootstrap-select.min.css">
+
+
+    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" /> -->
+    <link rel="stylesheet" href="/assets/css/jquery.dataTables.css">
+
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> -->
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="/assets/css/bootstrap-select.min.css">
+
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+
+    <script>
+        let url_now = "http://172.16.7.144:7000"
+    </script>
+
+</head>
+
+<body>
+    <div class='dashboard' style="width: 99vw; padding-left: 1vw;">
+        <div class="dashboard-nav" style="margin: 10px 0px 10px 10px;">
+            <nav class="dashboard-nav-list">
+                <div class="flex-shrink-0 p-3" style="width: 100%;">
+                    <div class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
+                        <img src="/assets/images/logo/car_rent_logo.png" width="80%" height="50">
+                        <a style="cursor: pointer;" class="menu-toggle">
+                            <i class="fas fa-bars"></i>
+                        </a>
+                    </div>
+                    <ul class="list-unstyled ps-0">
+                        
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        <div class='dashboard-app' style="width: 500px;">
+            <div class='dashboard-content'>
+                <div class='container'>
+                    <div class='card'>
+                        <div class='card-header'>
+                            <h4> สร้าง User ใหม่ </h4>
+                        </div>
+                        <div class='card-body'>
+                            <form onsubmit="submit_CreateNewUserForm( event )" action="">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> รหัสพนักงาน </label>
+                                        <input required id="user_emp_id" onchange="" value="" type="number" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> อีเมล </label>
+                                        <input required id="user_email" onchange="" value="" type="email" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> ชื่อ (TH) </label>
+                                        <input required id="user_nane_th" onchange="" value="" type="text" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> นามสกุล (TH) </label>
+                                        <input required id="user_surname_th" onchange="" value="" type="text" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> ชื่อ (EN) </label>
+                                        <input required id="user_nane_en" onchange="" value="" type="text" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> นามสกุล (EN) </label>
+                                        <input required id="user_surname_en" onchange="" value="" type="text" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> แผนก </label>
+                                        <select id="user_division" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                                            <% (data_division.sort()).forEach( function(e , index) { %>
+                                                <option value="<%= e %>"><%= e %></option>
+                                            <% } ) %>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 10px;" id="">
+                                        <label for="" class="form-label"><span class="red">*</span> ตำแหน่งงาน </label>
+                                        <input required id="user_job_title" onchange="" value="" type="text" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-top: 20px;" id="">
+                                        <button style="width: 100%;" type="submit" class="btn btn-success">Success</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<div id="modalReloading" class="modal fade bd-example-modal-lg" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm"
+        style="display: table; position: relative; margin: 0 auto; top: calc(50% - 24px);">
+        <div class="modal-content" style="width: 48px; background-color: transparent; border: none;">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+        </div>
+    </div>
+</div>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" 
+crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+<script src="/assets/js/jquery.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script> -->
+<script src="/assets/js/popper.min.js"></script>
+
+<script src="/assets/js/vendor-all.min.js"></script>
+<script src="/assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/plugins/datatables/js/datatables.js"></script>
+<script src="/assets/js/pcoded.min.js"></script>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script> -->
+<script src="/assets/js/bootstrap-select.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script> -->
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+<script src="/assets/js/all.min.js"></script>
+
+<!-- <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script> -->
+<script src="/assets/js/jquery.dataTables.js"></script>
+
+<!-- <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script> -->
+<script src="/assets/js/dataTables.fixedColumns.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> -->
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+
+<script src="/assets/js/sheet.js"></script>
+
+<script src="js/three.min.js"></script>
+<script src="js/panolens.min.js"></script>
+
+<script>
+    function openModalReloading() {
+        console.log("openModalReloading")
+        $('#modalReloading').modal('show');
+    }
+
+    function closeModalReloading() {
+        console.log("closeModalReloading")
+        setTimeout(function () {
+            $('.modal').modal('hide');
+        }, 500)
+    }
+
+    function alertFunctionNotReady() {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "ฟังค์ชั่นนี้ยังไม่เปิดใช้งาน",
+            // footer: '<a href="#">Why do I have this issue?</a>'
+        });
+    }
+
+    const mobileScreen = window.matchMedia("(max-width: 990px )");
+
+    function decodedString(string) {
+        let decodedString_output = string.replace(/&#(\d+);/g, (match, code) => {
+            return String.fromCharCode(code);
+        });
+
+        console.log("decodedString_output")
+
+        if (decodedString_output.startsWith('"') && decodedString_output.endsWith('"')) {
+            decodedString_output = decodedString_output.slice(1, -1);
+            return decodedString_output
+        } else {
+            return decodedString_output
+        }
+    }
+
+    function view_include_work(sub_work_id) {
+        let data = {}
+
+        $.ajax({
+            type: 'GET',
+            url: `/view_include_work/${sub_work_id}`,
+            data: data,
+            success: function (response) {
+                console.log(response)
+
+                create_view_include_work_table(response.data)
+            },
+            error: function (error) {
+                console.log("error with Ajax");
+                console.log(error);
+            }
+        });
+    }
+
+    function setTimeout_set_table(table_id, time_delay) {
+        setTimeout(function () {
+            $(`#${table_id}`).DataTable({
+                "destroy": true,
+                "retrieve": true,
+                "stateSave": true,
+                fixedColumns: {
+                    left: 0,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true,
+                "lengthChange": true,
+                "searching": true,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "48vh"
+            })
+        }, time_delay)
+    }
+
+    function set_date_templece(date, syntax, type, time = false) {
+        let day = (new Date(date)).getDate();
+        let month = (new Date(date)).getMonth();
+        let year = (new Date(date)).getFullYear();
+
+        let time_show = ""
+
+        if (time === true) {
+            time_show = (new Date(date).getHours()).toString().padStart(2, '0') + ":" + (new Date(date).getMinutes())
+                .toString().padStart(2, '0') + ":" + (new Date(date).getSeconds()).toString().padStart(2, '0')
+        } else {
+            time_show = ""
+        }
+
+        if (type === "en_short") {
+            return day.toString().padStart(2, '0') + syntax + (month + 1).toString().padStart(2, '0') + syntax + year
+                .toString() + " " + time_show
+
+        } else if (type === "th_short") {
+            return day.toString().padStart(2, '0') + syntax + (month + 1).toString().padStart(2, '0') + syntax + (year +
+                543).toString() + " " + time_show
+
+        } else if (type === "en_long") {
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+            return day.toString().padStart(2, '0') + " " + monthNames[month] + " " + year.toString() + " " + time_show
+
+        } else if (type === "th_long") {
+            const thaiMonths = [
+                "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+            ];
+            return day.toString().padStart(2, '0') + " " + thaiMonths[month] + " " + (year + 543).toString() + " " +
+                time_show
+
+        } else if (type === "for_erp") {
+            return day + syntax + (month + 1).toString().padStart(2, '0') + syntax + year.toString() + " " + time_show
+
+        } else {
+            return ""
+        }
+    }
+
+    $(document).ready(function () {
+        $(".dashboard-nav-dropdown-toggle").click(function () {
+            $(this).closest(".dashboard-nav-dropdown")
+                .toggleClass("show")
+                .find(".dashboard-nav-dropdown")
+                .removeClass("show");
+            $(this).parent()
+                .siblings()
+                .removeClass("show");
+        });
+        $(".menu-toggle").click(function () {
+            if (mobileScreen.matches) {
+                $(".dashboard-nav").toggleClass("mobile-show");
+            } else {
+                $(".dashboard").toggleClass("dashboard-compact");
+            }
+        });
+    });
+
+    window.addEventListener('beforeunload', () => {
+        sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+    });
+
+    window.addEventListener('load', () => {
+        const scrollPosition = sessionStorage.getItem('scrollPosition');
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition, 10));
+        }
+    });
+
+    function back_page() {
+        console.log("000000000000000000000000000000000000000000")
+        localStorage.setItem('reload', "true");
+        window.history.back();
+    }
+
+    reload_check()
+
+    function reload_check() {
+        console.log("asdhasudh")
+        console.log("localStorage.getItem('reload')")
+        console.log(localStorage.getItem('reload'))
+        if (localStorage.getItem('reload') == "true") {
+            console.log("85485484846546848")
+            localStorage.setItem('reload', "false");
+            window.location.reload();
+        }
+    }
+
+    function backToFirstVisited() {
+        var moves = window.history.length - 1;
+        window.history.go(-moves);
+    }
+
+    function export_data_to_excel(type, table_id) {
+        const fileName = 'exported-sheet.' + type
+        const table = document.getElementById(table_id)
+        const wb = XLSX.utils.table_to_book(table)
+        XLSX.writeFile(wb, fileName)
+    }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"
+    integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" src="/assets/js/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function submit_CreateNewUserForm( event ){
+        event.preventDefault()
+        
+        Swal.fire({
+                title: "ยืนยันการสร้าง User ใหม่​" ,
+                text: "เมื่อสร้าง User แล้ว จะยังไม่สามารถเข้าระบบได้ ต้องให้ Admin ระบบเปิด User นี้ก่อน​",
+                icon : "question",
+                showCancelButton: true,
+                confirmButtonColor: "#027E6F",
+                confirmButtonText: "ยืนยัน",
+                cancelButtonColor: "#00000040",
+                cancelButtonText: "ยกเลิก"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let data = {
+                        user_emp_id : document.getElementById("user_emp_id").value , 
+                        user_email : document.getElementById("user_email").value , 
+                        user_nane_th : document.getElementById("user_nane_th").value , 
+                        user_surname_th : document.getElementById("user_surname_th").value , 
+                        user_nane_en : document.getElementById("user_nane_en").value , 
+                        user_surname_en : document.getElementById("user_surname_en").value , 
+                        user_division : document.getElementById("user_division").value , 
+                        user_job_title : document.getElementById("user_job_title").value , 
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '/submit_CreateNewUserForm',
+                        data: data,
+                        success: function ( res ) {
+                            if( res.message === "success" ){
+                                Swal.fire({
+                                    title: "บันทึกสำเร็จ",
+                                    text: "โปรดติดต่อ Admin ระบบ",
+                                    icon: "success"
+                                });
+
+                                setTimeout(() => {
+                                    window.location.replace( "https://apps.powerapps.com/play/e/default-031562b8-dcd2-4b83-a934-909ce954f3ae/a/afc06fd8-dbaf-4756-89d5-9a2412ebc9e5?tenantId=031562b8-dcd2-4b83-a934-909ce954f3ae&hint=e1be904e-604c-4ab0-ba3f-89fb7eeeb478&sourcetime=1715157845081" )
+                                }, 3000);
+                            }else{
+                                Swal.fire({
+                                    title: "ไม่สำเร็จ",
+                                    text: "มี อีเมลนี้ ในระบบอยู่แล้ว",
+                                    icon: "error"
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            console.log("error with Ajax");
+                            console.log(error);
+                        }
+                    });
+                }
+            });
+    }
+</script>

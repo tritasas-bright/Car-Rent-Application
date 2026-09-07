@@ -2,25 +2,73 @@
 
 <div class='dashboard-content'>
     <div class='container'>
+        <div class="row">
+
+            <% let SubDocSendCar = document_sub_data.filter( function(e){ return e.cds_status == "บันทึกแล้ว" || e.cds_status == "อนุมัติแล้ว" } ) %>
+            
+            <% if( (document_data[0].cdm_status == "บันทึกแล้ว" || document_data[0].cdm_status == "อนุมัติแล้ว") && (SubDocSendCar.length === document_sub_data.length) ){ %>
+                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1vh;">
+                    <button type="button" onclick="perConfirmCancleDocument()" class="btn btn-danger"><i class="fa-regular fa-rectangle-xmark"></i> &nbsp; ยกเลิกเอสการนี้</button>
+                </div>
+            <% }else if( document_data[0].cdm_status == "ยกเลิก") { %>
+                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1vh;">
+                    <div class="alert alert-danger" role="alert">
+                        เอกสารนี้ ถูกยกเลิกโดยเจ้าของเอกสาร
+                    </div>
+                </div>
+            <% }else{ %>
+            <% } %>
+        </div>
         <div class='card' style="margin-bottom: 2vh;">
             <div class='card-header'>
                 <h4>ข้อมูลเอกสารขอยืมรถยนต์</h4>
             </div>
             <div class='card-body'>
                 <div class="row">
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4" style="margin-bottom: 1.5vh;">
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for="">Document NO.</label>
+                        <input disabled value="<%= document_data[0].cdm_document_no %>" type="text" name="" id="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (TH)</label>
+                        <input disabled value="<%= document_data[0].user_nane_th + " " + document_data[0].user_surname_th || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (EN)</label>
+                        <input disabled value="<%= document_data[0].user_nane_en + " " + document_data[0].user_surname_en || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> อีเมล ผู้รับผิดชอบ</label>
+                        <input disabled value="<%= document_data[0].user_email || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> แผนก</label>
+                        <input disabled value="<%= document_data[0].user_division || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> Cost Center</label>
+                        <input disabled value="<%= document_data[0].user_cost_center || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> Activity Number</label>
+                        <input disabled value="<%= document_data[0].user_activity_number || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <hr>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
                         <label for="">มีความประสงค์ขอใช้รถไปยังสถานที่</label>
                         <span id="" class="form-control"><%= document_data[0].cdm_destination_location %></span>
                     </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for="">ขอให้กับ</label>
-                        <span id="" class="form-control"><%= document_data[0].cdm_for_person %></span>
-                    </div>
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4" style="margin-bottom: 1.5vh;">
-                        <label for="">แผนก</label>
-                        <span id="" class="form-control"><%= document_data[0].cdm_for_person_division %></span>
-                    </div>
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
                         <label for="">เพื่อ</label>
                         <textarea disabled style="background-color: white;" class="form-control" id="" rows="5"><%= document_data[0].cdm_for_what %></textarea>
@@ -42,153 +90,101 @@
                         <span id="" class="form-control"><%= document_data[0].cdm_fuel_card %></span>
                     </div>
 
+                    <% if( permission.creater && document_data[0].cdm_driver_type != "สำเร็จแล้ว" ){ %>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1vh;">
+                            <button type="button" onclick="ChangeCar()" data-bs-toggle="modal" data-bs-target="#modal_car_list" class="btn btn-warning">
+                                <i class="fa-solid fa-repeat" style="margin-right: 5px;"></i>
+                                เปลี่ยนรถยนต์
+                            </button>
+                        </div>
+                    <% } %>
+
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px;">
                         <table id="main_table_2" class="table table-hover table-bordered" style="width: 100%;">
                             <thead>
                                 <tr>
-                                    <th width="5%"><i class="fa-solid fa-list-ol"></i></th>
-                                    <th width="7%"><i class="fa-solid fa-screwdriver-wrench"></i></th>
+                                    <th width="5%">
+                                        <i class="fa-solid fa-list-ol"></i>
+                                    </th>
+                                    <th width="5%">
+                                        <i class="fa-solid fa-square-check"></i>
+                                    </th>
+                                    <th width="7%">
+                                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                                    </th>
                                     <th>วัน</th>
                                     <th>วันที่</th>
                                     <th>ช่วง</th>
                                     <th>สถานะ</th>
+                                    <th>ทะเบียนรถยนต์</th>
+                                    <th>ค่าเช่ารถยนต์</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% index = 1 %>
+                                <% totalPrice = 0 %>
                                 <% document_sub_data.forEach( function(e) { %>
-
+                                    <% totalPrice += e.cds_car_price_rate %>
                                     <tr>
                                         <td><%= index %></td>
-                                        <% if( e.cds_status == "บันทึกแล้ว" || e.cds_status == "อนุมัติแล้ว" ){ %>
+                                        <% if( (e.cds_status == "บันทึกแล้ว" || e.cds_status == "อนุมัติแล้ว") && ( new Date(e.cds_date).getTime() >= (new Date().setHours(0, 0, 0, 0)) ) ){ %>
                                             <td>
-                                                <button onclick="delete_document_sub( '<%= e.cds_id %>' )" type="button" class="btn btn-danger btn-icon">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
+                                                <input class="form-check-input" type="checkbox" name="CheckBoxSubDoc" value="<%= e.cds_id %>" id="">
                                             </td>
+                                            <% if(document_sub_data.length == 1){ %>
+                                                <td>
+                                                    <button disabled type="button" class="btn btn-danger btn-icon">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </td>
+                                            <% }else{ %>
+                                                <td>
+                                                    <button onclick="delete_document_sub( '<%= e.cds_id %>' )" type="button" class="btn btn-danger btn-icon">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </td>
+                                            <% } %>
                                         <% }else{ %>
-                                            <td>
-                                                
-                                            </td>
+                                            <td></td>
+                                            <td></td>
                                         <% } %>
                                         <td><%= e.cds_day %> (<%= e.cds_day_th %>)</td>
                                         <td><%= dayjs(e.cds_date).format("DD/MM/YYYY") %></td>
                                         <td><%= e.cds_phase %></td>
-                                        <td><%= e.cds_status %></td>
+                                        <% if( e.cds_status == "งานรวบ" ){ %>
+                                            <td>
+                                                <a style="cursor: pointer; color: rgb(18, 119, 227); text-decoration: underline !important;" onclick="view_main_document('<%= e.cds_include_work %>')">
+                                                    <%= e.cds_status %>
+                                                </a>
+                                            </td>
+                                        <% } else { %>
+                                            <td><%= e.cds_status %></td>
+                                        <% } %>
+                                        <td>
+                                            <a href="/car_detail_view/<%= btoa(e.car_id) %>" target="_blank" style="cursor: pointer; color: rgb(18, 119, 227); text-decoration: underline !important;">
+                                                <%= e.car_registration_code %>
+                                            </a>
+                                        </td>
+                                        <td style="text-align: end;">
+                                            <%= (e.cds_car_price_rate || "-").toLocaleString("th-TH") %> บาท
+                                        </td>
                                     </tr>
                                 <% index++ } ) %>
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5rem;">
-                        <label for="" class="form-label">หมายเหตุ</label>
-                        <textarea disabled style="background-color: white;" class="form-control" id="" rows="5"><%= document_data[0].cdm_remark %></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class='card' style="margin-bottom: 2vh;">
-            <div class='card-header'>
-                <h4>ข้อมูลรถยนต์ที่ยืม</h4>
-            </div>
-            <div class='card-body'>
-                <div class="row">
-                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 0.5rem;">
-                        <div class="row">
-                            <div class="col-sm-12 col-md-10 col-lg-8 col-xl-8" style="margin-bottom: 0.5rem;">
-                                <% if( car_image_data.length == 0 ){ %>
-                                    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" style="width: 100%;">
-                                        <div class="carousel-inner">
-                                            <div class="carousel-item active">
-                                                <img src="/assets/images/400x400.png" class="d-block w-100 h-100" alt="...">
-                                            </div>
-                                        </div>
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
-                                    </div>
-                                <% }else{ %>
-                                    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" style="width: 100%;">
-                                        <div class="carousel-indicators">
-                                            <% index_1 = 0 %>
-                                            <% car_image_data.forEach( function(e) { %>
-                                                <% if( index_1 == 0 ){ %>
-                                                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 0"></button>
-                                                <% }else{ %>
-                                                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="<%= index_1 %>" aria-label="Slide <%= index_1 %>"></button>
-                                                <% } %>
-                                            <% index_1++ } ) %>
-                                        </div>
-                                        <div class="carousel-inner">
-                                            <% index_2 = 0 %>
-                                            <% car_image_data.forEach( function(e) { %>
-                                                <% if( index_2 == 0 ){ %>
-                                                    <div class="carousel-item active">
-                                                        <img src="<%= e.ci_file_part %>" class="d-block mw-100 mh-100" alt="...">
-                                                    </div>
-                                                <% }else{ %>
-                                                    <div class="carousel-item">
-                                                        <img src="<%= e.ci_file_part %>" class="d-block mw-100 mh-100" alt="...">
-                                                    </div>
-                                                <% } %>
-                                            <% index_2++ } ) %>
-                                        </div>
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
-                                    </div>
-                                <% } %>
-                            </div>
-                            <div class="col-sm-12 col-md-2 col-lg-4 col-xl-4" style="margin-bottom: 0.5rem;">
-                                <div class="" style="width: 100%; overflow: auto;">
-                                    <table id="main_table_1" class="table table-hover table-bordered" style="width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>ชื่อ-นามสกุล</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% car_image_data.forEach( function(e) { %>
-                                                <tr>
-                                                    <td><%= dayjs(e.ci_create_date).format("DD/MM/YYYY") %></td>
-                                                    <td>
-                                                        <a href="<%= e.ci_file_part %>" target="_blank"><%= e.ci_file_name %></a>
-                                                    </td>
-                                                </tr>
-                                            <% } ) %>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1rem;">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-default">ค่าเช่ารวมทั้งหมด Tolal Price</span>
+                            <input disabled id="" value="<%= (totalPrice + '' || '-').toLocaleString('th-TH') %>" type="text" class="form-control" >
+                            <span class="input-group-text" id="inputGroup-sizing-default">บาท</span>
                         </div>
                     </div>
 
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 0.5rem;">
-                        <label for="" class="form-label">ชื่อรถยนต์</label>
-                        <span class="form-control"><%= car_data[0].car_name %></span>
-                    </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 0.5rem;">
-                        <label for="" class="form-label">ประเภทรถยนต์</label>
-                        <span class="form-control"><%= car_data[0].car_type %></span>
-                    </div>
-
-                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5rem;">
-                        <label for="" class="form-label">รายละเอียดเพิ่มเติม</label>
-                        <textarea disabled style="background-color: white;" class="form-control" id="" rows="5"><%= car_data[0].car_detail %></textarea>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1rem;">
+                        <label for="" class="form-label">หมายเหตุ</label>
+                        <textarea disabled style="background-color: white;" class="form-control" id="" rows="5"><%= document_data[0].cdm_remark %></textarea>
                     </div>
                 </div>
             </div>
@@ -271,9 +267,8 @@
                                 <button onclick="submit_comment()" type="button" class="btn btn-primary"> <i class="fa-regular fa-paper-plane"></i> ส่ง</button>
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="text-align: end;">
-
                                 <% if( document_data[0].cdm_status == "บันทึกแล้ว" ){ %>
-                                    <% if( permission == "approver" ){ %>
+                                    <% if( permission.approver ){ %>
                                         <button onclick="reject()" style="width: 47%;" type="button" class="btn btn-danger"><i class="fa-solid fa-circle-xmark"></i> ตีกลับ</button>
                                         <button onclick="approve()" style="width: 47%;" type="button" class="btn btn-success"><i class="fa-solid fa-circle-check"></i> อนุมัติ</button>
                                     <% }else{ %>
@@ -303,9 +298,333 @@
     <input id="document_id" value="<%= document_data[0].cdm_id %>" disabled type="text" >
 </div>
 
+<div class="modal fade" id="modal_car_list" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกรถยนต์ที่ต้องการเปลี่ยน</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow: auto;">
+                <div class="row" style="overflow: auto; margin-bottom: 1vh;" id="div_car_list">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="ChangeCarConfirm()" type="button" class="btn btn-success">เปลี่ยนรถยนต์</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <%- include("2_footer.ejs") %>
 
 <script>
+
+    function ChangeCarConfirm(){
+        let CarChecked = $("input[name='car_list']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+        let SubDocChecked = $("input[name='CheckBoxSubDoc']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+        if( CarChecked.length === 0 ){
+            return alert("โปรดเลือกรายการรถยนต์ที่ต้องการเปลี่ยน")
+        }
+
+        if( SubDocChecked.length === 0 ){
+            return alert("โปรดเลือกรายการที่ต้องการเปลี่ยนรถยนต์")
+        }
+
+        Swal.fire({
+            title: "ยืนยันการเปลี่ยนรถยนต์",
+            html: "ยืนยันการเปลี่ยนรถยนต์หรือไม่ ? <br /> การเปลี่ยนรถมีผลต่อค่าเช่าของรถยนต์",
+            icon : "question",
+            showCancelButton: true,
+            confirmButtonColor: "#f20000",
+            cancelButtonColor: "#00000040",
+            confirmButtonText: "ยืนยัน, เปลี่ยน" ,
+            cancelButtonText: "ปิด"
+        }).then((result) => {
+            const data = {
+                SubDocIdChecked : SubDocChecked , 
+                CarChecked : CarChecked
+            }
+            console.log(data)
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/ChangeCarConfirm' ,
+                    data: data ,
+                    success: function ( call_back_value ) {
+                        if( call_back_value.status === "success" ){
+                            Swal.fire({
+                                title: call_back_value.status,
+                                text: call_back_value.message,
+                                icon: "success"
+                            });
+
+                            setTimeout( () => {
+                                window.location.reload()
+                            } , 800 )
+                        }else{
+                            Swal.fire({
+                                title: call_back_value.status,
+                                text: call_back_value.message,
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        
+                    }
+                });
+            } 
+        })
+    }
+
+    let CarList = []
+    let dropdownCarSiteLocation = ""
+
+    function ChangeCar(){
+        let SubDocChecked = $("input[name='CheckBoxSubDoc']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+        if( SubDocChecked.length === 0 ){
+            alert("ไม่มีรายการที่เลือก")
+        }else{
+            $.ajax({
+                type: 'POST',
+                url: '/find_car_free' ,
+                data: {
+                    SubDocId : SubDocChecked
+                },
+                success: async function ( call_back_value ) {
+                    console.log("call_back_value")
+                    console.log(call_back_value)
+                    CarList = call_back_value
+                    dropdownCarSiteLocation = await createDropdownCarSiteLocation(call_back_value) 
+                    set_table_car(call_back_value)
+                },
+                error: function (error) {
+                    console.log("error with Ajax");
+                    console.log(error);
+                }
+            });
+        }
+    }
+
+    function createDropdownCarSiteLocation(  ){
+        return new Promise( (resolve , reject) => {
+            let CarListSiteLocation = [...new Set(CarList.map(item => item.car_site_location))]
+            let optionSiteLocation = ""
+            if( CarListSiteLocation.length === 0 ){
+
+            }else{
+                for( let i = 0 ; i < CarListSiteLocation.length ; i++ ){
+                    optionSiteLocation += `<option value="${CarListSiteLocation[i]}">${CarListSiteLocation[i]}</option>`
+                }
+            }
+
+            resolve(`<div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5rem;">
+                <label for="" class="form-label">ที่อยู่รถ</label>
+                <select id="" onchange="changeDropdownCarSiteLocation( this.value )" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                    ${optionSiteLocation}
+                </select>
+            </div>`)
+        } )
+    }
+
+    function changeDropdownCarSiteLocation( CarSiteLocation ){
+        console.log(CarSiteLocation)
+
+        const CarListFilter = CarList.filter( function(e){
+            return  e.car_site_location == CarSiteLocation
+        } )
+
+        set_table_car(CarListFilter)
+    }
+
+    function set_table_car(data){
+        let text = "" 
+
+        if( data.length == 0 ){
+            document.getElementById("div_car_list").innerHTML = text
+        }else{
+            for( let i = 0 ; i < data.length ; i++ ){
+                let option_1 = ''
+                let option_2 = ''
+                let option_3 = ''
+                if( data[i].status == "Disable"){
+                    option_1 = `<input disabled class="form-check-input" type="radio" name="car_list" id="car_${data[i].car_id}">`
+                    option_2 = `
+                        ไม่พร้อมใช้งาน ระหว่างวันที่ 
+                        <br />
+                        ${data[i].disableTime}
+                        </div>
+                    </div>
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                    option_3 += "ไม่พร้อมใช้งาน"
+
+                }else if( data[i].status == "Busy" ){
+                    option_1 = `<input disabled class="form-check-input" type="radio" name="car_list" id="car_${data[i].car_id}">`
+                    option_2 = `
+                        <a data-busy-time='${JSON.stringify(data[i].busyTime)}' onclick="show_busy_date(this.dataset.busyTime)" class="btn btn-danger" style="color: white;"><i class="fa-solid fa-eye" style="margin-right: 0.2rem;"></i> เช็ควันที่ไม่ว่าง</a>
+                        </div>
+                    </div>
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                    option_3 += "ไม่ว่าง"
+
+                }else{
+                    option_1 = `<input class="form-check-input" type="radio" name="car_list" value="${data[i].car_id}" id="car_${data[i].car_id}">`
+                    option_2 = `
+                        </div>
+                    </div>
+                    <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
+                        <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>`
+                }
+                let index = i + 1
+                text += `
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="display: flex; margin-bottom: 1.5rem; justify-content: center;">
+                    <div class="card daily-sales" style="width: 100%;" for="car_${data[i].car_id}">
+                        <label class="form-check-label" for="car_${data[i].car_id}">
+                            <div class="card-block">
+                                <div class="row d-flex align-items-center">
+                                    <div class="col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                        <img for="car_${data[i].car_id}" class="img-radius img-fluid wid-80" src="${data[i].imagePath}" style="padding:10px;margin-right:20px; width: 100%; height: auto; "/>
+                                    </div>
+                                    <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8" style="padding: 1rem 1.5rem;">
+                                        ${option_1}
+                                        <label class="form-check-label" for="car_${data[i].car_id}">
+                                            ${data[i].car_name} (${data[i].car_type})
+                                        </label>
+                                        <br>
+                                        <hr>
+                                        <div style="height: 30px; overflow: auto;" class="">
+                                            <span style="font-size: 15px;">${data[i].car_registration_code}</span>
+                                            <span class="red" style="font-size: 15px;">${option_3}</span>
+                                        </div>
+                                        <br>
+                                        ${option_2}
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                `
+                if( i == data.length - 1 ){
+                    document.getElementById("div_car_list").innerHTML = dropdownCarSiteLocation + text
+                    $('.selectpicker').selectpicker('refresh');
+                }
+            }
+        }
+    }
+
+    function show_busy_date( array_date_s ){
+        const array_date = JSON.parse(array_date_s);
+        if( array_date.length == 0 ){
+            Swal.fire({
+                title: "ดูไม่สำเร็จ",
+                text: "ดูไม่สำเร็จ มีบางอย่างผิดพลาด",
+                icon: "error"
+            });
+        }else{
+            let text = ""
+            for( let i = 0 ; i < array_date.length ; i++ ){
+                let index = i + 1
+                text += `
+                <tr>
+                    <td>${index}</td>
+                    <td>${set_date_templece(array_date[i].Date , "/" , "en_short")}</td>
+                    <td>${array_date[i].Phase}</td>
+                </tr>
+                `
+            }
+
+            Swal.fire({
+                title: "รายการวันที่ไม่ว่าง",
+                icon: "info",
+                html: `
+                <table id="table_1" class="table table-hover table-bordered" style="width: 100%;">
+                    <thead style="background-color: #002c5910;">
+                        <tr>
+                            <th>#</th>
+                            <th>วัน/เดือน/ปี</th>
+                            <th>ช่วง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${text}
+                    </tbody>
+                </table>
+                `,
+                showCloseButton: false,
+                showCancelButton: false,
+                focusConfirm: false,
+                confirmButtonText: `ปิด`,
+                // confirmButtonAriaLabel: "Thumbs up, great!",
+                // cancelButtonText: `ปิด`,
+                // cancelButtonAriaLabel: "Thumbs down"
+            });
+        }
+    }
+
+    function view_main_document( sub_doc_id ){
+        $.ajax({
+            type: 'GET',
+            url: '/find_main_doc_from_sub_doc/' + sub_doc_id ,
+            data: {},
+            success: function ( call_back_value ) {
+                console.log("call_back_value")
+                console.log(call_back_value)
+
+                window.open( btoa(call_back_value.result[0].cds_join_cdm_id) )
+            },
+            error: function (error) {
+                console.log("error with Ajax");
+                console.log(error);
+            }
+        });
+    }
+
+    function perConfirmCancleDocument(){
+        Swal.fire({
+            title: "ยืนยันการยกเลิกเอกสาร",
+            html: "ยืนยันการยกเลิกเอกสารขอยืมรถยนต์หรือไม่ ? <br> <span class='red'>*</span> หากยกเลิกแล้วจะไม่สามารถกลับมาใช้เอกสารนี้ได้",
+            icon : "question",
+            showCancelButton: true,
+            confirmButtonColor: "#f20000",
+            cancelButtonColor: "#00000040",
+            confirmButtonText: "ยืนยัน, ยกเลิกเอกสาร" ,
+            cancelButtonText: "ปิด"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let data = {
+                    document_id : document.getElementById("document_id").value , 
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/cancel_car_rent_document',
+                    data: data,
+                    success: function ( call_back_value ) {
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        console.log("error with Ajax");
+                        console.log(error);
+                    }
+                });
+            }
+        });
+    }
 
     function delete_document_sub( document_sub_id ){
         Swal.fire({

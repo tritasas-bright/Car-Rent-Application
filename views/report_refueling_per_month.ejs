@@ -264,6 +264,12 @@
                     <td>${data[i].rrm_Liter}</td>
                     <td>${data[i].rrm_Odometer}</td>
                     <td>${data[i].rrm_HDO}</td>
+
+                    <td>${data[i].rrm_join_status}</td>
+                    <td>${data[i].user_nane_en ? (data[i].user_nane_en + " " + data[i].user_surname_en) : ""}</td>
+                    <td>${data[i].user_cost_center || ""}</td>
+                    <td>${data[i].user_activity_number || ""}</td>
+                    <td>${data[i].car_registration_code || ""}</td>
                 </tr>
                 `
 
@@ -311,6 +317,12 @@
                     <th>Liter<br><span class="sub_head_table">จำนวนลิตร</span></th>
                     <th>Odometer<br><span class="sub_head_table">เลขกิโลเมตร</span></th>
                     <th>HDO</th>
+
+                    <th>สถานะการ Matching</th>
+                    <th>ผู้ใช้</th>
+                    <th>Cost Center</th>
+                    <th>Activity Number</th>
+                    <th>ทะเบียนรถที่ผูก</th>
                 </tr>
             </thead>
             <tbody>

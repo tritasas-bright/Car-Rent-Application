@@ -9,18 +9,45 @@
             </div>
             <div class='card-body'>
                 <div class="row">
-                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4" style="margin-bottom: 2vh;">
-                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้ใช้</label>
-                        <span class="form-control"><%= document_main_data[0].tdm_user_name %></span>
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                        <label for="">Document NO.</label>
+                        <input disabled value="<%= document_main_data[0].tdm_document_number %>" type="text" name="" id="" class="form-control">
                     </div>
-                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4" style="margin-bottom: 2vh;">
-                        <label for=""> <span class="red">*</span> อีเมล ผู้ใช้</label>
-                        <span class="form-control"><%= document_main_data[0].tdm_user_email %></span>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (TH)</label>
+                        <input disabled value="<%= document_main_data[0].user_nane_th + " " + document_main_data[0].user_surname_th || "" %>" type="text" name="" class="form-control">
                     </div>
-                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4" style="margin-bottom: 2vh;">
-                        <label for=""> <span class="red">*</span> แผนก ผู้ใช้</label>
-                        <span class="form-control"><%= document_main_data[0].tdm_user_division_name %></span>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> ชื่อ-นามสกุล ผู้รับผิดชอบ (EN)</label>
+                        <input disabled value="<%= document_main_data[0].user_nane_en + " " + document_main_data[0].user_surname_en || "" %>" type="text" name="" class="form-control">
                     </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> อีเมล ผู้รับผิดชอบ</label>
+                        <input disabled value="<%= document_main_data[0].user_email || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> แผนก</label>
+                        <input disabled value="<%= document_main_data[0].user_division || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> Cost Center</label>
+                        <input disabled value="<%= document_main_data[0].user_cost_center || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" style="margin-bottom: 1.5vh;">
+                        <label for=""> <span class="red">*</span> Activity Number</label>
+                        <input disabled value="<%= document_main_data[0].user_activity_number || "" %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <hr>
+                    </div>
+
                     <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 2vh;">
                         <label for=""> <span class="red">*</span> เพื่อ</label>
                         <textarea disabled style="background-color: white;" id="" onchange="" class="form-control" rows="5"><%= document_main_data[0].tdm_for_what %></textarea>
@@ -142,7 +169,7 @@
                             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="text-align: end;">
 
                                 <% if( document_main_data[0].tdm_status == "บันทึกแล้ว" ){ %>
-                                    <% if( permission == "approver" ){ %>
+                                    <% if( permission.approver ){ %>
                                         <button onclick="reject()" style="width: 47%;" type="button" class="btn btn-danger"><i class="fa-solid fa-circle-xmark"></i> ตีกลับ</button>
                                         <button onclick="approve()" style="width: 47%;" type="button" class="btn btn-success"><i class="fa-solid fa-circle-check"></i> อนุมัติ</button>
                                     <% }else{ %>

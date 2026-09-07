@@ -1,0 +1,792 @@
+<%- include("1_header.ejs") %>
+
+<style>
+.title {
+  /* color: #e5e0e8; */
+  padding: 0;
+  margin: 0;
+  font-weight: 400;
+}
+
+p {
+  /* color: #1e1028; */
+}
+
+.draggable-container {
+  background-color: #dbdbdb;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  /* width: 70%; */
+  border-radius: 5px;
+  box-shadow: 10px 15px 20px #1e192844;
+  width: 100%;
+}
+
+.shallow-draggable {
+  background-color: #f7f7f7;
+  color: #29262b;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 5px;
+  transition: opacity 200ms ease;
+}
+
+.dragging {
+  opacity: 0.5;
+  transition: opacity 1s ease;
+}
+</style>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>เอกสารขอใช้รถส่วนตัว</h4>
+                <input disabled id="sdm_id" hidden value="<%= DocumentData[0].sdm_id %>" type="text" name="" class="form-control">
+            </div>
+            <div class='card-body'>
+                <div class="row" style="margin-bottom: 0vh;">
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">เลขเอกสาร</label>
+                        <input disabled id="" value="<%= DocumentData[0].sdm_document_id %>" type="text" name="" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ผู้สร้างชื่อ-นามสกุล</label>
+                        <input disabled id="" value="<%= DocumentData[0].sdm_create_name %>" type="text" name="" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ผู้สร้างอีเมล</label>
+                        <input disabled id="" value="<%= DocumentData[0].sdm_create_email %>" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ขอให้ ชื่อ-นามสกุล</label>
+                        <div class="input-group mb-0">
+                            <input disabled id="use_name" onchange="" value="" type="text" name="" class="form-control">
+                            <button data-bs-toggle="modal" data-bs-target="#modal_search_employee" onclick="search_employee()" class="btn btn-outline-secondary" type="button" id="button-addon2">
+                                <i class="fa-solid fa-magnifying-glass" style="margin-right: 0.3vw;"></i>
+                                ค้นหา
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ขอให้ อีเมล</label>
+                        <input disabled id="use_email" value="" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ขอให้ แผนก</label>
+                        <input disabled id="use_division" value="" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ขอให้ Cost Center</label>
+                        <input disabled id="use_costcenter" value="" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">ผู้อนุมัติ</label>
+                        <input disabled id="approver" value="" type="text" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">เริ่มไป</label>
+                        <input id="" value="" type="date" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 col-xl-3" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">สิ้นสุด</label>
+                        <input id="" value="" type="date" name="" class="form-control">
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <label for="" style="margin-bottom: 3px;">หมายเหตุ</label>
+                        <textarea rows="5" class="form-control" name="" id=""></textarea>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 15px;">
+                        <div class="draggable-container">
+                            <button onclick="fetchLocation_data()" data-bs-toggle="modal" data-bs-target="#modal_view_location" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                                <i class="fa-solid fa-map-location-dot" style="margin-right: 0.2rem;"></i>
+                                เพิ่ม Location
+                            </button>
+                            <% LocationInDocument.forEach( function(e) { %>
+                                <div id="<%= e.sds_id %>" class="shallow-draggable" draggable="true" style="cursor: pointer;">
+                                    <div class="row d-flex align-items-center" style="width: 100%;">
+                                        <div class="col-sm-5 col-md-4 col-lg-3 col-xl-3">
+                                            <img class="img-radius img-fluid wid-80" src="<%= e.lct_img_path_show %>" style="padding:7px;margin-right:20px; width: 100%; height: auto; max-height: 25vh;"/>
+                                        </div>
+                                        <div class="col-sm-7 col-md-8 col-lg-9 col-xl-9" style="padding: 1rem 1rem 1rem 1rem;">
+                                            <span style="font-size: 18px; font-weight: 800;"><%= e.lct_local_name %></span>
+                                                <br>
+                                                <hr>
+                                            <div class="">
+                                                <!-- <span style="font-size: 15px;"><%= e.lct_local_description %></span> -->
+                                                <input onchange="updateRemark( '<%= e.sds_id %>' , this.value )" placeholder="หมายเหตุ" id="" value="<%= e.sds_remark_system %>" type="text" name="" class="form-control">
+                                            </div>
+                                            <br>
+                                            <a href="<%= e.lct_local_link %>" target="_blank">
+                                                <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-primary">
+                                                    <i class="fa-solid fa-street-view" style="margin-right: 0.2rem;"></i>
+                                                    Google Map
+                                                </button>
+                                            </a>
+                                            <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-success">
+                                                <i class="fa-solid fa-gear" style="margin-right: 0.2rem;"></i>
+                                                Success
+                                            </button>
+                                            <button style="margin-bottom: 0.8vh; border-radius: 100px;" type="button" class="btn btn-outline-danger">
+                                                <i class="fa-solid fa-gear" style="margin-right: 0.2rem;"></i>
+                                                Danger
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } ) %>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 15px; margin-top: 20px; text-align: end;">
+                        <button data-bs-toggle="modal" data-bs-target="#modal_upload_img" type="button" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-image" style="margin-right: 0.2rem;"></i>
+                            อัพโหลดรูปภาพ
+                        </button>
+                        <button data-bs-toggle="modal" data-bs-target="#modal_upload_pdf" type="button" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-file-pdf" style="margin-right: 0.2rem;"></i>
+                            อัพโหลดเอกสาร
+                        </button>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <p>รูปภาพที่แนบ</p>
+                        <table id="DocumentImgTable" class="table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>อีเมล</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% imgUploaded.forEach( function(e) { %>
+                                    <tr>
+                                        <td>
+                                            <button style="margin-bottom: 0vh; border-radius: 15px; padding: 1px 10px;" type="button" class="btn btn-outline-danger">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <a href="<%= e.sdf_part_show %>" style="text-decoration: underline !important;" target="_blank" rel="noopener noreferrer">
+                                                <%= e.sdf_display_name %>
+                                            </a>
+                                        </td>
+                                        <td><%= dayjs(JSON.parse(e.sdf_create_data).create_datetime).format('MMM D, YYYY h:mm A') %></td>
+                                    </tr>
+                                <% } ) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 15px;">
+                        <p>เอกสารที่แนบ</p>
+                        <table id="DocumentPdfTable" class="table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>อีเมล</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% pdfUploaded.forEach( function(e) { %>
+                                    <tr>
+                                        <td>
+                                            <button style="margin-bottom: 0vh; border-radius: 15px; padding: 1px 10px;" type="button" class="btn btn-outline-danger">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <a href="<%= e.sdf_part_show %>" style="text-decoration: underline !important;" target="_blank" rel="noopener noreferrer">
+                                                <%= e.sdf_display_name %>
+                                            </a>
+                                        </td>
+                                        <td><%= dayjs(JSON.parse(e.sdf_create_data).create_datetime).format('MMM D, YYYY h:mm A') %></td>
+                                    </tr>
+                                <% } ) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<div class="modal fade" id="modal_upload_img" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="">อัพโหลดรูปภาพ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <label for="" style="margin-bottom: 3px;">เฉพาะ .jpg .jpeg .png เท่านั้น</label>
+                        <input id="uploadImageFile" multiple type="file" accept=".jpg, .jpeg, .png" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="uploadFile( 'image' , 'uploadImageFile' )" class="btn btn-primary">อัพโหลด</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_upload_pdf" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="">อัพโหลดเอกสาร</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <label for="" style="margin-bottom: 3px;">เฉพาะ .png เท่านั้น</label>
+                        <input id="uploadPdfFile" multiple type="file" accept=".pdf" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="uploadFile( 'pdf' , 'uploadPdfFile' )" class="btn btn-primary">อัพโหลด</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_search_employee" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">ข้อมูลพนักงาน</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="SelectedEmployee(event)" >
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> แผนก</label>
+                            <select required onchange="" id="employee_select" class="selectpicker form-control" title="-- เลือก --" data-show-subtext="true" data-live-search="true">
+                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="submit" class="btn btn-primary">เลือก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_view_location" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">รายการสถานที่</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="locationDiv" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_view_location_img" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="xxx"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="locationImgDiv" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh; text-align: center;">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+window.onload = function(){
+    data_no_syntex = '<%= JSON.stringify(user_data) %>'
+    data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+    data_with_syntax = decodedString( data_no_free_spec )
+    data_to_obj = JSON.parse(data_with_syntax);
+
+    console.log("user_data")
+    console.log(data_to_obj.cr_user_app_id)
+
+    $.ajax({
+        type: 'GET',
+        url: '/EmployeeList',
+        data: {},
+        success: function (values) {
+            employee_select_data = values.EmployeeList
+            SelectedEmployee_1( data_to_obj.cr_user_app_id )
+
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function uploadFile( type , input_id ){
+    let filesArray = document.getElementById(input_id).files
+    console.log(filesArray)
+
+    if( filesArray.length > 5 ){
+        return alert( "อัพได้มากสุดครั้งละ 5 รูปเท่านั้น" )
+    }
+    
+    if( filesArray.length > 0 ){
+        const formDataFileUpload = new FormData();
+        for( let i = 0 ; i < filesArray.length ; i++ ){
+            formDataFileUpload.append( "fileupload" , filesArray[i] );
+            formDataFileUpload.append( "fileuploadName" , filesArray[i].name );
+
+            if( i === filesArray.length - 1 ){
+                formDataFileUpload.append( "DocumnetData" , JSON.stringify({
+                    DocumnetId : document.getElementById("sdm_id").value , 
+                    type : type
+                }))
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/SelfCarDocument/UploadImg',
+                    data: formDataFileUpload,
+                    processData: false, // สำคัญ: ไม่แปลงข้อมูลเป็นสตริง
+                    contentType: false, // สำคัญ: ตั้งค่าเป็น false เพื่อให้ส่งแบบ multipart/form-data
+                    success: function (result) {
+                        Swal.fire({
+                            title: "สำเร็จ" ,
+                            text: "" ,
+                            icon: "success" , 
+                        });
+
+                        setTimeout( () => {
+                            window.location.reload()
+                        } , 800 )
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            title: "error" ,
+                            text: error ,
+                            icon: "error" , 
+                        });
+                    }
+                });
+            }
+        }
+    }
+}
+
+function updateRemark( subDocId , remark ){
+    if( subDocId === "" ){
+        return
+    }
+
+    const data = {
+        LocationId : subDocId , 
+        remark : remark
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/Document/Loction/Update/Remark',
+        data: data,
+        success: function (values) {
+            
+        },
+        error: function (error) {
+            Swal.fire({
+                title: "error with Ajax" ,
+                text: error ,
+                icon: "error" , 
+            });
+        }
+    });
+}
+
+function fetchLocation_data(){
+    $.ajax({
+        type: 'GET',
+        url: '/LocationList' ,
+        data: {},
+        success: function (values) {
+            const LocationData = values.LocationList
+            createTableLocation(LocationData)
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function createTableLocation(LocationData){
+    let text = ""
+    if( LocationData.length === 0 ){
+        setTableLocation(text)
+    }else{
+        for( let i = 0 ; i < LocationData.length ; i++ ){
+            text += `
+            <tr>
+                <td>
+                    <button onclick="SelectLocation('${LocationData[i].lct_id}' , '${LocationData[i].lct_local_name}')" style="padding: .25rem .7rem;" type="button" class="btn btn-outline-success">
+                        <i class="fa-solid fa-hand-pointer" style="margin-right: 0.1rem;" ></i>
+                        เลือก
+                    </button>
+                </td>
+                <td>${LocationData[i].lct_local_name}</td>
+                <td>
+                    <button onclick="setImageLocation('${LocationData[i].lct_img_path_show}' , '${LocationData[i].lct_local_name}')" data-bs-toggle="modal" data-bs-target="#modal_view_location_img" style="padding: .25rem .7rem;" type="button" class="btn btn-outline-primary">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                    <a href="${LocationData[i].lct_local_link}" target="_blank">
+                        <button style="padding: .25rem .7rem;" type="button" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </button>
+                    </a>
+                </td>
+            </tr>`
+
+            if( i === LocationData.length - 1 ){
+                setTableLocation(text)
+            }
+        }
+    }
+}
+
+function setImageLocation( imgPath , locationName ){
+    document.getElementById("locationImgDiv").innerHTML = `
+    <img class="img-radius img-fluid wid-80" src="${imgPath}" style="padding:7px;margin-right:20px; width: auto; height: 70vh;"/>
+    `
+    document.getElementById("xxx").innerText = locationName
+
+}
+
+function setTableLocation(text){
+    document.getElementById("locationDiv").innerHTML = 
+    `<table id="LocationTable" class="table table-hover table-bordered" style="width: 100%;">
+        <thead>
+            <tr>
+                <th width="10%">เลือก</th>
+                <th>ชื่อสถานที่</th>
+                <th width="10%">ข้อมูล</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${text}
+        </tbody>
+    </table>`
+
+    setTimeout_set_table( "LocationTable" , 200 )
+}
+
+function SelectLocation( LocationId , LocationName ){
+    const document_id = document.getElementById("sdm_id").value
+
+    if( LocationId !== "" && document_id !== "" ){
+        Swal.fire({
+            icon : "question",
+            title: "เพิ่ม Location ใหม่",
+            html: `
+                เพิ่ม Location : ${LocationName} <br>
+                ในเอกสารหรือไม่ ?
+            `,
+            showCancelButton: true,
+            confirmButtonColor: "#027E6F",
+            cancelButtonColor: "#00000040",
+            confirmButtonText: "ยืนยัน, เพิ่ม" ,
+            cancelButtonText: "ปิด"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const data = {
+                    DocumentId : document_id ,
+                    LocationId : LocationId
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/Document/Location/Insert',
+                    data: data,
+                    success: function (values) {
+                        Swal.fire({
+                            title: "สำเร็จ !",
+                            text: "" ,
+                            icon: "success"
+                        });
+                        setTimeout( () => {
+                            window.location.reload();
+                        } , 800 )
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            title: "error with Ajax" ,
+                            text: error ,
+                            icon: "error" , 
+                        });
+                    }
+                });
+            }
+        });
+    }
+}
+
+const draggables = document.querySelectorAll(".shallow-draggable")
+const containers = document.querySelectorAll(".draggable-container")
+
+draggables.forEach((draggable) => {
+  // Start dragging
+  draggable.addEventListener("dragstart", () => {
+    draggable.classList.add("dragging")
+  })
+
+  // End dragging
+  draggable.addEventListener("dragend", () => {
+    draggable.classList.remove("dragging")
+
+    // Show the current order of draggable elements after dropping
+    const updatedDraggables = document.querySelectorAll(".shallow-draggable")
+    console.log([...updatedDraggables].map(el => el.id || "0"))
+    let data = [...updatedDraggables].map(el => el.id || "0")
+    updatePriority(data)
+  })
+})
+
+containers.forEach((container) => {
+  container.addEventListener("dragover", function (e) {
+    e.preventDefault()
+    const afterElement = dragAfterElement(container, e.clientY)
+    const dragging = document.querySelector(".dragging")
+    if (afterElement == null) {
+      container.appendChild(dragging)
+    } else {
+      container.insertBefore(dragging, afterElement)
+    }
+  })
+})
+
+function dragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll(".shallow-draggable:not(.dragging)")]
+
+  return draggableElements.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect()
+      const offset = y - box.top - box.height / 2
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child }
+      } else {
+        return closest
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element
+}
+
+function updatePriority(data){
+    if( data.length === 0 ){
+        Swal.fire({
+            title: "error with Ajax" ,
+            text: error ,
+            icon: "error" , 
+        });
+    }else{
+        for( let i = 0 ; i < data.length ; i++ ){
+            let priority = i + 1;
+            const payload = {
+                newPriority : priority , 
+                LocationId : data[i]
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/Document/Loction/Update/Priority',
+                data: payload,
+                success: function (values) {
+                    if( i === data.length - 1 ){
+                        Swal.fire({
+                            position: "top-end",
+                            html: `
+                                <i class="fa-regular fa-circle-check"></i> บันทึกการสลับตำแหน่ง
+                            `,
+                            showConfirmButton: false,
+                            timer: 500
+                        });
+                    }
+                },
+                error: function (error) {
+                    Swal.fire({
+                        title: "error with Ajax" ,
+                        text: error ,
+                        icon: "error" , 
+                    });
+                }
+            });
+        }
+    }
+}
+
+let user_data = {
+    name : "" , 
+    email : "" , 
+    division_id : "" , 
+    division_name : "" , 
+    costCenter_id : "" , 
+    costCenter_name : "" , 
+    approver_name : "" , 
+}
+
+function SelectedEmployee_1( employee_id ){
+    $.ajax({
+        type: 'GET',
+        url: '/EmployeeDeepDetail/' + employee_id ,
+        data: {},
+        success: function (values) {
+            console.log("values")
+            console.log(values)
+            user_data.name = values[0].user_nane_th + " " + values[0].user_surname_th + " (" + values[0].user_nane_en + " " + values[0].user_surname_en + ")" || "ไม่มี"
+            user_data.email = values[0].user_email || "ไม่มี"
+            user_data.division_id = values[0].div_id || "ไม่มี"
+            user_data.division_name = values[0].div_name || "ไม่มี"
+            user_data.costCenter_id = values[0].cc_id || "ไม่มี"
+            user_data.costCenter_name = values[0].cc_cost_center_id || "ไม่มี"
+            user_data.approver_name = values.map(item => item.dap_approver_name).join(', ')
+
+            document.getElementById("use_name").value = user_data.name
+            document.getElementById("use_email").value = user_data.email
+            document.getElementById("use_division").value = user_data.division_name
+            document.getElementById("use_costcenter").value = user_data.costCenter_name
+            document.getElementById("approver").value = user_data.approver_name
+
+            if( user_data.costCenter_name === "ไม่มี" ){
+                Swal.fire({
+                    title: "ไม่พบ Cost Center",
+                    text: "แผนกของคุณไม่ได้ถูกผูกกับ Cost Center ใด",
+                    icon: "error"
+                });
+            }
+
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function SelectedEmployee(event){
+    event.preventDefault();
+
+    console.log("SelectedEmployee Working")
+    console.log(event)
+
+    let employee_id = document.getElementById("employee_select").value || ""
+
+    if( employee_id !== "" ){
+        SelectedEmployee_1(employee_id)
+        $('#modal_search_employee').modal('toggle')
+    }
+}
+
+let employee_select_data
+
+function search_employee(){
+    $.ajax({
+        type: 'GET',
+        url: '/EmployeeList',
+        data: {},
+        success: function (values) {
+            console.log(values.EmployeeList)
+            set_employee_option(values.EmployeeList)
+            employee_select_data = values.EmployeeList
+        },
+        error: function (error) {
+            console.log("error with Ajax");
+            console.log(error);
+        }
+    });
+}
+
+function set_employee_option( data ){
+    let text = ""
+    for( let i = 0 ; i < data.length ; i++ ){
+        text += `<option value="${data[i].user_id}">${data[i].user_emp_id} - ${data[i].user_nane_th} ${data[i].user_surname_th} (${data[i].user_nane_en} ${data[i].user_surname_en})</option>`
+
+        if( i === data.length - 1 ){
+            document.getElementById("employee_select").innerHTML = text
+            $('.selectpicker').selectpicker('refresh');
+        }
+    }
+}
+
+$('#DocumentImgTable').DataTable({
+    // "destroy": true,
+    // "retrieve":true,
+    // "stateSave": true,
+    fixedColumns:   {
+        left: 2 ,
+        right: 0
+    },
+    "paging": true,
+    "scrollCollapse": true,
+    "responsive": true, 
+    "lengthChange": true, 
+    "searching": true,
+    "autoWidth": true,
+    "ordering": true,
+    "info": true,
+    "scrollX": true,
+    "scrollY": "20vh" 
+})
+
+$('#DocumentPdfTable').DataTable({
+    // "destroy": true,
+    // "retrieve":true,
+    // "stateSave": true,
+    fixedColumns:   {
+        left: 2 ,
+        right: 0
+    },
+    "paging": true,
+    "scrollCollapse": true,
+    "responsive": true, 
+    "lengthChange": true, 
+    "searching": true,
+    "autoWidth": true,
+    "ordering": true,
+    "info": true,
+    "scrollX": true,
+    "scrollY": "20vh" 
+})
+
+</script>

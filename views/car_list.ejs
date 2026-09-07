@@ -37,7 +37,7 @@
                                                 <br>
                                                 <hr>
                                             <div style="height: 30px; overflow: auto;" class="">
-                                                <span style="font-size: 15px;"><%= e.car_detail %></span>
+                                                <span style="font-size: 15px;"><%= e.car_registration_code %> - <%= e.car_detail %></span>
                                             </div>
                                             <br>
                                             <a href="/car_detail_view/<%= btoa( e.car_id ) %>" class="btn btn-warning" style="color: white;"><i class="fa-solid fa-eye" style="margin-right: 0.2rem;"></i> ดูข้อมูลรถยนต์</a>
@@ -45,7 +45,11 @@
                                         </div>
                                     </div>
                                     <div class="progress" style="position: absolute; height: 0.5rem; width: 100%; bottom: 0;">
-                                        <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <% if(e.car_status == "ไม่พร้อมใช้งาน"){ %>
+                                            <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <% }else{ %>
+                                            <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 100%; height: 0.5rem;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>

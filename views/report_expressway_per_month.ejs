@@ -1,0 +1,221 @@
+<%- include("1_header.ejs") %>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card' style="box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px;">
+            <div class='card-header'>
+                <h3>Report Express Way</h3>
+            </div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="" style="margin-top: 0.7vh;">
+                        <button data-bs-toggle="modal" data-bs-target="#modal_insert_expressway_excel" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-plus"></i>
+                            เพิ่มประวัติการใช้ Eazy Pass
+                        </button>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="" style="margin-top: 0.7vh;">
+                        <hr>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="" style="margin-top: 0.7vh;">
+                        <div class="" style="display: flex; min-width: 100%; overflow: auto; padding: 10px;">
+                            <% card_data.forEach( function(e) { %>
+                                <div onclick="Search_to_table('<%= e.rec_smart_card_number %>')" class="card" style="border-radius: 1rem !important; width: 18rem; min-width: 260px; margin-right: 15px; cursor: pointer;">
+                                    <div class="card-body">
+                                        <h4 class="card-title" style="color: #02274c;"><%= e.rec_smart_card_number %></h4>
+                                        <h6 class="card-subtitle mb-3 text-body-secondary"><%= e.rec_car_registration %></h6>
+                                        <h6 class="card-subtitle mb-0 text-body-secondary" style="text-align: end;">เงินคงเหลือ</h6>
+                                        <h3 class="card-title" style="color: green; text-align: end;"><%= e.rec_total_money %> บาท</h3>
+                                        <p class="card-text"></p>
+                                    </div>
+                                </div>
+                            <% } ) %>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="" style="margin-top: 0.7vh;">
+                        <hr>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="div_main_table" style="margin-top: 1.5vh;">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<div class="modal fade" id="modal_insert_expressway_excel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">เลือกไฟล์อัพโหลด</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form" action="/uploads_expressway_excel" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <input type="file" class="form-control" id="fileupload" name="fileupload" required accept=".xlsx, .xls" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">อัพโหลด</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    window.onload = function(){
+        data_no_syntex = '<%= JSON.stringify(report_data) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+
+        const report_expressway_data = data_to_obj
+
+        console.log(report_expressway_data) 
+
+        draft_main_table( report_expressway_data )
+    }
+
+    function draft_main_table( data ){
+        let text = ``
+        if( data.length == 0 ){
+            set_main_table(text)
+        }else{
+            for( let i = 0 ; i < data.length ; i++ ){
+                let index = i+1
+                text += `
+                <tr>
+                    <td>${index}</td>
+
+                    <td>${data[i].rer_obu_number}</td>
+                    <td>${data[i].rer_smart_card_number}</td>
+                    <td>${data[i].rer_car_registration}</td>
+                    <td>${data[i].rer_location}</td>
+                    <td style=${ data[i].rer_type == 'เติมเงิน' ? "color:green" : "color:#da0000"}>${data[i].rer_type}</td>
+                    <td>${data[i].rer_price}</td>
+                    <td>${data[i].rer_lane_number}</td>
+                    <td>${set_date_templece(data[i].rer_pay_date , "" , "th_long" , true)}</td>
+
+                    <td>${data[i].rer_status_matching || ""}</td>
+                    <td>${data[i].user_cost_center || ""}</td>
+                    <td>${data[i].user_activity_number || ""}</td>
+
+                    <td>${data[i].cdm_driver_type || ""}</td>
+                    <td>${data[i].user_emp_id || ""}</td>
+                    <td>${(data[i].user_nane_en || "") + " " + (data[i].user_surname_en || "")}</td>
+                    <td>${data[i].user_email || ""}</td>
+                    <td>${data[i].user_division || ""}</td>
+                    <td>${data[i].cdm_for_what || ""}</td>
+                    <td>${data[i].cdm_remark || ""}</td>
+
+                </tr>
+                `
+
+                if( i == data.length - 1 ){
+                    set_main_table(text)
+                }
+            }
+        }
+    }
+
+    function set_main_table(text){
+        document.getElementById("div_main_table").innerHTML = `
+        <table id="main_table" class="table table-hover table-bordered" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="5%">#</th>
+                    <th colspan="8" >Eazy Pass Pay Information<br><span class="sub_head_table">รายงานการจ่าย Eazy Pass</span></th>
+                    <th colspan="1" >Matching Status<br><span class="sub_head_table">สถานะการ Matching</span></th>
+                    <th colspan="2" >Cost Center<br><span class="sub_head_table">Cost Center</span></th>
+                    <th colspan="7" >Document Information<br><span class="sub_head_table">ข้อมูลเอกสารการขอยืม</span></th>
+                </tr>
+                <tr>
+                    <th width="5%">#</th>
+
+                    <th>หมายเลข OBU</th>
+                    <th>เลขสมาร์ทการ์ด (S/N)</th>
+                    <th>ทะเบียนรถ</th>
+                    <th>สถานที่</th>
+                    <th>ประเภท</th>
+                    <th>จำนวนเงิน</th>
+                    <th>เครื่อง/เลน</th>
+                    <th>วันที่ใช้บริการ</th>
+
+                    <th>สถานะการ Matching</th>
+                    <th>รหัส Cost Center</th>
+                    <th>Activity Number</th>
+
+                    <th>ประเภทการขับ</th>
+                    <th>รหัสพนักงาน</th>
+                    <th>ชื่อ-นามสกุล ผู้ใช้งาน</th>
+                    <th>อีเมล ผู้ใช้งาน</th>
+                    <th>แผนก ผู้ใช้งาน</th>
+                    <th>จุดประสงค์</th>
+                    <th>หมายเหตุการขอ</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                ${text}
+            </tbody>
+        </table>
+        `
+
+        $('#main_table').DataTable({
+            "destroy": true,
+            "retrieve":true,
+            "stateSave": true,
+            fixedColumns:   {
+                left: 0 ,
+                right: 0
+            },
+            "paging": true,
+            "scrollCollapse": true,
+            "responsive": true, 
+            "lengthChange": true, 
+            "searching": true,
+            "autoWidth": true,
+            "ordering": true,
+            "info": true,
+            "scrollX": true,
+            "scrollY": "57.7vh" 
+        })
+    }
+
+    function Search_to_table( value ){
+        $('#main_table').DataTable({
+            "destroy": true,
+            "retrieve":true,
+            "stateSave": true,
+            fixedColumns:   {
+                left: 0 ,
+                right: 0
+            },
+            "paging": true,
+            "scrollCollapse": true,
+            "responsive": true, 
+            "lengthChange": true, 
+            "searching": true,
+            "autoWidth": true,
+            "ordering": true,
+            "info": true,
+            "scrollX": true,
+            "scrollY": "57.7vh" 
+        }).search(value).draw()
+    }
+
+</script>

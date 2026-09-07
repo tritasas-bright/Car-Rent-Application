@@ -1,0 +1,1487 @@
+<%- include("1_header.ejs") %>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>Report By Cost Center</h4>
+            </div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px;">
+                        <div class="input-group mb-3">
+                            <input disabled value="<%= ReportData[0].StastDate %>" type="text" class="form-control" placeholder="Username" aria-label="Username">
+                            <span class="input-group-text">ถึง</span>
+                            <input disabled value="<%= ReportData[0].EndDate %>" type="text" class="form-control" placeholder="Server" aria-label="Server">
+                            <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal_filter_time" type="button">เปลี่ยนช่วงเวลา</button>
+                            <button onclick="window.location.replace( '/reportCostCenter/-/-' )" class="btn btn-outline-secondary" type="button">ล้างช่วงเวลา</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 10px;">
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal_excel_1_all" style="margin-bottom: 10px;" type="button">
+                            <i class="fa-solid fa-oil-well"></i> ดาวน์โหลด Excel ค่าน้ำมัน
+                        </button>
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal_excel_2_all" style="margin-bottom: 10px;" type="button">
+                            <i class="fa-solid fa-sign-hanging"></i> ดาวน์โหลด Excel ค่าผ่านทางด่วน
+                        </button>
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal_excel_3_all" style="margin-bottom: 10px;" type="button">
+                            <i class="fa-solid fa-car-side"></i> ดาวน์โหลด Excel ค่าเช่ารถยนต์
+                        </button>
+                    </div>
+                    <!-- <% ReportData.forEach( function(e) { %>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px; text-align: center;" id="main_contain">
+                            <div class="dash-wrapper">
+                                <div class="dash-header">
+                                    <h1 class="dash-heading"><%= e.CostCenter %></h1>
+                                </div>
+                                <div class="row" style="padding: 10px 10px 0px 10px;">
+                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="basic-addon3">แผนก / โครงการ</span>
+                                            <select class="form-select" aria-label="Default select example">
+                                                <option selected >ทั้งหมด</option>
+                                                <% e.divisionInCostCenter.forEach( function(d) { %>
+                                                    <option value="<%= d %>"><%= d %></option>
+                                                <% } ) %>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dash-grid" style="overflow: auto;">
+                                    <div class="dash-panel" onclick="ViewRefuelingHistory('<%= JSON.stringify(e.Refueling) %>' , '<%= e.CostCenter %> ค่าเติมน้ำมัน')" data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                                        <div class="dash-circle-number">
+                                            <i class="fa-solid fa-gas-pump" style="margin-right: 7px;"></i>
+                                            ค่าเติมน้ำมันทั้งหมด
+                                        </div>
+                                        <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                                            <%= (e.RefuelingTotalPrice).toLocaleString("th-TH") %> บาท
+                                        </h2>
+                                        <div class="dash-panel-bottom">
+                                            <div class="dash-metrics">
+                                                <div class="dash-metric" title="จำนวนเอกสาร">📝 <%= e.Refueling.length %> รายการ</div>
+                                            </div>
+                                            <div class="dash-badge">รายวัน</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="dash-panel" onclick="ViewExpressWayHistory('<%= JSON.stringify(e.Expressway) %>' , '<%= e.CostCenter %> ค่าผ่านทางด่วน')" data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                                        <div class="dash-circle-number">
+                                            <i class="fa-solid fa-sign-hanging" style="margin-right: 7px;"></i>
+                                            ค่าผ่านทางด่วนทั้งหมด
+                                        </div>
+                                        <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                                            <%= (e.ExpresswayTotalPrice).toLocaleString("th-TH") %> บาท
+                                        </h2>
+                                        <div class="dash-panel-bottom">
+                                            <div class="dash-metrics">
+                                                <div class="dash-metric">📝 <%= e.Expressway.length %> รายการ</div>
+                                            </div>
+                                            <div class="dash-badge">รายเดือน</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="dash-panel" onclick="ViewCarRentHistory('<%= JSON.stringify(e.CarRent) %>' , '<%= e.CostCenter %> ค่าเช่ารถยนต์')" data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                                        <div class="dash-circle-number">
+                                            <i class="fa-solid fa-car-side" style="margin-right: 7px;"></i>
+                                            ค่าเช่ารถยนต์ทั้งหมด
+                                        </div>
+                                        <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                                            <%= (e.CarRentTotalPrice).toLocaleString("th-TH") %> บาท
+                                        </h2>
+                                        <div class="dash-panel-bottom">
+                                            <div class="dash-metrics">
+                                                <div class="dash-metric">📝 <%= e.CarRent.length %> รายการ</div>
+                                            </div>
+                                            <div class="dash-badge">เรียลไทม์</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dash-grid" style="padding-top: 0px;">
+                                    <div class="dash-panel" style="padding: 10px 20px 5px 20px;">
+                                        <h1 style="color: rgb(220, 0, 0); font-size: 20px;" class="dash-panel-heading">
+                                            ราคารวม
+                                            💰 <%= (e.ExpresswayTotalPrice + e.RefuelingTotalPrice + e.CarRentTotalPrice).toLocaleString("th-TH") %> บาท
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } ) %> -->
+                    <div id="111">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_excel_1_all" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id=""> Download ค่าน้ำมันทั้งหมด </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row" id="div_driver_list">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <input disabled value="<%= ReportData[0].StastDate %>ถึง <%= ReportData[0].EndDate %>" type="text" class="form-control" placeholder="Username" aria-label="Username">
+                    </div>
+                    <% CostCenterListArr.sort().forEach( function(e) { %>
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <input name="CostCenterSelected_1" class="form-check-input" type="checkbox" value="<%= e %>" id="CostCenter_<%= e %>" checked>
+                            <label class="form-check-label" for="CostCenter_<%= e %>">
+                                <%= e === "" ? "(ว่าง)" : e %>
+                            </label>
+                        </div>
+                    <% } ) %>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="DownloadExcel_Refueling_All('<%= ReportData[0]._StastDate %>' , '<%= ReportData[0]._EndDate %>')" type="button" class="btn btn-success" data-bs-dismiss="modal">💾 ดาวน์โหลด</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_excel_2_all" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id=""> Download ค่าผ่านทางด่วนทั้งหมด </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row" id="div_driver_list">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <input disabled value="<%= ReportData[0].StastDate %>ถึง <%= ReportData[0].EndDate %>" type="text" class="form-control" placeholder="Username" aria-label="Username">
+                    </div>
+                    <% CostCenterListArr.sort().forEach( function(e) { %>
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <input name="CostCenterSelected_2" class="form-check-input" type="checkbox" value="<%= e %>" id="CostCenter_2_<%= e %>" checked>
+                            <label class="form-check-label" for="CostCenter_2_<%= e %>">
+                                <%= e === "" ? "(ว่าง)" : e %>
+                            </label>
+                        </div>
+                    <% } ) %>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="DownloadExcel_EazyPass_All('<%= ReportData[0]._StastDate %>' , '<%= ReportData[0]._EndDate %>')" type="button" class="btn btn-success" data-bs-dismiss="modal">💾 ดาวน์โหลด</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_excel_3_all" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id=""> Download ค่าเช่ารถยนต์ทั้งหมด </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row" id="div_driver_list">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <input disabled value="<%= ReportData[0].StastDate %>ถึง <%= ReportData[0].EndDate %>" type="text" class="form-control">
+                    </div>
+                    <% CostCenterListArr.sort().forEach( function(e) { %>
+                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <input name="CostCenterSelected_3" class="form-check-input" type="checkbox" value="<%= e %>" id="CostCenter_3_<%= e %>" checked>
+                            <label class="form-check-label" for="CostCenter_3_<%= e %>">
+                                <%= e === "" ? "(ว่าง)" : e %>
+                            </label>
+                        </div>
+                    <% } ) %>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="DownloadExcel_CarRent_All('<%= ReportData[0]._StastDate %>' , '<%= ReportData[0]._EndDate %>')" type="button" class="btn btn-success" data-bs-dismiss="modal">💾 ดาวน์โหลด</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_detail" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modal_detail_header"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row" id="div_driver_list">
+                    <div id="modal_detail_content" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_filter_time" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="">ระบุช่วงเวลา</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 72vh; overflow: auto;">
+                <div class="row" id="div_driver_list">
+                    <div id="" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text" id="">เริ่มต้น</span>
+                                <input type="date" class="form-control" id="filter_time_start">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text" id="">จนถึง</span>
+                                <input type="date" class="form-control" id="filter_time_end">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" onclick="SubmitFilter()">ยืนยัน, กรอง</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+
+    function DownloadExcel_Refueling_All( startDate , endDate ){
+        console.log(new Date(startDate))
+        console.log(new Date(endDate))
+
+        let allselect = Array.from(document.getElementsByName("CostCenterSelected_1"))
+        let allselected = allselect.filter( function(e){
+            return  e.checked == true
+        } )
+        let allselectedTest = Array.from(allselected).map(item => item.value).join(',')
+        
+        axios.post('/DownloadExcel_Refueling_All', {
+            startDate : new Date(startDate) , 
+            endDate : new Date(endDate) , 
+            CostCenterListText : allselectedTest
+        })
+        .then(function (response) {
+            console.log("response");
+            console.log(response);
+            if( response.data.message === "error" ){
+                alert(response.data.description)
+            }else{
+                DownloadExcel_All(response.data.result , "ค่าน้ำมัน")
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+
+    }
+
+    function DownloadExcel_EazyPass_All( startDate , endDate ){
+        console.log(new Date(startDate))
+        console.log(new Date(endDate))
+
+        let allselect = Array.from(document.getElementsByName("CostCenterSelected_2"))
+        let allselected = allselect.filter( function(e){
+            return  e.checked == true
+        } )
+        let allselectedTest = Array.from(allselected).map(item => item.value).join(',')
+        
+        axios.post('/DownloadExcel_EazyPass_All', {
+            startDate : new Date(startDate) , 
+            endDate : new Date(endDate) , 
+            CostCenterListText : allselectedTest
+        })
+        .then(function (response) {
+            if( response.data.message === "error" ){
+                alert(response.data.description)
+            }else{
+                DownloadExcel_All(response.data.result , "ค่าผ่านทางด่วน")
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+
+    }
+
+    function DownloadExcel_CarRent_All( startDate , endDate ){
+        let allselect = Array.from(document.getElementsByName("CostCenterSelected_3"))
+        let allselected = allselect.filter( function(e){
+            return  e.checked == true
+        } )
+        let allselectedTest = Array.from(allselected).map(item => item.value).join(',')
+        
+        axios.post('/DownloadExcel_CarRent_All', {
+            startDate : new Date(startDate) , 
+            endDate : new Date(endDate) , 
+            CostCenterListText : allselectedTest
+        })
+        .then(function (response) {
+            if( response.data.message === "error" ){
+                alert(response.data.description)
+            }else{
+                DownloadExcel_All(response.data.result , "ค่าเช่ารถยนต์")
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+
+    }
+
+    async function DownloadExcel_All( reportData , fileNameTitle ){
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        worksheet.addRow([
+            "Expense report number" , 
+            "Description" ,
+            "Project ID" , 
+            "Purpose" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Transaction date" , 
+            "Expense category" , 
+            "Transaction amount" , 
+            "Exchange rate" , 
+            "Project ID" , 
+            "Billable" , 
+            "Activity number" , 
+            "Contra charge" , 
+            "Subcontractor", 
+            "Work order" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Receipt number" , 
+            "Sales tax group" , 
+            "Item sales tax group" , 
+            "Additional information" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Ref. Image" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Address" , 
+            "Withholding tax group" , 
+            "Withholding tax code" , 
+            "Withhold %" , 
+            "Withholding tax base" , 
+            "Withholding tax amount" , 
+            "ผู้จ่ายเงิน" , 
+            "TaxWithhold Doc No." , 
+            "Date" 
+        ]);
+        worksheet.getRow(1).font = { bold: true };
+
+        reportData.map( (item , index) => (
+            worksheet.addRow(item)
+        ) )
+        worksheet.getColumn(12).numFmt = "d/m/yyyy"; // ตัวเลข
+        worksheet.getColumn(14).numFmt = "0"; // ตัวเลข
+        worksheet.getColumn(15).numFmt = "0"; // วันที่
+
+        // DownloadExcel( FileName , DataJson )
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${fileNameTitle}_${set_date_templece(new Date() , "-" , "en_short" , false)}_${new Date().getTime()}.xlsx`;
+        link.click();
+    }
+
+    let mainData = []
+
+    window.onload = () => {
+        data_no_syntex = '<%= JSON.stringify(ReportData) %>'
+        data_no_free_spec = (JSON.stringify(data_no_syntex.replace(/\n|\t|\r/g, " ")))
+        data_with_syntax = decodedString( data_no_free_spec )
+        data_to_obj = JSON.parse(data_with_syntax);
+        mainData = data_to_obj
+        generateDataCard(data_to_obj)
+    }
+
+    async function DownloadExcel_Expressway( element ){
+        const _mainData = mainData[0]
+        const data = JSON.parse(element.dataset.expressway);
+        let dataOut = []
+        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        // เพิ่ม Header (กำหนดชื่อซ้ำกันได้)
+        worksheet.addRow([
+            "Expense report number" , 
+            "Description" ,
+            "Project ID" , 
+            "Purpose" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Transaction date" , 
+            "Expense category" , 
+            "Transaction amount" , 
+            "Exchange rate" , 
+            "Project ID" , 
+            "Billable" , 
+            "Activity number" , 
+            "Contra charge" , 
+            "Subcontractor", 
+            "Work order" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Receipt number" , 
+            "Sales tax group" , 
+            "Item sales tax group" , 
+            "Additional information" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Ref. Image" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Address" , 
+            "Withholding tax group" , 
+            "Withholding tax code" , 
+            "Withhold %" , 
+            "Withholding tax base" , 
+            "Withholding tax amount" , 
+            "ผู้จ่ายเงิน" , 
+            "TaxWithhold Doc No." , 
+            "Date" 
+        ]);
+        worksheet.getRow(1).font = { bold: true };
+
+        const data_1 = await getData_Expressway( data )
+        
+        data_1.map( (item , index) => (
+            worksheet.addRow(item)
+        ) )
+        worksheet.getColumn(12).numFmt = "d/m/yyyy"; // ตัวเลข
+        worksheet.getColumn(14).numFmt = "0"; // ตัวเลข
+        worksheet.getColumn(15).numFmt = "0"; // วันที่
+
+        // DownloadExcel( FileName , DataJson )
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ExpresswayReport_${set_date_templece(new Date() , "-" , "en_short" , false)}_${new Date().getTime()}.xlsx`;
+        link.click();
+    }
+    
+    function getData_Expressway( data ){
+        return new Promise( (resolve , reject) => {
+            let dataOut = []
+            const _mainData = mainData[0]
+            if( data.length > 0 ){
+                for( let i = 0 ; i < data.length ; i++ ){
+                    let division = (data[i].user_division).split("-")
+                    let site = ""
+                    let index = i + 1
+                    if( division[0].startsWith("00") ){
+                        site = division[0]
+                    }
+                    let ActivityNumber = data[i].user_activity_number === "ไม่พบ Activity Number" ? "" : data[i].user_activity_number
+                    dataOut.push( [
+                        "" , 
+                        "ADMIN Change ค่า ผ่านทางด่วน : " + set_date_templece(_mainData._StastDate , "/" , "en_short" , false) + "-" + set_date_templece(_mainData._EndDate , "/" , "en_short" , false) ,
+                        "" , 
+                        "Internal Charge-ADM" , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        "86000" , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        "NONE" , 
+                        set_date_templece(_mainData._EndDate , "/" , "for_erp" , false) , 
+                        "Inter.Charge-ADM Easy pass" , 
+                        (data[i].rer_price).toFixed(2) , 
+                        "1.00" , 
+                        site , 
+                        "BILLABLE" , 
+                        ActivityNumber , 
+                        "No" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "RC-" + index.toString().padStart(2, '0') , 
+                        "" , 
+                        "" , 
+                        "ADMIN Change ค่า ผ่านทางด่วน : " + data[i].cdm_for_what , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        data[i].user_cost_center , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        site === "" ? "NONE" : site , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "หักภาษี ณ ที่จ่าย" , 
+                        "" , 
+                        "" , 
+                    ] )
+
+                    if( i === data.length - 1){
+                        console.log(dataOut)
+                        resolve(dataOut)
+                    }
+                }
+            }else{
+                resolve(dataOut)
+            }
+        } )
+    }
+
+    async function DownloadExcel_CarRent( element ){
+        const _mainData = mainData[0]
+        const data = JSON.parse(element.dataset.carrent);
+        let dataOut = []
+        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        // เพิ่ม Header (กำหนดชื่อซ้ำกันได้)
+        worksheet.addRow([
+            "Expense report number" , 
+            "Description" ,
+            "Project ID" , 
+            "Purpose" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Transaction date" , 
+            "Expense category" , 
+            "Transaction amount" , 
+            "Exchange rate" , 
+            "Project ID" , 
+            "Billable" , 
+            "Activity number" , 
+            "Contra charge" , 
+            "Subcontractor", 
+            "Work order" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Receipt number" , 
+            "Sales tax group" , 
+            "Item sales tax group" , 
+            "Additional information" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Ref. Image" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Address" , 
+            "Withholding tax group" , 
+            "Withholding tax code" , 
+            "Withhold %" , 
+            "Withholding tax base" , 
+            "Withholding tax amount" , 
+            "ผู้จ่ายเงิน" , 
+            "TaxWithhold Doc No." , 
+            "Date" 
+        ]);
+        worksheet.getRow(1).font = { bold: true };
+
+        const data_1 = await getData_CarRent( data )
+        
+        data_1.map( (item , index) => (
+            worksheet.addRow(item)
+        ) )
+        worksheet.getColumn(12).numFmt = "d/m/yyyy"; // ตัวเลข
+        worksheet.getColumn(14).numFmt = "0"; // ตัวเลข
+        worksheet.getColumn(15).numFmt = "0"; // วันที่
+
+        // DownloadExcel( FileName , DataJson )
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `CarRentReport_${set_date_templece(new Date() , "-" , "en_short" , false)}_${new Date().getTime()}.xlsx`;
+        link.click();
+    }
+
+    function getData_CarRent( data ){
+        return new Promise( (resolve , reject) => {
+            let dataOut = []
+            const _mainData = mainData[0]
+            if( data.length > 0 ){
+                for( let i = 0 ; i < data.length ; i++ ){
+                    let division = (data[i].user_division).split("-")
+                    let site = ""
+                    let index = i + 1
+                    if( division[0].startsWith("00") ){
+                        site = division[0]
+                    }
+                    let ActivityNumber = data[i].user_activity_number === "ไม่พบ Activity Number" ? "" : data[i].user_activity_number
+                    dataOut.push( [
+                        "" , 
+                        "ADMIN Change ค่า เช่ารถยนต์ : " + set_date_templece(_mainData._StastDate , "/" , "en_short" , false) + "-" + set_date_templece(_mainData._EndDate , "/" , "en_short" , false) ,
+                        "" , 
+                        "Internal Charge-ADM" , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        "86000" , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        "NONE" , 
+                        set_date_templece(_mainData._EndDate , "/" , "for_erp" , false) , 
+                        "IR 903-ADM" , 
+                        (data[i].cds_car_price_rate).toFixed(2) , 
+                        "1.00" , 
+                        site , 
+                        "BILLABLE" , 
+                        ActivityNumber , 
+                        "No" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "RC-" + index.toString().padStart(2, '0') , 
+                        "" , 
+                        "" , 
+                        "ADMIN Change ค่า เช่ารถยนต์ : " + data[i].cdm_for_what , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        data[i].user_cost_center , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        site === "" ? "NONE" : site , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "หักภาษี ณ ที่จ่าย" , 
+                        "" , 
+                        "" , 
+                    ] )
+
+                    if( i === data.length - 1){
+                        console.log(dataOut)
+                        resolve(dataOut)
+                    }
+                }
+            }else{
+                resolve(dataOut)
+            }
+        } )
+    }
+
+    async function DownloadExcel_Refueling( element ){
+        const _mainData = mainData[0]
+        const data = JSON.parse(element.dataset.refueling);
+        let dataOut = []
+        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        // เพิ่ม Header (กำหนดชื่อซ้ำกันได้)
+        worksheet.addRow([
+            "Expense report number" , 
+            "Description" ,
+            "Project ID" , 
+            "Purpose" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Transaction date" , 
+            "Expense category" , 
+            "Transaction amount" , 
+            "Exchange rate" , 
+            "Project ID" , 
+            "Billable" , 
+            "Activity number" , 
+            "Contra charge" , 
+            "Subcontractor", 
+            "Work order" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Receipt number" , 
+            "Sales tax group" , 
+            "Item sales tax group" , 
+            "Additional information" , 
+            "D1_Company" , 
+            "D2_BusinessUnit" , 
+            "D3_CostCenter" , 
+            "D4_ProductGroups" , 
+            "D5_CashFlow" , 
+            "D6_Purpose" , 
+            "Project" , 
+            "Ref. Image" , 
+            "Vendor account" , 
+            "Vendor name" , 
+            "VAT Registration ID" , 
+            "Address" , 
+            "Withholding tax group" , 
+            "Withholding tax code" , 
+            "Withhold %" , 
+            "Withholding tax base" , 
+            "Withholding tax amount" , 
+            "ผู้จ่ายเงิน" , 
+            "TaxWithhold Doc No." , 
+            "Date" 
+        ]);
+        worksheet.getRow(1).font = { bold: true };
+
+        const data_1 = await getData_Refueling( data )
+        
+        data_1.map( (item , index) => (
+            worksheet.addRow(item)
+        ) )
+        worksheet.getColumn(12).numFmt = "d/m/yyyy"; // ตัวเลข
+        worksheet.getColumn(14).numFmt = "0"; // ตัวเลข
+        worksheet.getColumn(15).numFmt = "0"; // วันที่
+
+        // DownloadExcel( FileName , DataJson )
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `RefuelingReport_${set_date_templece(new Date() , "-" , "en_short" , false)}_${new Date().getTime()}.xlsx`;
+        link.click();
+    }
+
+    function getData_Refueling( data ){
+        return new Promise( (resolve , reject) => {
+            let dataOut = []
+            const _mainData = mainData[0]
+            if( data.length > 0 ){
+                for( let i = 0 ; i < data.length ; i++ ){
+                    let division = (data[i].user_division).split("-")
+                    let site = ""
+                    let index = i + 1
+                    if( division[0].startsWith("00") ){
+                        site = division[0]
+                    }
+                    let ActivityNumber = data[i].user_activity_number === "ไม่พบ Activity Number" ? "" : data[i].user_activity_number
+                    dataOut.push( [
+                        "" , 
+                        "ADMIN Change ค่า น้ำมัน : " + set_date_templece(_mainData._StastDate , "/" , "en_short" , false) + "-" + set_date_templece(_mainData._EndDate , "/" , "en_short" , false) ,
+                        "" , 
+                        "Internal Charge-ADM" , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        "86000" , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        "NONE" , 
+                        set_date_templece(_mainData._EndDate , "/" , "for_erp" , false) , 
+                        "Inter.Charge-ADM Fuel" , 
+                        (data[i].rrm_total_change_cost).toFixed(2) , 
+                        "1.00" , 
+                        site , 
+                        "BILLABLE" , 
+                        ActivityNumber , 
+                        "No" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "RC-" + index.toString().padStart(2, '0') , 
+                        "" , 
+                        "" , 
+                        "ADMIN Change ค่า น้ำมัน : " + data[i].cdm_for_what , 
+                        "SYNT" , 
+                        "SYNTEC" , 
+                        data[i].user_cost_center , 
+                        "" , 
+                        "CFO" , 
+                        "" , 
+                        site === "" ? "NONE" : site , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "" , 
+                        "หักภาษี ณ ที่จ่าย" , 
+                        "" , 
+                        "" , 
+                    ] )
+
+                    if( i === data.length - 1){
+                        console.log(dataOut)
+                        resolve(dataOut)
+                    }
+                }
+            }else{
+                resolve(dataOut)
+            }
+        } )
+    }
+
+    function generateDataCard(data){
+        let text = ""
+        for( let i = 0 ; i < data.length ; i++ ){
+            let divisionOption = ""
+            data[i].divisionInCostCenter.map( item => divisionOption += `<option value="${item}">${item}</option>` )
+            text += `
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px; text-align: center;" id="main_contain">
+                <div class="dash-wrapper">
+                    <div class="dash-header">
+                        <h1 class="dash-heading">${ data[i].CostCenter }</h1>
+                    </div>
+                    <div class="row" style="padding: 10px 10px 0px 10px;">
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="input-group">
+                                <span class="input-group-text" id="basic-addon3">แผนก / โครงการ</span>
+                                <select onchange="changeDivision( '${data[i].CostCenter}' , this.value )" class="form-select" aria-label="Default select example">
+                                    <option selected >ทั้งหมด</option>
+                                    ${ divisionOption }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="SubCard_${data[i].CostCenter}">
+                        <div class="dash-grid" style="overflow: auto;">
+                            <div class="dash-panel" 
+                                data-refueling='${JSON.stringify(data[i].Refueling).replace(/'/g, "\\'")}' 
+                                data-cost-center='${data[i].CostCenter} ค่าเติมน้ำมัน'
+                                onclick="ViewRefuelingHistory(this)" 
+                                data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+    
+                                <div class="dash-circle-number">
+                                    <i class="fa-solid fa-gas-pump" style="margin-right: 7px;"></i>
+                                    ค่าเติมน้ำมันทั้งหมด
+                                </div>
+                                <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                                    ${ (data[i].RefuelingTotalPrice).toLocaleString("th-TH") } บาท
+                                </h2>
+                                <div class="dash-panel-bottom">
+                                    <div class="dash-metrics">
+                                        <div class="dash-metric" title="จำนวนเอกสาร">📝 ${ data[i].Refueling.length } รายการ</div>
+                                    </div>
+                                    <div class="dash-badge" 
+                                    data-refueling='${JSON.stringify(data[i].Refueling).replace(/'/g, "\\'")}' 
+                                    data-costcenter='${data[i].CostCenter}'
+                                    onclick="DownloadExcel_Refueling(this)" >💾 ดาวน์โหลด</div>
+                                </div>
+                            </div>
+    
+                            <div class="dash-panel" 
+                            onclick="ViewExpressWayHistory(this)" 
+                            data-expressway='${JSON.stringify(data[i].Expressway).replace(/'/g, "\\'")}' 
+                            data-cost-center='${data[i].CostCenter} ค่าผ่านทางด่วน'
+                            data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                                <div class="dash-circle-number">
+                                    <i class="fa-solid fa-sign-hanging" style="margin-right: 7px;"></i>
+                                    ค่าผ่านทางด่วนทั้งหมด
+                                </div>
+                                <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                                    ${ (data[i].ExpresswayTotalPrice).toLocaleString("th-TH") } บาท
+                                </h2>
+                                <div class="dash-panel-bottom">
+                                    <div class="dash-metrics">
+                                        <div class="dash-metric">📝 ${ data[i].Expressway.length } รายการ</div>
+                                    </div>
+                                    <div class="dash-badge" 
+                                    data-expressway='${JSON.stringify(data[i].Expressway).replace(/'/g, "\\'")}' 
+                                    data-costcenter='${data[i].CostCenter}'
+                                    onclick="DownloadExcel_Expressway(this)" >💾 ดาวน์โหลด</div>
+                                </div>
+                            </div>
+    
+                            <div class="dash-panel" 
+                            onclick="ViewCarRentHistory(this)" 
+                            data-carrenthistory='${JSON.stringify(data[i].CarRent).replace(/'/g, "\\'")}' 
+                            data-cost-center='${data[i].CostCenter} ค่าเช่ารถยนต์'
+                            data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                                <div class="dash-circle-number">
+                                    <i class="fa-solid fa-car-side" style="margin-right: 7px;"></i>
+                                    ค่าเช่ารถยนต์ทั้งหมด
+                                </div>
+                                <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                                    ${ (data[i].CarRentTotalPrice).toLocaleString("th-TH") } บาท
+                                </h2>
+                                <div class="dash-panel-bottom">
+                                    <div class="dash-metrics">
+                                        <div class="dash-metric" title="จำนวนเอกสาร">📝 ${ data[i].CarRent.length } รายการ</div>
+                                    </div>
+                                    <div class="dash-badge" 
+                                    data-carRent='${JSON.stringify(data[i].CarRent).replace(/'/g, "\\'")}' 
+                                    data-costcenter='${data[i].CostCenter}'
+                                    onclick="DownloadExcel_CarRent(this)" >💾 ดาวน์โหลด</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="dash-grid" style="padding-top: 0px;">
+                            <div class="dash-panel" style="padding: 10px 20px 5px 20px;">
+                                <h1 style="color: rgb(220, 0, 0); font-size: 20px;" class="dash-panel-heading">
+                                    ราคารวม
+                                    💰 ${ (data[i].ExpresswayTotalPrice + data[i].RefuelingTotalPrice + data[i].CarRentTotalPrice).toLocaleString("th-TH") } บาท
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+
+            if( i === data.length - 1 ){
+                document.getElementById("111").innerHTML = text
+            }
+        }
+    }
+
+    function generateDataSubCard(data){
+        console.log(data)
+        let text = ""
+        let divisionOption = ""
+        text += `
+        <div id="SubCard_${data[0].CostCenter}">
+            <div class="dash-grid" style="overflow: auto;" >
+                <div class="dash-panel" 
+                    data-refueling='${JSON.stringify(data[0].Refueling).replace(/'/g, "\\'")}' 
+                    data-cost-center='${data[0].CostCenter} ค่าเติมน้ำมัน'
+                    onclick="ViewRefuelingHistory(this)" 
+                    data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+
+                    <div class="dash-circle-number">
+                        <i class="fa-solid fa-gas-pump" style="margin-right: 7px;"></i>
+                        ค่าเติมน้ำมันทั้งหมด
+                    </div>
+                    <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                        ${ (data[0].RefuelingTotalPrice).toLocaleString("th-TH") } บาท
+                    </h2>
+                    <div class="dash-panel-bottom">
+                        <div class="dash-metrics">
+                            <div class="dash-metric" title="จำนวนเอกสาร">📝 ${ data[0].Refueling.length } รายการ</div>
+                        </div>
+                        <div class="dash-badge" 
+                        data-refueling='${JSON.stringify(data[0].Refueling).replace(/'/g, "\\'")}' 
+                        data-costcenter='${data[0].CostCenter}'
+                        onclick="DownloadExcel_Refueling(this)" >💾 ดาวน์โหลด</div>
+                    </div>
+                </div>
+
+                <div class="dash-panel" 
+                onclick="ViewExpressWayHistory(this)" 
+                data-expressway='${JSON.stringify(data[0].Expressway).replace(/'/g, "\\'")}' 
+                data-cost-center='${data[0].CostCenter} ค่าผ่านทางด่วน'
+                data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                    <div class="dash-circle-number">
+                        <i class="fa-solid fa-sign-hanging" style="margin-right: 7px;"></i>
+                        ค่าผ่านทางด่วนทั้งหมด
+                    </div>
+                    <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                        ${ (data[0].ExpresswayTotalPrice).toLocaleString("th-TH") } บาท
+                    </h2>
+                    <div class="dash-panel-bottom">
+                        <div class="dash-metrics">
+                            <div class="dash-metric">📝 ${ data[0].Expressway.length } รายการ</div>
+                        </div>
+                        <div class="dash-badge" 
+                        data-expressway='${JSON.stringify(data[0].Expressway).replace(/'/g, "\\'")}' 
+                        data-costcenter='${data[0].CostCenter}'
+                        onclick="DownloadExcel_Expressway(this)" >💾 ดาวน์โหลด</div>
+                    </div>
+                </div>
+
+                <div class="dash-panel" 
+                onclick="ViewCarRentHistory(this)" 
+                data-carrenthistory='${JSON.stringify(data[0].CarRent).replace(/'/g, "\\'")}' 
+                data-cost-center='${data[0].CostCenter} ค่าเช่ารถยนต์'
+                data-bs-toggle="modal" data-bs-target="#modal_detail" style="cursor: pointer; min-width: 300px;">
+                    <div class="dash-circle-number">
+                        <i class="fa-solid fa-car-side" style="margin-right: 7px;"></i>
+                        ค่าเช่ารถยนต์ทั้งหมด
+                    </div>
+                    <h2 style="color: rgb(220, 0, 0);" class="dash-panel-heading">
+                        ${ (data[0].CarRentTotalPrice).toLocaleString("th-TH") } บาท
+                    </h2>
+                    <div class="dash-panel-bottom">
+                        <div class="dash-metrics">
+                            <div class="dash-metric" title="จำนวนเอกสาร">📝 ${ data[0].CarRent.length } รายการ</div>
+                        </div>
+                        <div class="dash-badge" 
+                        data-carRent='${JSON.stringify(data[0].CarRent).replace(/'/g, "\\'")}' 
+                        data-costcenter='${data[0].CostCenter}'
+                        onclick="DownloadExcel_CarRent(this)" >💾 ดาวน์โหลด</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-grid" style="padding-top: 0px;">
+                <div class="dash-panel" style="padding: 10px 20px 5px 20px;">
+                    <h1 style="color: rgb(220, 0, 0); font-size: 20px;" class="dash-panel-heading">
+                        ราคารวม
+                        💰 ${ (data[0].ExpresswayTotalPrice + data[0].RefuelingTotalPrice + data[0].CarRentTotalPrice).toLocaleString("th-TH") } บาท
+                    </h1>
+                </div>
+            </div>
+        </div>`
+
+            document.getElementById("SubCard_"+data[0].CostCenter).innerHTML = text
+    }
+
+    function changeDivision( costCenter , division ){
+
+        if( division === "ทั้งหมด" ){
+            let thisCostCenter = mainData.filter( function(e){
+                return  e.CostCenter == costCenter
+            } )
+
+            const data = [{
+                divisionInCostCenter : thisCostCenter[0].divisionInCostCenter , 
+                StastDate : thisCostCenter[0].StastDate , 
+                EndDate: thisCostCenter[0].EndDate ,
+                CostCenter: thisCostCenter[0].CostCenter,
+                ExpresswayTotalPrice: thisCostCenter[0].ExpresswayTotalPrice,
+                RefuelingTotalPrice: thisCostCenter[0].RefuelingTotalPrice ,
+                CarRentTotalPrice: thisCostCenter[0].CarRentTotalPrice,
+                Expressway: thisCostCenter[0].Expressway,
+                Refueling: thisCostCenter[0].Refueling ,
+                CarRent: thisCostCenter[0].CarRent
+            }]
+            
+            generateDataSubCard(data)
+            return
+        }
+
+        let thisCostCenter = mainData.filter( function(e){
+            return  e.CostCenter == costCenter
+        } )
+        let thisCostCenter_Refueling = thisCostCenter[0].Refueling
+        let thisCostCenterAndThisDivision_RefuelingDoc = thisCostCenter_Refueling.filter( function(e){
+            return  e.user_division == division
+        } )
+        let thisCostCenterAndThisDivision_RefuelingPrice = 0
+        thisCostCenterAndThisDivision_RefuelingDoc.map( item => {
+            thisCostCenterAndThisDivision_RefuelingPrice += (+item.rrm_total_change_cost)
+        } )
+
+        let thisCostCenter_Expressway = thisCostCenter[0].Expressway
+        let thisCostCenterAndThisDivision_ExpresswayDoc = thisCostCenter_Expressway.filter( function(e){
+            return  e.user_division == division
+        } )
+        let thisCostCenterAndThisDivision_ExpresswayPrice = 0
+        thisCostCenterAndThisDivision_ExpresswayDoc.map( item => {
+            thisCostCenterAndThisDivision_ExpresswayPrice += (+item.rer_price)
+        } )
+
+        let thisCostCenter_CarRent = thisCostCenter[0].CarRent
+        let thisCostCenterAndThisDivision_CarRentDoc = thisCostCenter_CarRent.filter( function(e){
+            return  e.user_division == division
+        } )
+        let thisCostCenterAndThisDivision_CarRentPrice = 0
+        thisCostCenterAndThisDivision_CarRentDoc.map( item => {
+            thisCostCenterAndThisDivision_CarRentPrice += (+item.cds_car_price_rate)
+        } )
+
+        const data = [{
+            divisionInCostCenter : thisCostCenter[0].divisionInCostCenter , 
+            StastDate : thisCostCenter[0].StastDate , 
+            EndDate: thisCostCenter[0].EndDate ,
+            CostCenter: thisCostCenter[0].CostCenter,
+            ExpresswayTotalPrice: thisCostCenterAndThisDivision_ExpresswayPrice,
+            RefuelingTotalPrice: thisCostCenterAndThisDivision_RefuelingPrice ,
+            CarRentTotalPrice: thisCostCenterAndThisDivision_CarRentPrice,
+            Expressway: thisCostCenterAndThisDivision_ExpresswayDoc,
+            Refueling: thisCostCenterAndThisDivision_RefuelingDoc ,
+            CarRent: thisCostCenterAndThisDivision_CarRentDoc
+        }]
+        
+        generateDataSubCard(data)
+        
+    }
+
+    function SubmitFilter(){
+        const StastTimestamp = document.getElementById("filter_time_start").value === "" ? "-" : new Date(document.getElementById("filter_time_start").value).getTime()
+        const EndTimestamp = document.getElementById("filter_time_end").value === "" ? "-" : new Date(document.getElementById("filter_time_end").value).getTime()
+
+        window.location.replace( "/reportCostCenter/" + StastTimestamp + "/" + EndTimestamp )
+    }
+
+    function ViewCarRentHistory( element ){
+        const data = JSON.parse(element.dataset.carrenthistory);
+        console.log(data)
+        document.getElementById( "modal_detail_header" ).innerText = element.dataset.costCenter
+        let tableText = ""
+        if( data.length === 0 ){
+            SetCarRentHistory(tableText)
+        }else{
+            for( let i = 0 ; i < data.length ; i++ ){
+                let index = i + 1
+                tableText += `
+                <tr>
+                    <td>
+                        <a href="/car_rent_document_approve_view/${btoa(data[i].cdm_id)}" target="_blank">
+                            ${index} 
+                        </a>
+                    </td>
+                    <td>${set_date_templece(data[i].cds_date , "" , "th_long" , false)} (${data[i].cds_phase})</td>
+
+                    <td>${data[i].user_nane_en} ${data[i].user_surname_en}</td>
+                    <td>${data[i].user_email}</td>
+                    <td>${data[i].user_division}</td>
+
+                    <td>${data[i].car_registration_code}</td>
+                    <td>${data[i].car_name}</td>
+
+                    <td>${data[i].cdm_destination_location || ""}</td>
+                    <td>${data[i].cdm_for_what || ""}</td>
+                    <td style="text-align: end;">${(data[i].car_rent_price_per_halfday||"").toLocaleString("th-TH") || ""} บาท</td>
+                </tr>`
+
+                if( i === data.length - 1 ){
+                    SetCarRentHistory(tableText)
+                }
+            }
+        }
+    }
+
+    function SetCarRentHistory(tableText){
+        document.getElementById("modal_detail_content").innerHTML = `
+        <table id="main_table" class="table table-hover table-bordered" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="5%">#</th>
+                    <th colspan="1" >วันที่ทำรายการ</th>
+                    <th colspan="3" >ข้อมูลพนักงาน</th>
+                    <th colspan="2" >ข้อมูลรถยนต์</th>
+                    <th colspan="3" >ข้อมูลการทำรายการ</th>
+                </tr>
+                <tr>
+                    <th width="5%">#</th>
+                    <th>วันที่จ่าย</th>
+
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>อีเมล</th>
+                    <th>แผนก</th>
+
+                    <th>ทะเบียนรถยนต์</th>
+                    <th>ชื่อรถยนต์</th>
+
+                    <th>ไปสถานที่</th>
+                    <th>ไปเพื่อ</th>
+                    <th>ราคา</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableText}
+            </tbody>
+        </table>`
+
+        setTimeout( () => {
+            $('#main_table').DataTable({
+                "destroy": true,
+                "retrieve":true,
+                "stateSave": true,
+                fixedColumns:   {
+                    left: 0 ,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true, 
+                "lengthChange": true, 
+                "searching": true,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "57.7vh" 
+            })
+        } , 350 )
+    }
+
+    function ViewRefuelingHistory(element){
+        const data = JSON.parse(element.dataset.refueling);
+        document.getElementById( "modal_detail_header" ).innerText = element.dataset.costCenter
+        let tableText = ""
+
+        if( data.length === 0 ){
+            SetRefuelingHistory(tableText)
+        }else{
+            for( let i = 0 ; i < data.length ; i++ ){
+                let index = i + 1
+                tableText += `
+                <tr>
+                    <td>
+                        <a href="/car_rent_document_approve_view/${btoa(data[i].cdm_id)}" target="_blank">
+                            ${index} 
+                        </a>
+                    </td>
+                    <td>${set_date_templece(data[i].rrm_Transaction_Date , "" , "th_long" , false)} ${data[i].rrm_Transaction_Time} </td>
+
+                    <td>${data[i].user_nane_en} ${data[i].user_surname_en}</td>
+                    <td>${data[i].user_email}</td>
+                    <td>${data[i].user_division}</td>
+
+                    <td>${data[i].car_registration_code}</td>
+                    <td>${data[i].car_name}</td>
+
+                    <td>${data[i].rrm_Fleet_Card_Number || ""}</td>
+                    <td>${data[i].rrm_Merchant_Address || ""}</td>
+                    <td>${data[i].rrm_Merchant_Br || ""}</td>
+                    <td>${data[i].rrm_Total_Amount || ""}</td>
+
+                    <td style="text-align: end;" >${(data[i].rrm_total_change_cost||"").toLocaleString("th-TH") || ""} บาท</td>
+                </tr>`
+
+                if( i === data.length - 1 ){
+                    SetRefuelingHistory(tableText)
+                }
+            }
+        }
+    }
+
+    function SetRefuelingHistory(tableText){
+        document.getElementById("modal_detail_content").innerHTML = `
+        <table id="main_table" class="table table-hover table-bordered" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="5%">#</th>
+                    <th colspan="1" >วันที่ทำรายการ</th>
+                    <th colspan="3" >ข้อมูลพนักงาน</th>
+                    <th colspan="2" >ข้อมูลรถยนต์</th>
+                    <th colspan="5" >ข้อมูลการทำรายการ</th>
+                </tr>
+                <tr>
+                    <th width="5%">#</th>
+                    <th>วันที่จ่าย</th>
+
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>อีเมล</th>
+                    <th>แผนก</th>
+
+                    <th>ทะเบียนรถยนต์</th>
+                    <th>ชื่อรถยนต์</th>
+
+                    <th>เลขการ์ด Fleet Card</th>
+                    <th>สถานที่</th>
+                    <th>สาขา</th>
+                    <th>ราคา</th>
+                    <th>ราคาเฉลี่ย</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableText}
+            </tbody>
+        </table>`
+
+        setTimeout( () => {
+            $('#main_table').DataTable({
+                "destroy": true,
+                "retrieve":true,
+                "stateSave": true,
+                fixedColumns:   {
+                    left: 0 ,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true, 
+                "lengthChange": true, 
+                "searching": true,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "57.7vh" 
+            })
+        } , 350 )
+    }
+
+    function ViewExpressWayHistory( element ){
+        console.log(element.dataset.expressway)
+
+        const data = JSON.parse(element.dataset.expressway);
+        console.log(data)
+        document.getElementById( "modal_detail_header" ).innerText = element.dataset.costCenter
+        let tableText = ""
+        if( data.length === 0 ){
+            SetExpressWayHistory(tableText)
+        }else{
+            for( let i = 0 ; i < data.length ; i++ ){
+                let index = i + 1
+                tableText += `
+                <tr>
+                    <td>
+                        <a href="/car_rent_document_approve_view/${btoa(data[i].cdm_id)}" target="_blank">
+                            ${index} 
+                        </a>
+                    </td>
+                    <td>${set_date_templece(data[i].rer_pay_date , "" , "th_long" , true)}</td>
+
+                    <td>${data[i].user_nane_en} ${data[i].user_surname_en}</td>
+                    <td>${data[i].user_email}</td>
+                    <td>${data[i].user_division}</td>
+
+                    <td>${data[i].rer_smart_card_number}</td>
+                    <td>${data[i].car_name}</td>
+
+                    <td>${data[i].car_fuel_card_code || ""}</td>
+                    <td>${data[i].rer_location || ""}</td>
+                    <td style="text-align: end;" >${(data[i].rer_price||"").toLocaleString("th-TH") || ""} บาท</td>
+                </tr>`
+
+                if( i === data.length - 1 ){
+                    SetExpressWayHistory(tableText)
+                }
+            }
+        }
+    }
+
+    function SetExpressWayHistory(tableText){
+        document.getElementById("modal_detail_content").innerHTML = `
+        <table id="main_table" class="table table-hover table-bordered" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="5%">#</th>
+                    <th colspan="1" >วันที่ทำรายการ</th>
+                    <th colspan="3" >ข้อมูลพนักงาน</th>
+                    <th colspan="2" >ข้อมูลรถยนต์</th>
+                    <th colspan="3" >ข้อมูลการทำรายการ</th>
+                </tr>
+                <tr>
+                    <th width="5%">#</th>
+                    <th>วันที่จ่าย</th>
+
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>อีเมล</th>
+                    <th>แผนก</th>
+
+                    <th>ทะเบียนรถยนต์</th>
+                    <th>ชื่อรถยนต์</th>
+
+                    <th>เลขการ์ด</th>
+                    <th>สถานที่</th>
+                    <th>ราคา</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableText}
+            </tbody>
+        </table>`
+
+        setTimeout( () => {
+            $('#main_table').DataTable({
+                "destroy": true,
+                "retrieve":true,
+                "stateSave": true,
+                fixedColumns:   {
+                    left: 0 ,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true, 
+                "lengthChange": true, 
+                "searching": true,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "57.7vh" 
+            })
+        } , 350 )
+    }
+
+</script>

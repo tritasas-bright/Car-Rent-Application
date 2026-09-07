@@ -79,9 +79,12 @@ let data = [
     }
   ];
   
-  let emails = data.map(item => item.iso_email).join('; ');
-  
-  console.log(emails); // 'tritasas@italthaiengineering.com; bright@italthaiengineering.com'
+let emails = data.map(item => item.iso_email).join('; ');
+
+console.log(emails); // 'tritasas@italthaiengineering.com; bright@italthaiengineering.com'
+
+let str = "apple,banana,orange";
+let arr = str.split(",");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

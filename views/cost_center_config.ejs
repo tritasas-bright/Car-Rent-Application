@@ -1,0 +1,335 @@
+<%- include("1_header.ejs") %>
+
+<div class='dashboard-content'>
+    <div class='container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h4>Cost Center</h4>
+            </div>
+            <div class='card-body'>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 15px;">
+                        <button onclick="" data-bs-toggle="modal" data-bs-target="#modal_add_cost_center" style="color: white; font-weight: 700;" type="button" class="btn btn-info btn-function">
+                            <i class="fa-solid fa-envelopes-bulk" style="margin-right: 0.2rem;"></i>
+                            เพิ่ม Cost Center
+                        </button>
+                    </div>
+                    <% index = 1 %>
+                    <% cost_center_data.forEach( function(e) { %>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 3vh;">
+                            <div class='card'>
+                                <div class='card-header' style="background-color: white !important;">
+                                    <h4 style="color: #02274c !important;" ><%= e.cc_cost_center_id %> <%= e.cc_cost_center_name ? `(${e.cc_cost_center_name})` : "" %></h4>
+                                </div>
+                                <div class='card-body'>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 7px;">
+                                            
+                                            <% if( e.cc_cost_center_description ){ %>
+                                                <div style="margin-bottom: 8px;">
+                                                    <span>
+                                                        <%= e.cc_cost_center_description %>
+                                                    </span>
+                                                </div>
+                                            <% }else{ %>
+                                            <% } %>
+
+                                            <button onclick="{set_table( `division_table` , 200 ); set_cost_center_seleted_now('<%= e.cc_id %>' , '<%= e.cc_cost_center_id %>')}" data-bs-toggle="modal" data-bs-target="#modal_add_division" style="color: white; font-weight: 700; margin-bottom: 8px;" type="button" class="btn btn-info btn-function">
+                                                <i class="fa-solid fa-braille" style="margin-right: 0.2rem;"></i>
+                                                เพิ่มแผนก/โครงการ
+                                            </button>
+
+                                            <div class="row">
+                                                <% index = 1 %>
+                                                <% e.division_in_this.forEach( function(i) { %>
+                                                    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 0px; margin-top: 10px;">
+                                                        <div class="input-group mb-3">
+                                                            <input disabled type="text" class="form-control" value="<%= i.div_name %>">
+                                                            <button onclick="delete_division('<%= i.div_id %>' , '<%= i.div_name %>' , '<%= e.cc_cost_center_id %>')" class="btn btn-outline-danger" type="button" id="button-addon2">
+                                                                <i class="fa-solid fa-xmark"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                <% index++ } ) %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% index++ } ) %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("2_footer.ejs") %>
+
+<div class="modal fade" id="modal_add_division" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">รายการแผนก/โครงการ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                        <table id="division_table" class="table table-hover table-bordered" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="40%">แผนก/โครงการ</th>
+                                    <th width="40%">Cost Center Id ในปัจจุบัน</th>
+                                    <th width="15%">Cost Center ในปัจจุบัน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% index = 1 %>
+                                <% division_data.forEach( function(e) { %>
+                                    <tr>
+                                        <td>
+                                            <a style="cursor: pointer;" onclick="insert_division_to_cost_center('<%= e.div_id %> ', '<%= e.div_name %>')">
+                                                <button type="button" class="btn btn-success btn-icon">
+                                                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                                </button>
+                                            </a>
+                                        </td>
+                                        <td><%= e.div_name %></td>
+                                        <td><%= e.cc_cost_center_id %></td>
+                                        <td><%= e.cc_cost_center_name %></td>
+                                    </tr>
+                                <% index++ } ) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_add_cost_center" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">ระบุข้อมูล Cost Center</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="submit_add_cost_center(event)" >
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <label for=""> <span class="red">*</span> รหัส Cost Center</label>
+                            <input required id="cc_cost_center_id" value="" type="text" name="" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6" style="margin-bottom: 1.5vh;">
+                            <label for="">ชื่อ Cost Center</label>
+                            <input id="cc_cost_center_name" value="" type="text" name="" class="form-control">
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="margin-bottom: 1.5vh;">
+                            <label for="">รายละเอียด</label>
+                            <input id="cc_cost_center_description" value="" type="text" name="" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function delete_division( division_id , division_name , cost_center_id ){
+        Swal.fire({
+                title: "ยืนยันการลบ",
+                html: `ยืนยันการลบ <br> แผนก/โครงการ : ${division_name} <br> ใน Cost Center : ${cost_center_id} <br> หรือไม่ ?`,
+                icon: "question",
+
+                showCancelButton: true,
+                confirmButtonColor: "#D04848",
+                confirmButtonText: "ยืนยัน, ลบ",
+                cancelButtonColor: "#6c757d",
+                cancelButtonText: "ปิด",
+
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/CostCenter/DeleteDivision',
+                        data: { division_id : division_id },
+                        success: function (result) {
+                            if( result.message === "success" ){
+                                Swal.fire({
+                                    title: "สำเร็จ !",
+                                    text: "" ,
+                                    icon: "success" , 
+                                    timer : 1000
+                                });
+                                setTimeout( () => window.location.reload() , 1000 )
+                            }
+                        },
+                        error: function (error) {
+                            console.log("error with Ajax");
+                            console.log(error);
+                            Swal.fire({
+                                title: "error" ,
+                                text: error ,
+                                icon: "error" , 
+                            });
+                        }
+                    });
+                }
+            } )
+    }
+
+    function insert_division_to_cost_center( division_id = "" , division_name ){
+        if( cc_id_seleted === "" && division_id === "" ){
+            alert("error กรุณาเลือกใหม่")
+        }else{
+            let data = {
+                division_id : division_id , 
+                cc_id : cc_id_seleted
+            }
+
+            Swal.fire({
+                title: "ยืนยันรายการ",
+                html: `ยืนยันการเพิ่ม <br> แผนก/โครงการ : ${division_name} <br> ใน Cost Center : ${cost_center_id_seleted} <br> หรือไม่ ?`,
+                icon: "question",
+
+                showCancelButton: true,
+                confirmButtonColor: "#13a787",
+                confirmButtonText: "ยืนยัน, บันทึก",
+                cancelButtonColor: "#6c757d",
+                cancelButtonText: "ปิด",
+
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/CostCenter/AddDivision',
+                        data: data,
+                        success: function (result) {
+                            if( result.message === "success" ){
+                                Swal.fire({
+                                    title: "สำเร็จ !",
+                                    text: "" ,
+                                    icon: "success" , 
+                                    timer : 1000
+                                });
+                                setTimeout( () => window.location.reload() , 1000 )
+                            }
+                        },
+                        error: function (error) {
+                            console.log("error with Ajax");
+                            console.log(error);
+                            Swal.fire({
+                                title: "error" ,
+                                text: error ,
+                                icon: "error" , 
+                            });
+                        }
+                    });
+                }
+            } )
+        }
+    }
+
+    let cc_id_seleted = ""
+    let cost_center_id_seleted = ""
+
+    function set_cost_center_seleted_now( cc_id , cost_center_id ){
+        cc_id_seleted = cc_id
+        cost_center_id_seleted = cost_center_id
+
+        console.log(cc_id_seleted)
+        console.log(cost_center_id_seleted)
+    }
+
+    function submit_add_cost_center(event){
+        event.preventDefault()
+
+        let data = {
+            cost_center_id : document.getElementById("cc_cost_center_id").value , 
+            cost_center_name : document.getElementById("cc_cost_center_name").value , 
+            cost_center_description : document.getElementById("cc_cost_center_description").value , 
+        }
+
+        Swal.fire({
+            title: "ยืนยันเพิ่ม Cost Center ใหม่",
+            text: `ยืนยันเพิ่ม Cost Center ใหม่ หรือไม่ ?`,
+            icon: "question",
+
+            showCancelButton: true,
+            confirmButtonColor: "#13a787",
+            confirmButtonText: "ยืนยัน, บันทึก",
+            cancelButtonColor: "#6c757d",
+            cancelButtonText: "ปิด",
+
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/CostCenter/Craete',
+                    data: data,
+                    success: function (result) {
+                        if( result.message === "success" ){
+                            Swal.fire({
+                                title: "สำเร็จ !",
+                                text: "" ,
+                                icon: "success" , 
+                                timer : 1000
+                            });
+                            setTimeout( window.location.reload() , 1000 )
+                        }else{
+                            Swal.fire({
+                                title: result.message ,
+                                text: result.result ,
+                                icon: "error" , 
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        console.log("error with Ajax");
+                        console.log(error);
+                        Swal.fire({
+                            title: "error" ,
+                            text: error ,
+                            icon: "error" , 
+                        });
+                    }
+                });
+            }
+        } )
+    }
+
+    function set_table( table_name , delay_time ){
+        setTimeout( () => {
+            $(`#${table_name}`).DataTable({
+                "destroy": true,
+                "retrieve":true,
+                "stateSave": true,
+                fixedColumns:   {
+                    left: 2 ,
+                    right: 0
+                },
+                "paging": true,
+                "scrollCollapse": true,
+                "responsive": true, 
+                "lengthChange": true, 
+                "searching": true,
+                "autoWidth": true,
+                "ordering": true,
+                "info": true,
+                "scrollX": true,
+                "scrollY": "46vh" 
+            })
+        } , delay_time )
+    }
+
+</script>
